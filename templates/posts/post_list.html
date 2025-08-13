@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Posts - Freespaces{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Latest Posts</h1>
+        {% if user.is_authenticated %}
+            <a href="{% url 'posts:create' %}" 
+               class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+                Create Post
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <form method="get" class="flex gap-4">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ search_query|default:'' }}" 
+                       placeholder="Search posts..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="w-48">
+                <select name="category" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}" 
+                                {% if category.name == current_category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" 
+                    class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Posts Grid -->
+    {% if posts %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for post in posts %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                             class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                            <span class="text-gray-400">No Image</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            {% if post.category %}
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                    {{ post.category.name }}
+                                </span>
+                            {% endif %}
+                            <span class="text-gray-500 text-sm">{{ post.published_at|date:"M d, Y" }}</span>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold mb-2 text-gray-900">
+                            <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        
+                        <p class="text-gray-600 text-sm mb-3">{{ post.excerpt }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 text-sm">by {{ post.author.username }}</span>
+                            <a href="{{ post.get_absolute_url }}" 
+                               class="text-blue-500 text-sm hover:underline">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <div class="text-gray-500 mb-4">
+                {% if search_query %}
+                    No posts found for "{{ search_query }}"
+                {% elif current_category %}
+                    No posts found in "{{ current_category }}" category
+                {% else %}
+                    No posts available yet
+                {% endif %}
+            </div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'posts:create' %}" 
+                   class="text-blue-500 hover:underline">Create the first post!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
