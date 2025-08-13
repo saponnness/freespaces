@@ -13,16 +13,20 @@
                 <div class="flex items-center">
                     <h1 class="text-xl font-bold text-gray-900">Freespaces</h1>
                 </div>
+                <!-- Navigation Links -->
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'feeds:home' %}" class="text-gray-700 hover:text-gray-900">Home</a> 
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-gray-900">Profile</a>
-                        <a href="{% url 'accounts:logout' %}" class="text-gray-700 hover:text-gray-900">Logout</a>
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-gray-900">Login</a>
-                        <a href="{% url 'accounts:register' %}" class="text-gray-700 hover:text-gray-900">Sign Up</a>
-                    {% endif %}
-                </div>
+                <a href="{% url 'feeds:home' %}" class="text-gray-700 hover:text-gray-900">Home</a>
+                <a href="{% url 'posts:list' %}" class="text-gray-700 hover:text-gray-900">Posts</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'posts:create' %}" class="text-gray-700 hover:text-gray-900">Create</a>
+                    <a href="{% url 'posts:my_posts' %}" class="text-gray-700 hover:text-gray-900">My Posts</a>
+                    <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-gray-900">Profile</a>
+                    <a href="{% url 'accounts:logout' %}" class="text-gray-700 hover:text-gray-900">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-gray-900">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="text-gray-700 hover:text-gray-900">Sign Up</a>
+                {% endif %}
+            </div>
 
             </div>
         </div>
