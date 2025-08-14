@@ -45,8 +45,17 @@
         {{ post.content|linebreaks }}
     </div>
 
+    <!-- Like Button -->
+    <div class="flex items-center justify-between border-t border-b py-4 mb-6">
+        {% include 'includes/like_button.html' %}
+        
+        <div class="text-gray-500 text-sm">
+            Published {{ post.published_at|date:"F d, Y" }}
+        </div>
+    </div>
+
     <!-- Back to Posts -->
-    <div class="border-t pt-6">
+    <div class="pt-6">
         <a href="{% url 'posts:list' %}" 
            class="text-blue-500 hover:underline">← Back to all posts</a>
     </div>

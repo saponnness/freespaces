@@ -36,5 +36,67 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Like Button Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // CSRF token for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+        
+        // Handle like button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.like-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.like-btn');
+                const postId = button.dataset.postId;
+                
+                fetch(`/interactions/like/${postId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const likeContainer = button.closest('.like-container');
+                    const heartIcon = button.querySelector('svg');
+                    const countSpan = button.querySelector('.like-count');
+                    
+                    // Update count
+                    countSpan.textContent = data.like_count;
+                    
+                    // Update heart appearance
+                    if (data.liked) {
+                        heartIcon.classList.add('text-red-500', 'fill-current');
+                        button.classList.add('text-red-500');
+                    } else {
+                        heartIcon.classList.remove('text-red-500', 'fill-current');
+                        button.classList.remove('text-red-500');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    });
+    </script>
+    {% endblock %}
 </body>
 </html>

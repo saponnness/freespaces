@@ -73,10 +73,13 @@
                         
                         <p class="text-gray-600 text-sm mb-3">{{ post.excerpt }}</p>
                         
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between"> 
                             <span class="text-gray-500 text-sm">by {{ post.author.username }}</span>
-                            <a href="{{ post.get_absolute_url }}" 
-                               class="text-blue-500 text-sm hover:underline">Read More</a>
+                            <div class="flex items-center space-x-3">
+                                {% include 'includes/like_button.html' %}
+                                <a href="{{ post.get_absolute_url }}" 
+                                class="text-blue-500 text-sm hover:underline">Read More</a>
+                            </div>
                         </div>
                     </div>
                 </div>
