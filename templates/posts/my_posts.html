@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}My Posts - Freespaces{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">My Posts</h1>
+        <a href="{% url 'posts:create' %}" 
+           class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+            Create New Post
+        </a>
+    </div>
+
+    {% if posts %}
+        <div class="space-y-4">
+            {% for post in posts %}
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                
+                                {% if post.status == 'draft' %}
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                        Draft
+                                    </span>
+                                {% else %}
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                        Published
+                                    </span>
+                                {% endif %}
+                                
+                                {% if post.category %}
+                                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                        {{ post.category.name }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-gray-600 mb-3">{{ post.excerpt }}</p>
+                            
+                            <div class="text-sm text-gray-500">
+                                Created: {{ post.created_at|date:"M d, Y" }}
+                                {% if post.published_at %}
+                                    | Published: {{ post.published_at|date:"M d, Y" }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 ml-4">
+                            <a href="{{ post.get_absolute_url }}" 
+                               class="text-blue-500 hover:underline text-sm">View</a>
+                            <a href="{% url 'posts:edit' pk=post.pk %}" 
+                               class="text-green-500 hover:underline text-sm">Edit</a>
+                            <a href="{% url 'posts:delete' pk=post.pk %}" 
+                               class="text-red-500 hover:underline text-sm">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <div class="text-gray-500 mb-4">You haven't created any posts yet</div>
+            <a href="{% url 'posts:create' %}" 
+               class="text-blue-500 hover:underline">Create your first post!</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
