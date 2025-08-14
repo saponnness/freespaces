@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('feeds.urls')),
     path('accounts/', include('accounts.urls')),
     path('posts/', include('posts.urls')),
+    path('interactions/', include('interactions.urls')),
 ]
 
 # Serve media files during development
