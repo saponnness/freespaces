@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile.user.username }} - Freespaces{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+            <!-- Avatar -->
+            <div class="flex-shrink-0">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}" 
+                         class="w-24 h-24 rounded-full object-cover">
+                {% else %}
+                    <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center">
+                        <span class="text-gray-600 text-2xl font-bold">
+                            {{ profile.user.username|first|upper }}
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Profile Info -->
+            <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                    {% if profile.user.first_name %}
+                        {{ profile.user.first_name }} {{ profile.user.last_name }}
+                    {% else %}
+                        {{ profile.user.username }}
+                    {% endif %}
+                </h1>
+                
+                <p class="text-gray-600 mb-3">@{{ profile.user.username }}</p>
+                
+                {% if profile.bio %}
+                    <p class="text-gray-700 mb-3">{{ profile.bio }}</p>
+                {% endif %}
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600 mb-4">
+                    {% if profile.location %}
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            {{ profile.location }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if profile.website %}
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                            </svg>
+                            <a href="{{ profile.website }}" target="_blank" 
+                               class="text-blue-500 hover:underline">Website</a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Joined {{ profile.created_at|date:"M Y" }}
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex justify-center md:justify-start gap-6 mb-4">
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-gray-900">{{ profile.posts_count }}</div>
+                        <div class="text-gray-600 text-sm">Posts</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-gray-900">{{ profile.likes_received }}</div>
+                        <div class="text-gray-600 text-sm">Likes</div>
+                    </div>
+                </div>
+                
+                {% if user == profile.user %}
+                    <a href="{% url 'accounts:edit_profile' %}" 
+                       class="inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+                        Edit Profile
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- User's Posts -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+            {% if user == profile.user %}
+                My Posts
+            {% else %}
+                Posts by {{ profile.user.username }}
+            {% endif %}
+        </h2>
+        
+        {% if profile.user.posts.all %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for post in profile.user.posts.all %}
+                    {% if post.status == 'published' or user == profile.user %}
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200">
+                            {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                     class="w-full h-40 object-cover">
+                            {% else %}
+                                <div class="w-full h-40 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                    <span class="text-white font-medium">{{ post.category.name|default:"Post" }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    {% if post.category %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                            {{ post.category.name }}
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if post.status == 'draft' %}
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                            Draft
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <h3 class="text-lg font-semibold mb-2 text-gray-900">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                
+                                <p class="text-gray-600 text-sm mb-3">{{ post.excerpt }}</p>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">{{ post.created_at|date:"M d, Y" }}</span>
+                                    {% if post.status == 'published' %}
+                                        <div class="flex items-center text-gray-600">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.682l-1.318-1.364a4.5 4.5 0 00-6.364 0z"/>
+                                            </svg>
+                                            {{ post.likes.count }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8 text-gray-500">
+                {% if user == profile.user %}
+                    You haven't created any posts yet.
+                    <div class="mt-2">
+                        <a href="{% url 'posts:create' %}" class="text-blue-500 hover:underline">Create your first post!</a>
+                    </div>
+                {% else %}
+                    {{ profile.user.username }} hasn't published any posts yet.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
