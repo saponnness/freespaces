@@ -31,7 +31,11 @@
                         <a href="{% url 'posts:create' %}" class="text-gray-700 hover:text-gray-900">Create</a>
                         <a href="{% url 'posts:my_posts' %}" class="text-gray-700 hover:text-gray-900">My Posts</a>
                         <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-gray-900">Profile</a>
-                        <a href="{% url 'accounts:logout' %}" class="text-gray-700 hover:text-gray-900">Logout</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-700 hover:text-gray-900">Logout</button>
+                        </form>
+
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-gray-900">Login</a>
                         <a href="{% url 'accounts:register' %}" class="text-gray-700 hover:text-gray-900">Sign Up</a>
