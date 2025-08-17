@@ -1,35 +1,48 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
-{% block title %}Register - Freespaces{% endblock %}
+{% block title %}Join Freespaces{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-    <h2 class="text-2xl font-bold text-center mb-6">Join Freespaces</h2>
-    
-    <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    {% for error in field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ error }}</p>
-                    {% endfor %}
-                {% endif %}
+<div class="max-w-md mx-auto">
+    <div class="glass-effect rounded-3xl shadow-lg p-8">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-pink-400 flex items-center justify-center mx-auto mb-4">
+                <span class="text-white font-bold text-2xl">F</span>
             </div>
-        {% endfor %}
+            <h2 class="text-2xl font-bold gradient-text">Join Freespaces</h2>
+            <p class="text-gray-600 mt-2">Start sharing your creative journey today</p>
+        </div>
         
-        <button type="submit" 
-                class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200">
-            Create Account
-        </button>
-    </form>
-    
-    <div class="mt-4 text-center">
-        <p class="text-gray-600">Already have an account? 
-            <a href="{% url 'accounts:login' %}" class="text-blue-500 hover:underline">Login here</a>
-        </p>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">{{ field.label }}</label>
+                    <div class="relative">
+                        {{ field|add_class:"w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-white/80" }}
+                        {% if field.errors %}
+                            <div class="absolute -bottom-6 left-0">
+                                {% for error in field.errors %}
+                                    <p class="text-red-500 text-xs">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <button type="submit" 
+                    class="w-full bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold mt-8">
+                Create Account
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-gray-600">Already have an account? 
+                <a href="{% url 'accounts:login' %}" class="text-amber-600 hover:text-pink-600 font-semibold transition-colors">Login here</a>
+            </p>
+        </div>
     </div>
 </div>
 {% endblock %}

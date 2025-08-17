@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'accounts',
     'posts',
     'interactions',
+
+    # Other apps
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

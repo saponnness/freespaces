@@ -73,3 +73,23 @@ input:focus, select:focus, textarea:focus {
     border-color: #fbbf24;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
 }
+
+/* Enhanced form styles for registration */
+.form-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-field {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* Password strength indicator styles */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+}
