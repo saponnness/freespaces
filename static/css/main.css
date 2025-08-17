@@ -55,3 +55,21 @@ body {
     outline: none;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
 }
+
+/* Button Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #fbbf24, #ec4899);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);
+}
+
+/* Form focus states and transitions */
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
