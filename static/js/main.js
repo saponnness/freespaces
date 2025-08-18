@@ -239,3 +239,134 @@ function calculatePasswordStrength(password) {
     if (/[^A-Za-z0-9]/.test(password)) strength++;
     return strength;
 }
+
+// Like Button Functionality
+function initLikeButtons() {
+    document.addEventListener('click', function(e) {
+        const likeButton = e.target.closest('.like-btn');
+        if (likeButton) {
+            e.preventDefault();
+            handleLikeClick(likeButton);
+        }
+        
+        // Handle any heart icon clicks
+        if (e.target.closest('button') && e.target.closest('button').querySelector('svg path[d*="M4.318"]')) {
+            e.preventDefault();
+            const button = e.target.closest('button');
+            handleHeartClick(button);
+        }
+    });
+}
+
+function handleLikeClick(button) {
+    const postId = button.dataset.postId;
+    
+    // If we have a post ID, make AJAX request
+    if (postId) {
+        fetch(`/interactions/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateLikeButton(button, data.liked, data.like_count);
+            createFloatingHeart(button);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback to local toggle
+            toggleLikeButton(button);
+        });
+    } else {
+        // Fallback to local toggle
+        toggleLikeButton(button);
+    }
+}
+
+function handleHeartClick(button) {
+    const heartIcon = button.querySelector('svg');
+    const countSpan = button.querySelector('span');
+    
+    // Toggle like state with animation
+    if (heartIcon.classList.contains('fill-current')) {
+        heartIcon.classList.remove('fill-current', 'text-red-500');
+        button.classList.remove('text-red-500');
+        button.classList.add('text-gray-600');
+        if (countSpan) {
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        }
+        
+        // Animate scale down
+        animateButton(button, 0.8);
+    } else {
+        heartIcon.classList.add('fill-current', 'text-red-500');
+        button.classList.add('text-red-500');
+        button.classList.remove('text-gray-600');
+        if (countSpan) {
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        }
+        
+        // Animate heart pop
+        animateButton(button, 1.2);
+        createFloatingHeart(button);
+    }
+}
+
+function updateLikeButton(button, liked, count) {
+    const heartIcon = button.querySelector('svg');
+    const countSpan = button.querySelector('.like-count');
+    
+    // Update count
+    if (countSpan) {
+        countSpan.textContent = count;
+    }
+    
+    // Update heart appearance
+    if (liked) {
+        heartIcon.classList.add('text-red-500', 'fill-current');
+        button.classList.add('text-red-500');
+        button.classList.remove('text-gray-600');
+        animateButton(button, 1.2);
+    } else {
+        heartIcon.classList.remove('text-red-500', 'fill-current');
+        button.classList.remove('text-red-500');
+        button.classList.add('text-gray-600');
+        animateButton(button, 0.8);
+    }
+}
+
+function toggleLikeButton(button) {
+    const heartIcon = button.querySelector('svg');
+    const countSpan = button.querySelector('span');
+    const isLiked = heartIcon.classList.contains('fill-current');
+    
+    if (isLiked) {
+        heartIcon.classList.remove('fill-current', 'text-red-500');
+        button.classList.remove('text-red-500');
+        button.classList.add('text-gray-600');
+        if (countSpan) {
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        }
+        animateButton(button, 0.8);
+    } else {
+        heartIcon.classList.add('fill-current', 'text-red-500');
+        button.classList.add('text-red-500');
+        button.classList.remove('text-gray-600');
+        if (countSpan) {
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        }
+        animateButton(button, 1.2);
+        createFloatingHeart(button);
+    }
+}
+
+function animateButton(button, scale) {
+    button.style.transform = `scale(${scale})`;
+    button.style.transition = 'transform 0.15s ease';
+    setTimeout(() => {
+        button.style.transform = 'scale(1)';
+    }, 150);
+}

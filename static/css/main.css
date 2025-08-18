@@ -93,3 +93,40 @@ input:focus, select:focus, textarea:focus {
     margin-top: 0.5rem;
     transition: all 0.3s ease;
 }
+
+/* Like Button Animations */
+.like-btn {
+    transition: all 0.2s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+.like-btn.liked {
+    color: #ef4444;
+}
+
+.like-btn.liked svg {
+    fill: currentColor;
+}
+
+/* Floating Heart Animation */
+@keyframes floatingHeart {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.5);
+    }
+}
+
+.floating-heart {
+    animation: floatingHeart 1s ease-out forwards;
+    pointer-events: none;
+    position: absolute;
+    font-size: 20px;
+    z-index: 1000;
+}

@@ -1,21 +1,24 @@
 <div class="like-container" data-post-id="{{ post.id }}">
     {% if user.is_authenticated %}
-        <button class="like-btn flex items-center space-x-1 text-gray-600 hover:text-red-500 transition duration-200"
-                data-post-id="{{ post.id }}">
-            <svg class="w-5 h-5 {% if user in post.likes.all %}text-red-500 fill-current{% endif %}" 
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.682l-1.318-1.364a4.5 4.5 0 00-6.364 0z"/>
-            </svg>
-            <span class="like-count">{{ post.likes.count }}</span>
+        <button class="like-btn flex items-center space-x-1 text-gray-600 hover:text-red-500 transition-all duration-200 focus-ring rounded-full p-1 group"
+                data-post-id="{{ post.id }}"
+                aria-label="{% if user in post.likes.all %}Unlike this post{% else %}Like this post{% endif %}">
+            <div class="relative">
+                <svg class="w-4 h-4 {% if user in post.likes.all %}text-red-500 fill-current{% endif %} group-hover:scale-110 transition-transform" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.682l-1.318-1.364a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+            <span class="like-count text-sm font-medium">{{ post.likes.count }}</span>
         </button>
     {% else %}
-        <div class="flex items-center space-x-1 text-gray-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center space-x-1 text-gray-600" title="Login to like posts">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.682l-1.318-1.364a4.5 4.5 0 00-6.364 0z"/>
             </svg>
-            <span>{{ post.likes.count }}</span>
+            <span class="text-sm font-medium">{{ post.likes.count }}</span>
         </div>
     {% endif %}
 </div>
