@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 // Basic form validation and UX improvements
 function initForms() {
     const forms = document.querySelectorAll('form');
@@ -220,6 +221,7 @@ function initForms() {
     });
 }
 
+
 // Password strength validation
 function initPasswordValidation() {
     const passwordField = document.querySelector('input[type="password"]');
@@ -239,6 +241,7 @@ function calculatePasswordStrength(password) {
     if (/[^A-Za-z0-9]/.test(password)) strength++;
     return strength;
 }
+
 
 // Like Button Functionality
 function initLikeButtons() {
@@ -370,6 +373,7 @@ function animateButton(button, scale) {
         button.style.transform = 'scale(1)';
     }, 150);
 }
+
 
 // Category filter functionality
 function initCategoryFilters() {
@@ -506,6 +510,7 @@ function initAnimations() {
     }, 16));
 }
 
+
 // File upload initialization
 function initFileUpload() {
     const fileInput = document.querySelector('input[type="file"]');
@@ -555,5 +560,63 @@ function previewImage(input) {
             }
         }
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
+// Search functionality with debouncing
+function initSearch() {
+    let searchTimeout;
+    const searchInput = document.querySelector('.search-bar');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 300);
+        });
+        
+        // Handle search form submission
+        const searchForm = searchInput.closest('form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch(searchInput.value);
+            });
+        }
+    }
+}
+
+function performSearch(query) {
+    console.log('Searching for:', query);
+    
+    // Add loading state
+    const searchInput = document.querySelector('.search-bar');
+    if (searchInput) {
+        searchInput.style.opacity = '0.7';
+        setTimeout(() => {
+            searchInput.style.opacity = '1';
+        }, 300);
+    }
+    
+    // Here you would typically make an AJAX request to your search endpoint
+    // For now, we'll just log the search query
+    if (query.length > 2) {
+        // Simulate search request
+        fetch(`/feeds/search/?q=${encodeURIComponent(query)}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle search results
+            console.log('Search results:', data);
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+        });
     }
 }

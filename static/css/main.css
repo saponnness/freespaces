@@ -56,6 +56,7 @@ body {
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
 }
 
+
 /* Button Styles */
 .btn-primary {
     background: linear-gradient(135deg, #fbbf24, #ec4899);
@@ -73,6 +74,7 @@ input:focus, select:focus, textarea:focus {
     border-color: #fbbf24;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
 }
+
 
 /* Enhanced form styles for registration */
 .form-error {
@@ -93,6 +95,7 @@ input:focus, select:focus, textarea:focus {
     margin-top: 0.5rem;
     transition: all 0.3s ease;
 }
+
 
 /* Like Button Animations */
 .like-btn {
@@ -130,6 +133,7 @@ input:focus, select:focus, textarea:focus {
     font-size: 20px;
     z-index: 1000;
 }
+
 
 /* Masonry Layout */
 .masonry-image, .masonry-placeholder {
@@ -200,6 +204,7 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
 }
 
+
 /* File upload styles */
 .file-upload-area {
     border: 2px dashed #d1d5db;
@@ -226,4 +231,44 @@ textarea:focus {
     outline: none;
     border-color: #fbbf24;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+
+/* Masonry Item Heights */
+.masonry-image-1, .masonry-placeholder-1 { height: 250px; }
+.masonry-image-2, .masonry-placeholder-2 { height: 252px; }
+.masonry-image-3, .masonry-placeholder-3 { height: 254px; }
+
+/* Search and filter styles */
+.search-container {
+    position: relative;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+}
+
+.filter-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Loading states */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
 }
