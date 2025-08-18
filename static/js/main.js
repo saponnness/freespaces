@@ -163,7 +163,7 @@ function createFloatingHeart(button) {
     // Position relative to button
     const rect = button.getBoundingClientRect();
     heart.style.left = (rect.left + rect.width / 2 - 10) + 'px';
-    heart.style.top = (rect.top - 10) + 'px';
+    heart.style.top = (rect.top + window.scrollY - 10) + 'px';
     
     document.body.appendChild(heart);
     
@@ -369,4 +369,139 @@ function animateButton(button, scale) {
     setTimeout(() => {
         button.style.transform = 'scale(1)';
     }, 150);
+}
+
+// Category filter functionality
+function initCategoryFilters() {
+    document.addEventListener('click', function(e) {
+        const pill = e.target.closest('.tag-pill');
+        if (pill) {
+            e.preventDefault();
+            
+            // Update active state
+            const pills = document.querySelectorAll('.tag-pill');
+            pills.forEach(p => {
+                p.classList.remove('bg-gradient-to-r', 'from-amber-200', 'to-pink-200', 'text-purple-800');
+                p.classList.add('text-purple-700');
+            });
+            
+            pill.classList.add('bg-gradient-to-r', 'from-amber-200', 'to-pink-200', 'text-purple-800');
+            pill.classList.remove('text-purple-700');
+            
+            // Get category from pill text
+            const category = pill.textContent.trim().replace(/[^\w\s]/gi, '').trim();
+            filterByCategory(category);
+        }
+    });
+}
+
+function filterByCategory(category) {
+    console.log('Filtering by category:', category);
+    
+    // Here you would filter the posts or make an AJAX request
+    // For demo purposes, we'll just add a loading effect
+    const grid = document.querySelector('.masonry-grid');
+    if (grid) {
+        grid.style.opacity = '0.5';
+        setTimeout(() => {
+            grid.style.opacity = '1';
+        }, 500);
+    }
+}
+
+// Infinite scroll
+function initInfiniteScroll() {
+    let loading = false;
+    let page = 1;
+    
+    window.addEventListener('scroll', function() {
+        if (loading) return;
+        
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+            loading = true;
+            loadMoreContent();
+        }
+    });
+    
+    function loadMoreContent() {
+        const loadMoreBtn = document.querySelector('button[contains("Load More")]');
+        
+        // Show loading state
+        if (loadMoreBtn) {
+            const originalText = loadMoreBtn.innerHTML;
+            loadMoreBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700 mx-auto"></div>';
+            loadMoreBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Here you would make an actual AJAX request
+                // fetch(`/posts/load-more/?page=${++page}`)
+                
+                loadMoreBtn.innerHTML = originalText;
+                loadMoreBtn.disabled = false;
+                loading = false;
+                
+                console.log('Loaded more content for page:', page);
+                page++;
+            }, 1000);
+        } else {
+            loading = false;
+        }
+    }
+}
+
+// Animation initialization
+function initAnimations() {
+    // Smooth scrolling for navigation
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href^="#"]');
+        if (link) {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+    });
+
+    // Add intersection observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all cards
+    document.querySelectorAll('.masonry-item').forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(item);
+    });
+
+    // Subtle parallax effect for images
+    window.addEventListener('scroll', throttle(function() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.masonry-item img');
+        
+        parallaxElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const speed = 0.05;
+                el.style.transform = `translateY(${scrolled * speed}px)`;
+            }
+        });
+    }, 16));
 }
