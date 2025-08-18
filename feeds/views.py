@@ -6,8 +6,10 @@ from posts.models import Post, Category
 def home(request):
     """Home page view with recent posts"""
     recent_posts = Post.objects.filter(status='published')[:6]
+    categories = Category.objects.all().order_by('name')
     context = {
-        'recent_posts': recent_posts
+        'recent_posts': recent_posts,
+        'categories': categories,
     }
     return render(request, 'feeds/home.html', context)
 

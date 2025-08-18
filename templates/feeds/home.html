@@ -7,8 +7,8 @@
     <!-- Hero Section -->
     <div class="text-center mb-12">
         <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-4">Welcome to Freespaces</h1>
-        <p class="text-xl text-gray-600 mb-8">Discover & share your creative journey through photography, web design, workspace decoration, and more</p>
-        
+        <p class="text-xl text-gray-600 mb-8">Discover & share your creative journey through photography, programming, lifestyle, and more</p>
+
         {% if user.is_authenticated %}
             <a href="{% url 'posts:create' %}" 
                class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-3 rounded-full hover:shadow-lg transition-all duration-200 text-lg font-medium">
@@ -48,26 +48,55 @@
             </div>
         </div>
         
-        <!-- Category Pills -->
-        <div class="flex space-x-3 overflow-x-auto pb-2">
+        <!-- Category Pills - Now with flex-wrap for multiple rows -->
+        <div class="flex flex-wrap gap-3 pb-2">
+            <!-- All Categories Button -->
             <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="all">
                 ✨ All
             </button>
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="photography">
-                📸 Photography
-            </button>
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="web-design">
-                💻 Programmer
-            </button>
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="workspace">
-                🏠 Workspace
-            </button>
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="art-design">
-                🎨 Art & Design
-            </button>
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="lifestyle">
-                🌿 Lifestyle
-            </button>
+            
+            <!-- Dynamic Categories from Database -->
+            {% for category in categories %}
+                <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="{{ category.name|lower }}">
+                    {% if category.name == "Photography" %}
+                        📸
+                    {% elif category.name == "Programming" or category.name == "Web Design" %}
+                        💻
+                    {% elif category.name == "Workspace" %}
+                        🏠
+                    {% elif category.name == "Art & Design" or category.name == "Art" or category.name == "Design" %}
+                        🎨
+                    {% elif category.name == "Lifestyle" %}
+                        🌿
+                    {% elif category.name == "Food" %}
+                        🍜
+                    {% elif category.name == "Travel" %}
+                        ✈️
+                    {% elif category.name == "Music" %}
+                        🎵
+                    {% elif category.name == "Sports" or category.name == "Fitness" %}
+                        ⚽
+                    {% elif category.name == "Gaming" %}
+                        🎮
+                    {% elif category.name == "Books" or category.name == "Reading" %}
+                        📚
+                    {% elif category.name == "Technology" or category.name == "Tech" %}
+                        🔧
+                    {% elif category.name == "Fashion" %}
+                        👗
+                    {% elif category.name == "Business" %}
+                        💼
+                    {% elif category.name == "Education" %}
+                        🎓
+                    {% else %}
+                        🏷️
+                    {% endif %}
+                    {{ category.name }}
+                </button>
+            {% empty %}
+                <!-- Fallback if no categories in database -->
+                <p class="text-gray-500 text-sm">No categories available</p>
+            {% endfor %}
         </div>
     </div>
 
@@ -91,7 +120,39 @@
                             <div class="absolute top-4 left-4">
                                 {% if post.category %}
                                     <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                        {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Programmer" %}💻{% elif post.category.name == "Workspace" %}🏠{% else %}🎨{% endif %}
+                                        {% if post.category.name == "Photography" %}
+                                            📸
+                                        {% elif post.category.name == "Programming" or post.category.name == "Web Design" %}
+                                            💻
+                                        {% elif post.category.name == "Workspace" %}
+                                            🏠
+                                        {% elif post.category.name == "Art & Design" or post.category.name == "Art" or post.category.name == "Design" %}
+                                            🎨
+                                        {% elif post.category.name == "Lifestyle" %}
+                                            🌿
+                                        {% elif post.category.name == "Food" %}
+                                            🍜
+                                        {% elif post.category.name == "Travel" %}
+                                            ✈️
+                                        {% elif post.category.name == "Music" %}
+                                            🎵
+                                        {% elif post.category.name == "Sports" or post.category.name == "Fitness" %}
+                                            ⚽
+                                        {% elif post.category.name == "Gaming" %}
+                                            🎮
+                                        {% elif post.category.name == "Books" or post.category.name == "Reading" %}
+                                            📚
+                                        {% elif post.category.name == "Technology" or post.category.name == "Tech" %}
+                                            🔧
+                                        {% elif post.category.name == "Fashion" %}
+                                            👗
+                                        {% elif post.category.name == "Business" %}
+                                            💼
+                                        {% elif post.category.name == "Education" %}
+                                            🎓
+                                        {% else %}
+                                            🏷️
+                                        {% endif %}
                                         {{ post.category.name }}
                                     </span>
                                 {% endif %}
@@ -153,8 +214,8 @@
             <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span class="text-2xl">💻</span>
             </div>
-            <h3 class="text-xl font-semibold mb-2">Programmer</h3>
-            <p class="text-gray-600">Showcase your coding projects and technical skills</p>
+            <h3 class="text-xl font-semibold mb-2">Programming</h3>
+            <p class="text-gray-600">Showcase your programming tips and technical skills</p>
         </div>
         
         <div class="glass-effect rounded-2xl p-6 text-center card-hover">

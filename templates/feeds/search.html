@@ -3,14 +3,14 @@
 {% block title %}Search{% if query %} - "{{ query }}"{% endif %} - Freespaces{% endblock %}
 
 {% block content %}
-<div class="mb-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
     <!-- Search Header -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold gradient-text mb-4">
             {% if query %}
                 Search Results for "{{ query }}"
             {% else %}
-                Search Posts
+                Discover Amazing Spaces
             {% endif %}
         </h1>
         
@@ -19,62 +19,99 @@
         {% endif %}
     </div>
 
-    <!-- Search Form -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <!-- Enhanced Search Form -->
+    <div class="glass-effect rounded-3xl shadow-lg p-6 mb-8">
         <form method="get">
             <div class="flex gap-4">
-                <div class="flex-1">
+                <div class="flex-1 relative">
                     <input type="text" name="q" value="{{ query|default:'' }}" 
                            placeholder="Search for posts, authors, or categories..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+                           class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent text-lg bg-white/80 pl-12">
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
                 </div>
                 <button type="submit" 
-                        class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+                        class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-4 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
                     Search
                 </button>
             </div>
         </form>
+        
+        <!-- Popular Search Tags -->
+        <div class="mt-6">
+            <p class="text-sm text-gray-600 mb-3">Popular searches:</p>
+            <div class="flex flex-wrap gap-2">
+                <a href="?q=photography" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">📸 Photography</a>
+                <a href="?q=workspace" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🏠 Workspace</a>
+                <a href="?q=design" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🎨 Design</a>
+                <a href="?q=minimal" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">✨ Minimal</a>
+                <a href="?q=creative" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">💡 Creative</a>
+            </div>
+        </div>
     </div>
 
     <!-- Search Results -->
     {% if query %}
         {% if posts %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="masonry-grid">
                 {% for post in posts %}
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200">
-                        {% if post.featured_image %}
-                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
-                                 class="w-full h-48 object-cover">
-                        {% else %}
-                            <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                                <span class="text-white font-medium">{{ post.category.name|default:"Post" }}</span>
-                            </div>
-                        {% endif %}
-                        
-                        <div class="p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                {% if post.category %}
-                                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                        {{ post.category.name }}
-                                    </span>
+                    <div class="masonry-item">
+                        <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
+                            <div class="relative">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                         class="w-full object-cover masonry-image">
+                                {% else %}
+                                    <div class="w-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center masonry-placeholder">
+                                        <span class="text-white font-medium">{{ post.category.name|default:"Post" }}</span>
+                                    </div>
                                 {% endif %}
-                                <span class="text-gray-500 text-sm">{{ post.published_at|date:"M d" }}</span>
+                                
+                                <div class="absolute top-4 left-4">
+                                    {% if post.category %}
+                                        <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                                            {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏠{% else %}🎨{% endif %}
+                                            {{ post.category.name }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="absolute top-4 right-4">
+                                    <span class="bg-white/90 text-gray-600 text-xs px-2 py-1 rounded-full">
+                                        {{ post.published_at|date:"M d" }}
+                                    </span>
+                                </div>
                             </div>
                             
-                            <h3 class="text-lg font-semibold mb-2 text-gray-900">
-                                <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
-                                    {{ post.title }}
-                                </a>
-                            </h3>
-                            
-                            <p class="text-gray-600 text-sm mb-3">{{ post.excerpt }}</p>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-gray-500 text-sm">by {{ post.author.username }}</span>
-                                <div class="flex items-center space-x-3">
-                                    {% include 'includes/like_button.html' %}
-                                    <a href="{{ post.get_absolute_url }}" 
-                                       class="text-blue-500 text-sm hover:underline">Read More</a>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2 leading-tight">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                
+                                <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ post.excerpt }}</p>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        {% if post.author.profile.avatar %}
+                                            <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
+                                                 class="w-6 h-6 rounded-full avatar">
+                                        {% else %}
+                                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
+                                                <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center space-x-4">
+                                        {% include 'includes/like_button.html' %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -82,11 +119,51 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-12">
-                <div class="text-gray-500 mb-4">No posts found for "{{ query }}"</div>
-                <p class="text-gray-400">Try searching with different keywords</p>
+            <div class="glass-effect rounded-3xl p-12 text-center">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <div class="text-gray-500 text-lg mb-2">No posts found for "{{ query }}"</div>
+                <p class="text-gray-400">Try searching with different keywords or explore our popular categories</p>
             </div>
         {% endif %}
+    {% else %}
+        <!-- Empty state with suggestions -->
+        <div class="glass-effect rounded-3xl p-12 text-center">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-amber-100 to-pink-100 flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl">🔍</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Start your search</h3>
+            <p class="text-gray-600 mb-6">Discover amazing creative content from our community</p>
+            
+            <!-- Trending topics -->
+            <div class="text-left max-w-md mx-auto">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Trending topics:</h4>
+                <div class="space-y-2">
+                    <a href="?q=minimalist+workspace" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🏠</span>
+                            <span class="text-gray-700">Minimalist Workspace</span>
+                        </div>
+                    </a>
+                    <a href="?q=photography+tips" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">📸</span>
+                            <span class="text-gray-700">Photography Tips</span>
+                        </div>
+                    </a>
+                    <a href="?q=web+design+inspiration" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">💻</span>
+                            <span class="text-gray-700">Web Design Inspiration</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

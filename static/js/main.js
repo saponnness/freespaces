@@ -620,3 +620,143 @@ function performSearch(query) {
         });
     }
 }
+
+// Social sharing functionality
+function initSocialSharing() {
+    const shareButtons = document.querySelectorAll('[data-share]');
+    
+    shareButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const platform = this.dataset.share;
+            const url = window.location.href;
+            const title = document.title;
+            
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'x':
+                    shareUrl = `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                    break;
+
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        });
+    });
+}
+
+function initReadingProgress() {
+    const progressBar = document.querySelector('.reading-progress');
+    if (progressBar) {
+        window.addEventListener('scroll', function() {
+            const article = document.querySelector('article');
+            if (article) {
+                const articleHeight = article.offsetHeight;
+                const scrolled = window.scrollY;
+                const progress = (scrolled / articleHeight) * 100;
+                progressBar.style.width = Math.min(progress, 100) + '%';
+            }
+        });
+    }
+}
+
+
+function initAdvancedSearch() {
+    const searchForm = document.querySelector('.advanced-search-form');
+    const searchInput = document.querySelector('.search-input');
+    const suggestionsContainer = document.querySelector('.search-suggestions');
+    
+    if (searchInput) {
+        let suggestionTimeout;
+        
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(suggestionTimeout);
+            suggestionTimeout = setTimeout(() => {
+                fetchSearchSuggestions(e.target.value);
+            }, 200);
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (suggestionsContainer) {
+                suggestionsContainer.classList.remove('hidden');
+            }
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsContainer?.contains(e.target)) {
+                suggestionsContainer?.classList.add('hidden');
+            }
+        });
+    }
+}
+
+function fetchSearchSuggestions(query) {
+    if (query.length < 2) return;
+    
+    fetch(`/api/search/suggestions/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            displaySearchSuggestions(data.suggestions);
+        })
+        .catch(error => {
+            console.error('Error fetching suggestions:', error);
+        });
+}
+
+function displaySearchSuggestions(suggestions) {
+    const container = document.querySelector('.search-suggestions');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    suggestions.forEach(suggestion => {
+        const item = document.createElement('div');
+        item.className = 'search-suggestion';
+        item.textContent = suggestion;
+        item.addEventListener('click', function() {
+            document.querySelector('.search-input').value = suggestion;
+            performSearch(suggestion);
+            container.classList.add('hidden');
+        });
+        container.appendChild(item);
+    });
+}
+
+function initSearchFilters() {
+    const filterTags = document.querySelectorAll('.filter-tag');
+    
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            this.classList.toggle('active');
+            updateSearchResults();
+        });
+    });
+}
+
+function updateSearchResults() {
+    const activeFilters = Array.from(document.querySelectorAll('.filter-tag.active'))
+        .map(tag => tag.dataset.filter);
+    
+    const searchQuery = document.querySelector('.search-input').value;
+    
+    // Combine search query with filters
+    const params = new URLSearchParams({
+        q: searchQuery,
+        filters: activeFilters.join(',')
+    });
+    
+    fetch(`/api/search/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            renderSearchResults(data.results);
+        })
+        .catch(error => {
+            console.error('Error updating search results:', error);
+        });
+}
