@@ -3,47 +3,117 @@
 {% block title %}Create Post - Freespaces{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">Create New Post</h1>
+<div class="max-w-2xl mx-auto px-4">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold gradient-text mb-2">Create New Post</h1>
+        <p class="text-gray-600">Share your creative journey with the community</p>
+    </div>
     
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <form method="post" enctype="multipart/form-data">
+    <div class="glass-effect rounded-3xl shadow-lg p-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             
             {% for field in form %}
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                <div class="space-y-2">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
                         {{ field.label }}
                         {% if field.field.required %}
-                            <span class="text-red-500">*</span>
+                            <span class="text-red-500 ml-1">*</span>
                         {% endif %}
                     </label>
-                    {{ field }}
+                    
+                    {% if field.name == 'content' %}
+                        <textarea name="{{ field.name }}" 
+                                  class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white/80 min-h-40 resize-y"
+                                  placeholder="Tell your story...">{{ field.value|default:'' }}</textarea>
+                    {% elif field.name == 'featured_image' %}
+                        <div class="relative">
+                            <input type="file" 
+                                   name="{{ field.name }}" 
+                                   accept="image/*"
+                                   class="hidden" 
+                                   id="image-upload"
+                                   onchange="previewImage(this)">
+                            <label for="image-upload" class="block w-full p-6 border-2 border-dashed border-gray-300 rounded-2xl text-center cursor-pointer hover:border-amber-400 transition-colors bg-white/50">
+                                <div id="upload-area">
+                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    <p class="text-gray-600 font-medium">Click to upload image</p>
+                                    <p class="text-gray-500 text-sm">PNG, JPG, GIF up to 10MB</p>
+                                </div>
+                                <div id="preview-area" class="hidden">
+                                    <img id="image-preview" class="max-w-full h-48 object-cover rounded-lg mx-auto">
+                                    <p class="text-sm text-gray-600 mt-2">Click to change image</p>
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-gray-500 text-xs mt-1">
+                            Upload an image to make your post stand out (optional)
+                        </p>
+                    {% elif field.name == 'category' %}
+                        <select name="{{ field.name }}" 
+                                class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white/80">
+                            <option value="">Select a category...</option>
+                            {% for choice in field.field.choices %}
+                                <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>
+                                    {{ choice.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="text" 
+                               name="{{ field.name }}" 
+                               value="{{ field.value|default:'' }}"
+                               {% if field.field.required %}required{% endif %}
+                               class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white/80"
+                               placeholder="{% if field.name == 'title' %}Give your post an amazing title...{% elif field.name == 'excerpt' %}Write a brief description...{% endif %}">
+                    {% endif %}
+                    
                     {% if field.errors %}
                         {% for error in field.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ error }}</p>
                         {% endfor %}
                     {% endif %}
-                    
-                    {% if field.name == 'featured_image' %}
-                        <p class="text-gray-500 text-xs mt-1">
-                            Upload an image to make your post stand out (optional)
-                        </p>
-                    {% endif %}
                 </div>
             {% endfor %}
             
-            <div class="flex gap-4">
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
                 <button type="submit" 
-                        class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-200">
-                    Create Post
+                        class="flex-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                    Publish Post
                 </button>
                 <a href="{% url 'posts:list' %}" 
-                   class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition duration-200">
+                   class="flex-1 glass-effect text-gray-700 py-3 px-6 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold text-center">
                     Cancel
                 </a>
             </div>
         </form>
     </div>
+    
+    <!-- Tips Section -->
+    <div class="glass-effect rounded-3xl p-6 mt-8 shadow-lg">
+        <h3 class="font-bold text-lg text-gray-800 mb-4">💡 Tips for a great post</h3>
+        <ul class="space-y-2 text-sm text-gray-600">
+            <li class="flex items-start space-x-2">
+                <span class="text-amber-500 font-bold">•</span>
+                <span>Use a compelling title that captures attention</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <span class="text-amber-500 font-bold">•</span>
+                <span>Add high-quality images to make your post visually appealing</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <span class="text-amber-500 font-bold">•</span>
+                <span>Choose the right category to help others discover your content</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <span class="text-amber-500 font-bold">•</span>
+                <span>Write engaging content that tells your creative story</span>
+            </li>
+        </ul>
+    </div>
 </div>
+
 {% endblock %}

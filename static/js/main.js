@@ -505,3 +505,55 @@ function initAnimations() {
         });
     }, 16));
 }
+
+// File upload initialization
+function initFileUpload() {
+    const fileInput = document.querySelector('input[type="file"]');
+    const uploadArea = document.querySelector('.file-upload-area');
+    
+    if (fileInput && uploadArea) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                previewImage(fileInput);
+            }
+        });
+        
+        fileInput.addEventListener('change', function() {
+            previewImage(this);
+        });
+    }
+}
+
+// Image preview function
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('image-preview');
+            const uploadArea = document.getElementById('upload-area');
+            const previewArea = document.getElementById('preview-area');
+            
+            if (preview && uploadArea && previewArea) {
+                preview.src = e.target.result;
+                uploadArea.classList.add('hidden');
+                previewArea.classList.remove('hidden');
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}

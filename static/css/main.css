@@ -199,3 +199,31 @@ input:focus, select:focus, textarea:focus {
 .tag-pill:hover {
     box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
 }
+
+/* File upload styles */
+.file-upload-area {
+    border: 2px dashed #d1d5db;
+    transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: #fbbf24;
+    background-color: rgba(251, 191, 36, 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: #fbbf24;
+    background-color: rgba(251, 191, 36, 0.1);
+}
+
+/* Enhanced textarea styles */
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
