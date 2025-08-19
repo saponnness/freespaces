@@ -1195,3 +1195,248 @@ function initCharacterCount() {
         updateCount(); // Initial count
     });
 }
+
+
+function initDeleteConfirmation() {
+    const deleteButtons = document.querySelectorAll('[data-delete-post]');
+    const deleteForm = document.querySelector('.delete-form');
+    const confirmCheckbox = document.querySelector('.confirmation-checkbox');
+    const deleteSubmitBtn = document.querySelector('.delete-submit-btn');
+    
+    // Handle delete button clicks
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const postTitle = this.dataset.postTitle || 'this post';
+            showDeleteConfirmation(postTitle, this.href);
+        });
+    });
+    
+    // Handle confirmation checkbox
+    if (confirmCheckbox && deleteSubmitBtn) {
+        confirmCheckbox.addEventListener('change', function() {
+            deleteSubmitBtn.disabled = !this.checked;
+            
+            if (this.checked) {
+                deleteSubmitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                deleteSubmitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    }
+    
+    // Handle form submission
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            if (!confirmCheckbox?.checked) {
+                e.preventDefault();
+                showShakeAnimation();
+                return false;
+            }
+            
+            // Show loading state
+            deleteSubmitBtn.disabled = true;
+            deleteSubmitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Deleting...
+            `;
+        });
+    }
+}
+
+function showDeleteConfirmation(postTitle, deleteUrl) {
+    const modal = createDeleteModal(postTitle, deleteUrl);
+    document.body.appendChild(modal);
+    
+    // Animate in
+    setTimeout(() => {
+        modal.classList.remove('opacity-0', 'scale-95');
+        modal.classList.add('opacity-100', 'scale-100');
+    }, 10);
+    
+    // Handle backdrop click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeDeleteModal(modal);
+        }
+    });
+    
+    // Handle escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            closeDeleteModal(modal);
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+function createDeleteModal(postTitle, deleteUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 scale-95 transition-all duration-200';
+    
+    modal.innerHTML = `
+        <div class="confirmation-modal max-w-md w-full mx-4 p-6 rounded-2xl">
+            <div class="text-center mb-6">
+                <div class="warning-icon w-16 h-16 mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Post</h3>
+                <p class="text-gray-600">Are you sure you want to delete "${postTitle}"?</p>
+            </div>
+            
+            <div class="danger-zone mb-6">
+                <div class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <h4 class="font-semibold text-red-800 mb-1">Warning</h4>
+                        <p class="text-sm text-red-700">This action cannot be undone. The post and all its interactions will be permanently deleted.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="flex items-start space-x-3 cursor-pointer">
+                    <input type="checkbox" class="confirmation-checkbox mt-1" required>
+                    <span class="confirmation-text">I understand that this will permanently delete the post and all associated data.</span>
+                </label>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="danger-button flex-1 py-3 px-6 rounded-xl font-semibold opacity-50 cursor-not-allowed" disabled onclick="proceedWithDelete('${deleteUrl}')">
+                    Delete Post
+                </button>
+                <button class="cancel-button flex-1 py-3 px-6 rounded-xl font-semibold" onclick="closeDeleteModal(this.closest('.fixed'))">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Setup checkbox functionality
+    const checkbox = modal.querySelector('.confirmation-checkbox');
+    const deleteBtn = modal.querySelector('.danger-button');
+    
+    checkbox.addEventListener('change', function() {
+        deleteBtn.disabled = !this.checked;
+        if (this.checked) {
+            deleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            deleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    });
+    
+    return modal;
+}
+
+function closeDeleteModal(modal) {
+    modal.classList.remove('opacity-100', 'scale-100');
+    modal.classList.add('opacity-0', 'scale-95');
+    
+    setTimeout(() => {
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+    }, 200);
+}
+
+function proceedWithDelete(deleteUrl) {
+    // If we're already on the delete page, submit the form
+    const deleteForm = document.querySelector('.delete-form');
+    if (deleteForm) {
+        deleteForm.submit();
+    } else {
+        // Otherwise redirect to delete page
+        window.location.href = deleteUrl;
+    }
+}
+
+function showShakeAnimation() {
+    const modal = document.querySelector('.confirmation-modal');
+    if (modal) {
+        modal.classList.add('shake');
+        setTimeout(() => {
+            modal.classList.remove('shake');
+        }, 500);
+    }
+}
+
+function initBulkDeleteConfirmation() {
+    const bulkDeleteBtn = document.querySelector('.bulk-delete-btn');
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const selectedCount = document.querySelectorAll('.post-checkbox:checked').length;
+            if (selectedCount === 0) {
+                showToast('Please select posts to delete', 'warning');
+                return;
+            }
+            
+            showBulkDeleteConfirmation(selectedCount);
+        });
+    }
+}
+
+function showBulkDeleteConfirmation(count) {
+    const modal = createBulkDeleteModal(count);
+    document.body.appendChild(modal);
+    
+    setTimeout(() => {
+        modal.classList.remove('opacity-0', 'scale-95');
+        modal.classList.add('opacity-100', 'scale-100');
+    }, 10);
+}
+
+function createBulkDeleteModal(count) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 scale-95 transition-all duration-200';
+    
+    modal.innerHTML = `
+        <div class="confirmation-modal max-w-md w-full mx-4 p-6 rounded-2xl">
+            <div class="text-center mb-6">
+                <div class="warning-icon w-16 h-16 mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Delete ${count} Posts</h3>
+                <p class="text-gray-600">Are you sure you want to delete ${count} selected posts?</p>
+            </div>
+            
+            <div class="danger-zone mb-6">
+                <p class="text-sm text-red-700">This will permanently delete all selected posts and their associated data. This action cannot be undone.</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="danger-button flex-1 py-3 px-6 rounded-xl font-semibold" onclick="confirmBulkDelete()">
+                    Delete ${count} Posts
+                </button>
+                <button class="cancel-button flex-1 py-3 px-6 rounded-xl font-semibold" onclick="closeDeleteModal(this.closest('.fixed'))">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return modal;
+}
+
+function confirmBulkDelete() {
+    const selectedPosts = getSelectedPosts();
+    const modal = document.querySelector('.fixed');
+    
+    if (selectedPosts.length > 0) {
+        bulkDeletePosts(selectedPosts);
+        closeDeleteModal(modal);
+    }
+}
