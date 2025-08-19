@@ -760,3 +760,60 @@ function updateSearchResults() {
             console.error('Error updating search results:', error);
         });
 }
+
+
+function initProfileTabs() {
+    const tabs = document.querySelectorAll('.profile-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Remove active class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.add('hidden'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const targetContent = document.querySelector(`[data-tab-content="${targetTab}"]`);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            }
+        });
+    });
+}
+
+function initProfileActions() {
+    const followBtn = document.querySelector('.follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const isFollowing = this.classList.contains('following');
+            
+            fetch(`/api/users/${userId}/follow/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ follow: !isFollowing })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.following) {
+                    this.textContent = 'Following';
+                    this.classList.add('following');
+                } else {
+                    this.textContent = 'Follow';
+                    this.classList.remove('following');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+}
