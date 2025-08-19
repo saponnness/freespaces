@@ -817,3 +817,114 @@ function initProfileActions() {
         });
     }
 }
+
+
+function initPostManagement() {
+    const checkboxes = document.querySelectorAll('.post-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectAllBtn = document.querySelector('.select-all-posts');
+    
+    // Handle individual post selection
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkActions();
+        });
+    });
+    
+    // Handle select all
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => {
+                cb.checked = !allSelected;
+            });
+            updateBulkActions();
+        });
+    }
+    
+    function updateBulkActions() {
+        const selectedPosts = Array.from(checkboxes).filter(cb => cb.checked);
+        if (selectedPosts.length > 0) {
+            bulkActions?.classList.add('active');
+            const countElement = bulkActions?.querySelector('.selected-count');
+            if (countElement) {
+                countElement.textContent = selectedPosts.length;
+            }
+        } else {
+            bulkActions?.classList.remove('active');
+        }
+    }
+    
+    // Handle bulk actions
+    const bulkDeleteBtn = document.querySelector('.bulk-delete');
+    const bulkPublishBtn = document.querySelector('.bulk-publish');
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', function() {
+            const selectedPosts = getSelectedPosts();
+            if (selectedPosts.length > 0 && confirm(`Delete ${selectedPosts.length} posts?`)) {
+                bulkDeletePosts(selectedPosts);
+            }
+        });
+    }
+    
+    if (bulkPublishBtn) {
+        bulkPublishBtn.addEventListener('click', function() {
+            const selectedPosts = getSelectedPosts();
+            if (selectedPosts.length > 0) {
+                bulkPublishPosts(selectedPosts);
+            }
+        });
+    }
+}
+
+function getSelectedPosts() {
+    return Array.from(document.querySelectorAll('.post-checkbox:checked'))
+        .map(cb => cb.value);
+}
+
+function bulkDeletePosts(postIds) {
+    fetch('/api/posts/bulk-delete/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post_ids: postIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error deleting posts');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting posts');
+    });
+}
+
+function bulkPublishPosts(postIds) {
+    fetch('/api/posts/bulk-publish/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post_ids: postIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error publishing posts');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error publishing posts');
+    });
+}

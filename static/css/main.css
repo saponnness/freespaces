@@ -518,3 +518,148 @@ textarea:focus {
         height: 280px;
     }
 }
+
+
+/* Post management styles */
+.post-list-item {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.post-list-item:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.post-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.post-status.draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.post-status.published {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.post-status.private {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.post-action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.post-action-btn.edit {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.post-action-btn.edit:hover {
+    background: #bfdbfe;
+    transform: translateY(-1px);
+}
+
+.post-action-btn.delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.post-action-btn.delete:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+.post-action-btn.view {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.post-action-btn.view:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+/* Post metadata */
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.post-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.post-thumbnail {
+    width: 4rem;
+    height: 4rem;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Bulk actions */
+.bulk-actions {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.bulk-actions.active {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bulk-action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bulk-action-btn.publish {
+    background: #10b981;
+    color: white;
+}
+
+.bulk-action-btn.delete {
+    background: #ef4444;
+    color: white;
+}
