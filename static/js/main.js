@@ -928,3 +928,270 @@ function bulkPublishPosts(postIds) {
         alert('Error publishing posts');
     });
 }
+
+
+function initPostEditor() {
+    initAutosave();
+    initFormValidation();
+    initImageManagement();
+    initPreviewMode();
+    initCharacterCount();
+}
+
+function initAutosave() {
+    const form = document.querySelector('.edit-form');
+    const indicator = document.querySelector('.autosave-indicator');
+    let saveTimeout;
+    
+    if (form) {
+        const inputs = form.querySelectorAll('input, textarea, select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(saveTimeout);
+                
+                // Show saving indicator
+                if (indicator) {
+                    indicator.textContent = 'Saving...';
+                    indicator.className = 'autosave-indicator saving show';
+                }
+                
+                saveTimeout = setTimeout(() => {
+                    autosavePost();
+                }, 2000);
+            });
+        });
+    }
+}
+
+function autosavePost() {
+    const form = document.querySelector('.edit-form');
+    const indicator = document.querySelector('.autosave-indicator');
+    
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    formData.append('autosave', 'true');
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (indicator) {
+            if (data.success) {
+                indicator.textContent = 'Saved';
+                indicator.className = 'autosave-indicator show';
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            } else {
+                indicator.textContent = 'Save failed';
+                indicator.className = 'autosave-indicator error show';
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 3000);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Autosave error:', error);
+        if (indicator) {
+            indicator.textContent = 'Save failed';
+            indicator.className = 'autosave-indicator error show';
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 3000);
+        }
+    });
+}
+
+function initFormValidation() {
+    const form = document.querySelector('.edit-form');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const isValid = validateForm();
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        
+        // Real-time validation
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+        });
+    }
+}
+
+function validateForm() {
+    const form = document.querySelector('.edit-form');
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!validateField(field)) {
+            isValid = false;
+        }
+    });
+    
+    return isValid;
+}
+
+function validateField(field) {
+    const value = field.value.trim();
+    const fieldContainer = field.closest('.field-container') || field.parentElement;
+    
+    // Remove existing error messages
+    const existingError = fieldContainer.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    field.classList.remove('field-error', 'field-success');
+    
+    if (field.hasAttribute('required') && !value) {
+        showFieldError(field, 'This field is required');
+        return false;
+    }
+    
+    // Specific validations
+    if (field.type === 'email' && value && !isValidEmail(value)) {
+        showFieldError(field, 'Please enter a valid email address');
+        return false;
+    }
+    
+    if (field.name === 'title' && value.length < 3) {
+        showFieldError(field, 'Title must be at least 3 characters long');
+        return false;
+    }
+    
+    if (field.name === 'content' && value.length < 10) {
+        showFieldError(field, 'Content must be at least 10 characters long');
+        return false;
+    }
+    
+    // Field is valid
+    field.classList.add('field-success');
+    return true;
+}
+
+function showFieldError(field, message) {
+    field.classList.add('field-error');
+    
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.innerHTML = `
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        ${message}
+    `;
+    
+    const fieldContainer = field.closest('.field-container') || field.parentElement;
+    fieldContainer.appendChild(errorElement);
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function initImageManagement() {
+    const removeImageBtn = document.querySelector('.remove-image-btn');
+    
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove this image?')) {
+                const preview = document.querySelector('.current-image-preview');
+                if (preview) {
+                    preview.style.display = 'none';
+                }
+                
+                // Add hidden input to indicate image removal
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'remove_image';
+                hiddenInput.value = 'true';
+                document.querySelector('.edit-form').appendChild(hiddenInput);
+            }
+        });
+    }
+}
+
+function initPreviewMode() {
+    const previewTabs = document.querySelectorAll('.preview-tab');
+    const editArea = document.querySelector('.edit-area');
+    const previewArea = document.querySelector('.preview-area');
+    
+    previewTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+            
+            // Update tab states
+            previewTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            if (mode === 'edit') {
+                editArea?.classList.remove('hidden');
+                previewArea?.classList.add('hidden');
+            } else {
+                editArea?.classList.add('hidden');
+                previewArea?.classList.remove('hidden');
+                updatePreview();
+            }
+        });
+    });
+}
+
+function updatePreview() {
+    const contentField = document.querySelector('textarea[name="content"]');
+    const previewContent = document.querySelector('.preview-content');
+    
+    if (contentField && previewContent) {
+        // Simple markdown-like preview
+        let content = contentField.value;
+        content = content.replace(/\n/g, '<br>');
+        content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        previewContent.innerHTML = content;
+    }
+}
+
+function initCharacterCount() {
+    const textareas = document.querySelectorAll('textarea[data-max-length]');
+    
+    textareas.forEach(textarea => {
+        const maxLength = parseInt(textarea.dataset.maxLength);
+        const countElement = document.createElement('div');
+        countElement.className = 'char-count';
+        
+        textarea.parentElement.appendChild(countElement);
+        
+        function updateCount() {
+            const currentLength = textarea.value.length;
+            const remaining = maxLength - currentLength;
+            
+            countElement.textContent = `${currentLength}/${maxLength}`;
+            
+            if (remaining < 50) {
+                countElement.className = 'char-count warning';
+            } else if (remaining < 0) {
+                countElement.className = 'char-count error';
+            } else {
+                countElement.className = 'char-count';
+            }
+        }
+        
+        textarea.addEventListener('input', updateCount);
+        updateCount(); // Initial count
+    });
+}
