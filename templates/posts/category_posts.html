@@ -3,59 +3,173 @@
 {% block title %}{{ category.name }} Posts - Freespaces{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <div class="mb-6">
-        <nav class="text-sm text-gray-600 mb-4">
-            <a href="{% url 'feeds:home' %}" class="hover:text-blue-600">Home</a> →
-            <a href="{% url 'posts:list' %}" class="hover:text-blue-600">Posts</a> →
-            <span class="text-gray-900">{{ category.name }}</span>
-        </nav>
-        
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ category.name }}</h1>
-        {% if category.description %}
-            <p class="text-gray-600">{{ category.description }}</p>
-        {% endif %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-6">
+        <div class="flex items-center space-x-2">
+            <a href="{% url 'feeds:home' %}" class="hover:text-amber-600 transition-colors">Home</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <a href="{% url 'posts:list' %}" class="hover:text-amber-600 transition-colors">Posts</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-gray-900 font-medium">{{ category.name }}</span>
+        </div>
+    </nav>
+    
+    <!-- Category Header -->
+    <div class="glass-effect rounded-3xl shadow-lg p-8 mb-8">
+        <div class="text-center">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-pink-100 flex items-center justify-center mx-auto mb-4">
+                <span class="text-3xl">
+                    {% if category.name == "Photography" %}📸
+                    {% elif category.name == "Web Design" %}💻
+                    {% elif category.name == "Workspace" %}🏠
+                    {% elif category.name == "Art & Design" %}🎨
+                    {% elif category.name == "Lifestyle" %}🌿
+                    {% else %}✨{% endif %}
+                </span>
+            </div>
+            
+            <h1 class="text-3xl font-bold gradient-text mb-2">{{ category.name }}</h1>
+            
+            {% if category.description %}
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">{{ category.description }}</p>
+            {% else %}
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                    Discover amazing {{ category.name|lower }} content from our creative community
+                </p>
+            {% endif %}
+            
+            <div class="mt-6">
+                <span class="category-badge text-purple-600 text-sm font-semibold px-4 py-2 rounded-full">
+                    {{ posts|length }} post{{ posts|length|pluralize }}
+                </span>
+            </div>
+        </div>
     </div>
 
     <!-- Posts Grid -->
     {% if posts %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="masonry-grid">
             {% for post in posts %}
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200">
-                    {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
-                             class="w-full h-48 object-cover">
-                    {% else %}
-                        <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                            <span class="text-white font-medium">{{ category.name }}</span>
+                <div class="masonry-item">
+                    <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
+                        <div class="relative">
+                            {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                    class="w-full object-cover masonry-image">
+                            {% else %}
+                                <div class="w-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center masonry-placeholder">
+                                    <span class="text-white font-medium">{{ category.name }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="absolute top-4 right-4">
+                                <span class="bg-white/90 text-gray-600 text-xs px-2 py-1 rounded-full">
+                                    {{ post.published_at|date:"M d" }}
+                                </span>
+                            </div>
                         </div>
-                    {% endif %}
-                    
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-900">
-                            <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
-                                {{ post.title }}
-                            </a>
-                        </h3>
                         
-                        <p class="text-gray-600 text-sm mb-3">{{ post.excerpt }}</p>
-                        
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-500 text-sm">by {{ post.author.username }}</span>
-                            <span class="text-gray-500 text-sm">{{ post.published_at|date:"M d" }}</span>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg text-gray-800 mb-2 leading-tight">
+                                <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                    {{ post.title }}
+                                </a>
+                            </h3>
+                            
+                            <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ post.excerpt }}</p>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    {% if post.author.profile.avatar %}
+                                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
+                                             class="w-6 h-6 rounded-full avatar">
+                                    {% else %}
+                                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
+                                            <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4">
+                                    {% include 'includes/like_button.html' %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-12">
+            <button class="bg-white/70 hover:bg-white/90 text-gray-700 font-medium px-8 py-3 rounded-full transition-all duration-200 hover:shadow-lg">
+                Load More {{ category.name }} Posts
+            </button>
+        </div>
     {% else %}
-        <div class="text-center py-12">
-            <div class="text-gray-500 mb-4">No posts in {{ category.name }} category yet</div>
+        <div class="glass-effect rounded-3xl p-12 text-center shadow-lg">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl">
+                    {% if category.name == "Photography" %}📸
+                    {% elif category.name == "Web Design" %}💻
+                    {% elif category.name == "Workspace" %}🏠
+                    {% elif category.name == "Art & Design" %}🎨
+                    {% elif category.name == "Lifestyle" %}🌿
+                    {% else %}✨{% endif %}
+                </span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No {{ category.name|lower }} posts yet</h3>
+            <p class="text-gray-600 mb-6">Be the first to share {{ category.name|lower }} content with the community!</p>
+            
             {% if user.is_authenticated %}
                 <a href="{% url 'posts:create' %}" 
-                   class="text-blue-500 hover:underline">Create the first {{ category.name|lower }} post!</a>
+                   class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-full hover:shadow-lg transition-all duration-200 font-semibold">
+                   Create the first {{ category.name|lower }} post!
+                </a>
+            {% else %}
+                <div class="space-x-4">
+                    <a href="{% url 'accounts:register' %}" 
+                       class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-full hover:shadow-lg transition-all duration-200 font-semibold">
+                       Join to Create
+                    </a>
+                    <a href="{% url 'posts:list' %}" 
+                       class="glass-effect text-gray-700 px-6 py-3 rounded-full hover:bg-white/70 transition-all duration-200 font-semibold">
+                       Explore Other Posts
+                    </a>
+                </div>
             {% endif %}
         </div>
     {% endif %}
+    
+    <!-- Related Categories -->
+    <div class="mt-12">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Explore Other Categories</h3>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'posts:list' %}" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                ✨ All Posts
+            </a>
+            <a href="#" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                📸 Photography
+            </a>
+            <a href="#" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                💻 Web Design
+            </a>
+            <a href="#" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                🏠 Workspace
+            </a>
+            <a href="#" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                🎨 Art & Design
+            </a>
+            <a href="#" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
+                🌿 Lifestyle
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

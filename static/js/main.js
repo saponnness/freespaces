@@ -1440,3 +1440,172 @@ function confirmBulkDelete() {
         closeDeleteModal(modal);
     }
 }
+
+
+function initAccessibility() {
+    // Add skip links
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.className = 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded z-50';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+    
+    // Add ARIA labels to interactive elements
+    const likeButtons = document.querySelectorAll('.like-btn');
+    likeButtons.forEach(btn => {
+        if (!btn.getAttribute('aria-label')) {
+            btn.setAttribute('aria-label', 'Like this post');
+        }
+    });
+    
+    // Improve focus management
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            document.body.classList.add('keyboard-navigation');
+        }
+    });
+    
+    document.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-navigation');
+    });
+}
+
+function initPerformanceOptimizations() {
+    // Lazy load images
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+    
+    // Preload critical resources
+    const criticalImages = document.querySelectorAll('.hero-image, .featured-image');
+    criticalImages.forEach(img => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = img.src;
+        document.head.appendChild(link);
+    });
+    
+    // Service worker registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered:', registration);
+            })
+            .catch(error => {
+                console.log('SW registration failed:', error);
+            });
+    }
+}
+
+function initNotifications() {
+    // Request notification permission
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        Notification.requestPermission();
+    }
+}
+
+function showNotification(title, options = {}) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, {
+            icon: '/static/images/favicon.png',
+            badge: '/static/images/badge.png',
+            ...options
+        });
+    }
+}
+
+// Global utilities
+window.Freespaces = {
+    showToast,
+    toggleMobileMenu,
+    createFloatingHeart,
+    performSearch,
+    filterByCategory,
+    showNotification,
+    showDeleteConfirmation,
+    closeDeleteModal,
+    initAccessibility,
+    initPerformanceOptimizations,
+    
+    // Theme management
+    setTheme: function(theme) {
+        if (theme === 'night') {
+            document.body.classList.add('night-theme');
+        } else {
+            document.body.classList.remove('night-theme');
+        }
+        localStorage.setItem('theme', theme);
+    },
+    
+    // Analytics helpers
+    trackEvent: function(eventName, eventData = {}) {
+        if (typeof gtag !== 'undefined') {
+            gtag('event', eventName, eventData);
+        }
+        console.log('Event tracked:', eventName, eventData);
+    },
+    
+    // Performance monitoring
+    measurePerformance: function(name, fn) {
+        const start = performance.now();
+        const result = fn();
+        const end = performance.now();
+        console.log(`${name} took ${end - start} milliseconds`);
+        return result;
+    }
+};
+
+// Add CSS classes for keyboard navigation
+const keyboardStyles = document.createElement('style');
+keyboardStyles.textContent = `
+    .keyboard-navigation *:focus {
+        outline: 2px solid #fbbf24 !important;
+        outline-offset: 2px !important;
+    }
+    
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    
+    .focus\\:not-sr-only:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: inherit;
+        margin: inherit;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+`;
+document.head.appendChild(keyboardStyles);
+
+// Error handling
+window.addEventListener('error', function(e) {
+    console.error('Global error:', e.error);
+    // Could send to error tracking service
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled promise rejection:', e.reason);
+    // Could send to error tracking service
+});

@@ -882,3 +882,205 @@ textarea:focus {
 .shake {
     animation: shake 0.5s ease-in-out;
 }
+
+
+/* Category page styles */
+.category-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.category-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid rgba(251, 191, 36, 0.2);
+}
+
+.category-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.category-stat {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+/* Related categories */
+.related-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.related-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.related-category:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: #374151;
+}
+
+/* Empty state styles */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state-icon {
+    width: 6rem;
+    height: 6rem;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2rem;
+}
+
+/* Theme variations */
+.night-theme {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #e94560 100%);
+}
+
+.night-theme .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.night-theme .floating-nav {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+}
+
+.night-theme .post-card {
+    background: rgba(255, 255, 255, 0.15);
+    color: #f9fafb;
+}
+
+.night-theme .text-gray-800 {
+    color: #f9fafb !important;
+}
+
+.night-theme .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #f59e0b, #ec4899);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #d97706, #db2777);
+}
+
+/* Floating animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.floating-action-btn {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .masonry-grid {
+        column-count: 1;
+        column-gap: 0.5rem;
+    }
+    
+    .masonry-item {
+        margin-bottom: 0.75rem;
+    }
+    
+    .category-header {
+        padding: 2rem 1rem;
+    }
+    
+    .related-categories {
+        justify-content: center;
+    }
+}
+
+/* Print styles */
+@media print {
+    .floating-nav,
+    .bottom-nav,
+    .floating-action-btn {
+        display: none !important;
+    }
+    
+    .glass-effect {
+        background: white;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .gradient-text {
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .card-hover,
+    .floating-action-btn,
+    .like-btn,
+    .tag-pill {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .glass-effect {
+        background: white;
+        border: 2px solid #000;
+    }
+    
+    .gradient-text {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+    }
+    
+    .tag-pill {
+        background: white;
+        border: 2px solid #000;
+        color: #000;
+    }
+}
