@@ -1442,6 +1442,99 @@ function confirmBulkDelete() {
 }
 
 
+/**
+ * Main JavaScript file for Freespaces
+ * Contains all JavaScript functionality for the application
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all functionality
+    initProfileDropdown();
+    // Add other initializations here as needed
+});
+
+/**
+ * Profile Dropdown Functionality
+ * Handles the profile avatar dropdown menu interactions
+ */
+function initProfileDropdown() {
+    const profileButton = document.getElementById('profileButton');
+    const profileDropdown = document.getElementById('profileDropdown');
+    
+    // Only initialize if both elements exist (user is authenticated)
+    if (!profileButton || !profileDropdown) {
+        return;
+    }
+    
+    /**
+     * Toggle dropdown visibility when profile button is clicked
+     */
+    profileButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleProfileDropdown();
+    });
+    
+    /**
+     * Close dropdown when clicking outside of it
+     */
+    document.addEventListener('click', function(e) {
+        if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+            closeProfileDropdown();
+        }
+    });
+    
+    /**
+     * Close dropdown when pressing Escape key
+     */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeProfileDropdown();
+        }
+    });
+    
+    /**
+     * Handle dropdown links for better UX
+     */
+    const dropdownLinks = profileDropdown.querySelectorAll('a');
+    dropdownLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Close dropdown when a link is clicked
+            closeProfileDropdown();
+        });
+    });
+}
+
+/**
+ * Toggle the profile dropdown visibility
+ */
+function toggleProfileDropdown() {
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileDropdown) {
+        profileDropdown.classList.toggle('hidden');
+    }
+}
+
+/**
+ * Close the profile dropdown
+ */
+function closeProfileDropdown() {
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileDropdown && !profileDropdown.classList.contains('hidden')) {
+        profileDropdown.classList.add('hidden');
+    }
+}
+
+/**
+ * Open the profile dropdown
+ */
+function openProfileDropdown() {
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileDropdown && profileDropdown.classList.contains('hidden')) {
+        profileDropdown.classList.remove('hidden');
+    }
+}
+
+
 function initAccessibility() {
     // Add skip links
     const skipLink = document.createElement('a');
