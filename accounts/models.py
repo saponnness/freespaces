@@ -4,7 +4,6 @@ from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# Create your models here.from django.db import models
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(max_length=500, blank=True)
@@ -15,6 +14,11 @@ class Profile(models.Model):
     )
     website = models.URLField(blank=True)
     location = models.CharField(max_length=100, blank=True)
+    # Social media fields
+    facebook_url = models.URLField(blank=True)
+    instagram_url = models.URLField(blank=True)
+    tiktok_url = models.URLField(blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

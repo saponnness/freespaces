@@ -94,7 +94,14 @@
                                     </a>
                                 </h3>
                                 
-                                <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ post.excerpt }}</p>
+                                <!-- Rich text preview -->
+                                <div class="rich-text-preview mb-4">
+                                    {% if post.excerpt %}
+                                        {{ post.excerpt|safe }}
+                                    {% else %}
+                                        {{ post.content|safe|truncatewords_html:20 }}
+                                    {% endif %}
+                                </div>
                                 
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
@@ -166,4 +173,8 @@
         </div>
     {% endif %}
 </div>
+
+<style>
+
+</style>
 {% endblock %}

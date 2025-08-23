@@ -37,7 +37,7 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('bio', 'avatar', 'website', 'location')
+        fields = ('bio', 'avatar', 'website', 'location', 'facebook_url', 'instagram_url', 'tiktok_url')
         widgets = {
             'bio': forms.Textarea(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -54,5 +54,75 @@ class ProfileUpdateForm(forms.ModelForm):
             'location': forms.TextInput(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
                 'placeholder': 'City, Country'
+            }),
+            'facebook_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://facebook.com/yourprofile'
+            }),
+            'instagram_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://instagram.com/yourprofile'
+            }),
+            'tiktok_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://tiktok.com/@yourprofile'
+            }),
+        }
+
+# Inline edit forms
+class AvatarUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('avatar',)
+        widgets = {
+            'avatar': forms.FileInput(attrs={
+                'class': 'hidden',
+                'accept': 'image/*'
+            }),
+        }
+
+class NameUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'First Name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'Last Name'
+            }),
+        }
+
+class BioUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('bio',)
+        widgets = {
+            'bio': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 3,
+                'placeholder': 'Tell us about yourself...'
+            }),
+        }
+
+class SocialLinksUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('facebook_url', 'instagram_url', 'tiktok_url')
+        widgets = {
+            'facebook_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://facebook.com/yourprofile'
+            }),
+            'instagram_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://instagram.com/yourprofile'
+            }),
+            'tiktok_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'placeholder': 'https://tiktok.com/@yourprofile'
             }),
         }

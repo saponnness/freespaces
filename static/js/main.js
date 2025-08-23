@@ -1535,6 +1535,1049 @@ function openProfileDropdown() {
 }
 
 
+let cropper = null;
+
+// JavaScript functions for inline editing
+function toggleNameEdit() {
+    const display = document.getElementById('name-display');
+    const edit = document.getElementById('name-edit');
+    
+    display.classList.toggle('hidden');
+    edit.classList.toggle('hidden');
+}
+
+function toggleBioEdit() {
+    const display = document.getElementById('bio-display');
+    const edit = document.getElementById('bio-edit');
+    
+    display.classList.toggle('hidden');
+    edit.classList.toggle('hidden');
+}
+
+function toggleSocialEdit() {
+    const display = document.getElementById('social-display');
+    const edit = document.getElementById('social-edit');
+    
+    display.classList.toggle('hidden');
+    edit.classList.toggle('hidden');
+}
+
+// Avatar cropping functions
+document.getElementById('avatar-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const image = document.getElementById('cropImage');
+            image.src = event.target.result;
+            
+            // Show modal
+            document.getElementById('cropModal').classList.remove('hidden');
+            
+            // Initialize cropper
+            if (cropper) {
+                cropper.destroy();
+            }
+            
+            cropper = new Cropper(image, {
+                aspectRatio: 1, // Square crop
+                viewMode: 2, // Restrict crop box to not exceed canvas
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                cropBoxResizable: true,
+                cropBoxMovable: true,
+                guides: true,
+                center: true,
+                highlight: false,
+                background: true,
+                responsive: true,
+                restore: false,
+                checkCrossOrigin: false,
+                checkOrientation: false,
+                toggleDragModeOnDblclick: false,
+                // Contain drag interactions within the container
+                modal: true,
+                scalable: true,
+                zoomable: true,
+                zoomOnTouch: true,
+                zoomOnWheel: true,
+                wheelZoomRatio: 0.1,
+                cropBoxResizable: true,
+                minContainerWidth: 200,
+                minContainerHeight: 200,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function closeCropModal() {
+    document.getElementById('cropModal').classList.add('hidden');
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    // Clear the file input
+    document.getElementById('avatar-upload').value = '';
+}
+
+function saveCroppedImage() {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        
+        const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
+        
+        // Set the cropped image data in hidden input
+        document.getElementById('cropped-image-data').value = croppedImage;
+        
+        // Submit the form
+        document.getElementById('cropped-form').submit();
+        
+        // Close modal
+        closeCropModal();
+    }
+}
+
+
+// Rich Text Editor Functions
+
+// Core formatting function
+function formatDoc(command, value = null) {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    editor.focus();
+    
+    try {
+        if (value !== null) {
+            document.execCommand(command, false, value);
+        } else {
+            document.execCommand(command, false, null);
+        }
+        updateHiddenField();
+        updateToolbarState();
+    } catch (error) {
+        console.error('Error executing command:', error);
+    }
+}
+
+// Text formatting functions
+function makeBold() {
+    formatDoc('bold');
+}
+
+function makeItalic() {
+    formatDoc('italic');
+}
+
+function makeUnderline() {
+    formatDoc('underline');
+}
+
+// Font size functions
+function setFontSize(size) {
+    formatDoc('fontSize', size);
+}
+
+function increaseFontSize() {
+    const currentSize = document.queryCommandValue('fontSize');
+    const newSize = Math.min(parseInt(currentSize) + 1, 7);
+    formatDoc('fontSize', newSize);
+}
+
+function decreaseFontSize() {
+    const currentSize = document.queryCommandValue('fontSize');
+    const newSize = Math.max(parseInt(currentSize) - 1, 1);
+    formatDoc('fontSize', newSize);
+}
+
+// List functions
+function insertOrderedList() {
+    formatDoc('insertOrderedList');
+}
+
+function insertUnorderedList() {
+    formatDoc('insertUnorderedList');
+}
+
+function insertBulletList() {
+    formatDoc('insertUnorderedList');
+}
+
+function insertNumberedList() {
+    formatDoc('insertOrderedList');
+}
+
+// Block formatting functions
+function insertBlockquote() {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    editor.focus();
+    
+    // Check if current selection is already in a blockquote
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        let node = selection.getRangeAt(0).commonAncestorContainer;
+        
+        // Find the closest blockquote parent
+        while (node && node !== editor) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE') {
+                // Remove blockquote - unwrap its contents
+                const parent = node.parentNode;
+                while (node.firstChild) {
+                    parent.insertBefore(node.firstChild, node);
+                }
+                parent.removeChild(node);
+                updateHiddenField();
+                updateToolbarState();
+                return;
+            }
+            node = node.parentNode;
+        }
+    }
+    
+    // If not in blockquote, create one
+    formatDoc('formatBlock', '<blockquote>');
+}
+
+function insertQuote() {
+    insertBlockquote();
+}
+
+function insertParagraph() {
+    formatDoc('formatBlock', '<p>');
+}
+
+// Heading functions
+function insertH1() {
+    formatDoc('formatBlock', '<h1>');
+}
+
+function insertH2() {
+    formatDoc('formatBlock', '<h2>');
+}
+
+function insertH3() {
+    formatDoc('formatBlock', '<h3>');
+}
+
+function insertH4() {
+    formatDoc('formatBlock', '<h4>');
+}
+
+// Text alignment functions
+function alignLeft() {
+    formatDoc('justifyLeft');
+}
+
+function alignCenter() {
+    formatDoc('justifyCenter');
+}
+
+function alignRight() {
+    formatDoc('justifyRight');
+}
+
+function alignJustify() {
+    formatDoc('justifyFull');
+}
+
+// Text color functions
+function setTextColor(color) {
+    formatDoc('foreColor', color);
+}
+
+function setBackgroundColor(color) {
+    formatDoc('hiliteColor', color);
+}
+
+// Insert functions
+function insertLink(url, text) {
+    if (!url) {
+        url = prompt('Enter URL:');
+        if (!url) return;
+    }
+    
+    const selectedText = getSelectedText();
+    if (selectedText) {
+        formatDoc('createLink', url);
+    } else {
+        const linkText = text || prompt('Enter link text:', url);
+        insertHTMLAtCursor(`<a href="${url}">${linkText}</a>`);
+    }
+}
+
+function insertImage(src, alt) {
+    if (!src) {
+        src = prompt('Enter image URL:');
+        if (!src) return;
+    }
+    
+    const altText = alt || prompt('Enter alt text:') || '';
+    insertHTMLAtCursor(`<img src="${src}" alt="${altText}" style="max-width: 100%;">`);
+}
+
+function insertHorizontalRule() {
+    formatDoc('insertHorizontalRule');
+}
+
+function insertLineBreak() {
+    formatDoc('insertHTML', '<br>');
+}
+
+// List indentation helper functions
+function indentListItem(listItem, listType) {
+    const parentList = listItem.parentNode;
+    const previousSibling = listItem.previousElementSibling;
+    
+    if (previousSibling && previousSibling.tagName === 'LI') {
+        // There's a previous list item - create or use nested list
+        let nestedList = previousSibling.querySelector('ol, ul');
+        
+        if (!nestedList) {
+            // Create new nested list
+            nestedList = document.createElement(listType.toLowerCase());
+            previousSibling.appendChild(nestedList);
+        }
+        
+        // Move current item to nested list
+        parentList.removeChild(listItem);
+        nestedList.appendChild(listItem);
+        
+        // Position cursor in the moved item
+        positionCursorInElement(listItem);
+    }
+}
+
+function outdentListItem(listItem) {
+    const currentList = listItem.parentNode;
+    const parentListItem = currentList.parentNode;
+    
+    if (parentListItem && parentListItem.tagName === 'LI') {
+        // This is a nested list item
+        const grandParentList = parentListItem.parentNode;
+        
+        // Remove from current list
+        currentList.removeChild(listItem);
+        
+        // Add to parent level after the parent list item
+        const nextSibling = parentListItem.nextSibling;
+        if (nextSibling) {
+            grandParentList.insertBefore(listItem, nextSibling);
+        } else {
+            grandParentList.appendChild(listItem);
+        }
+        
+        // Clean up empty nested list
+        if (currentList.children.length === 0) {
+            parentListItem.removeChild(currentList);
+        }
+        
+        // Position cursor in the moved item
+        positionCursorInElement(listItem);
+    }
+}
+
+function positionCursorInElement(element) {
+    const selection = window.getSelection();
+    const range = document.createRange();
+    
+    // Try to position at the end of text content
+    if (element.firstChild && element.firstChild.nodeType === Node.TEXT_NODE) {
+        range.setStart(element.firstChild, element.firstChild.textContent.length);
+    } else if (element.textContent) {
+        range.selectNodeContents(element);
+        range.collapse(false); // Collapse to end
+    } else {
+        range.setStart(element, 0);
+    }
+    
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+// Selection functions
+function selectAll() {
+    formatDoc('selectAll');
+}
+
+function clearSelection() {
+    if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+    }
+}
+
+// Undo/Redo functions
+function undo() {
+    formatDoc('undo');
+}
+
+function redo() {
+    formatDoc('redo');
+}
+
+// Cut, Copy, Paste functions
+function cutText() {
+    formatDoc('cut');
+}
+
+function copyText() {
+    formatDoc('copy');
+}
+
+function pasteText() {
+    formatDoc('paste');
+}
+
+// Clear formatting functions
+function removeFormat() {
+    formatDoc('removeFormat');
+}
+
+function clearFormatting() {
+    formatDoc('removeFormat');
+}
+
+function stripHTML() {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        const text = editor.textContent || editor.innerText || '';
+        editor.innerHTML = text;
+        updateHiddenField();
+    }
+}
+
+// Content manipulation functions
+function replaceText(searchText, replaceText) {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    let content = editor.innerHTML;
+    content = content.replace(new RegExp(searchText, 'g'), replaceText);
+    editor.innerHTML = content;
+    updateHiddenField();
+}
+
+function appendText(text) {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.innerHTML += text;
+        updateHiddenField();
+    }
+}
+
+function prependText(text) {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.innerHTML = text + editor.innerHTML;
+        updateHiddenField();
+    }
+}
+
+function clearContent() {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.innerHTML = '';
+        updateHiddenField();
+    }
+}
+
+// Word processing functions
+function getWordCount() {
+    const editor = document.getElementById('editor');
+    if (!editor) return 0;
+    
+    const text = editor.textContent || editor.innerText || '';
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+}
+
+function getCharacterCount() {
+    const editor = document.getElementById('editor');
+    if (!editor) return 0;
+    
+    const text = editor.textContent || editor.innerText || '';
+    return text.length;
+}
+
+// Table functions
+function insertTable(rows = 3, cols = 3) {
+    let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;">';
+    for (let i = 0; i < rows; i++) {
+        tableHTML += '<tr>';
+        for (let j = 0; j < cols; j++) {
+            tableHTML += '<td style="padding: 8px; border: 1px solid #ccc;">&nbsp;</td>';
+        }
+        tableHTML += '</tr>';
+    }
+    tableHTML += '</table>';
+    
+    insertHTMLAtCursor(tableHTML);
+}
+
+// Print function
+function printContent() {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    const content = editor.innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Print Content</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    blockquote { 
+                        border-left: 4px solid #f59e0b; 
+                        margin-left: 0; 
+                        padding-left: 16px; 
+                        background: rgba(245, 158, 11, 0.1); 
+                    }
+                </style>
+            </head>
+            <body>${content}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Export functions
+function exportToHTML() {
+    const editor = document.getElementById('editor');
+    if (!editor) return '';
+    
+    return editor.innerHTML;
+}
+
+function exportToText() {
+    const editor = document.getElementById('editor');
+    if (!editor) return '';
+    
+    return editor.textContent || editor.innerText || '';
+}
+
+// Import functions
+function importHTML(html) {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.innerHTML = html;
+        updateHiddenField();
+    }
+}
+
+function importText(text) {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.textContent = text;
+        updateHiddenField();
+    }
+}
+
+// Focus and blur functions
+function focusEditor() {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.focus();
+    }
+}
+
+function blurEditor() {
+    const editor = document.getElementById('editor');
+    if (editor) {
+        editor.blur();
+    }
+}
+
+// State checking functions
+function isBold() {
+    return document.queryCommandState('bold');
+}
+
+function isItalic() {
+    return document.queryCommandState('italic');
+}
+
+function isUnderline() {
+    return document.queryCommandState('underline');
+}
+
+function isOrderedList() {
+    return document.queryCommandState('insertOrderedList');
+}
+
+function isUnorderedList() {
+    return document.queryCommandState('insertUnorderedList');
+}
+
+// Content validation functions
+function isEmpty() {
+    const editor = document.getElementById('editor');
+    if (!editor) return true;
+    
+    const text = (editor.textContent || editor.innerText || '').trim();
+    return text.length === 0;
+}
+
+function isValidHTML() {
+    const editor = document.getElementById('editor');
+    if (!editor) return false;
+    
+    try {
+        const div = document.createElement('div');
+        div.innerHTML = editor.innerHTML;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Update the hidden textarea with the editor content
+function updateHiddenField() {
+    const editor = document.getElementById('editor');
+    const hiddenField = document.getElementById('hidden-content');
+    
+    if (editor && hiddenField) {
+        hiddenField.value = editor.innerHTML;
+    }
+}
+
+// Update toolbar button states based on current selection
+function updateToolbarState() {
+    const buttons = document.querySelectorAll('.toolbar-btn');
+    
+    buttons.forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // Check for bold
+    if (document.queryCommandState('bold')) {
+        document.querySelector('.toolbar-btn[onclick*="bold"]')?.classList.add('active');
+    }
+    
+    // Check for italic
+    if (document.queryCommandState('italic')) {
+        document.querySelector('.toolbar-btn[onclick*="italic"]')?.classList.add('active');
+    }
+    
+    // Check for underline
+    if (document.queryCommandState('underline')) {
+        document.querySelector('.toolbar-btn[onclick*="underline"]')?.classList.add('active');
+    }
+    
+    // Check for ordered list
+    if (document.queryCommandState('insertOrderedList')) {
+        document.querySelector('.toolbar-btn[onclick*="insertOrderedList"]')?.classList.add('active');
+    }
+    
+    // Check for unordered list
+    if (document.queryCommandState('insertUnorderedList')) {
+        document.querySelector('.toolbar-btn[onclick*="insertUnorderedList"]')?.classList.add('active');
+    }
+    
+    // Check for blockquote
+    const selection = window.getSelection();
+    let isInBlockquote = false;
+    
+    if (selection.rangeCount > 0) {
+        let node = selection.getRangeAt(0).commonAncestorContainer;
+        while (node && node !== document.getElementById('editor')) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE') {
+                isInBlockquote = true;
+                break;
+            }
+            node = node.parentNode;
+        }
+    }
+    
+    if (isInBlockquote) {
+        document.querySelector('.toolbar-btn[onclick*="insertBlockquote"]')?.classList.add('active');
+    }
+}
+
+// Handle image preview for file uploads
+function previewImage(input) {
+    const uploadArea = document.getElementById('upload-area');
+    const previewArea = document.getElementById('preview-area');
+    const imagePreview = document.getElementById('image-preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            uploadArea.classList.add('hidden');
+            previewArea.classList.remove('hidden');
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Initialize rich text editor when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const editor = document.getElementById('editor');
+    const hiddenField = document.getElementById('hidden-content');
+    
+    if (editor && hiddenField) {
+        // Set initial content if exists
+        if (hiddenField.value) {
+            editor.innerHTML = hiddenField.value;
+        }
+
+        // Set initial font size
+        editor.style.fontSize = '12pt';
+
+        // Add event listeners
+        editor.addEventListener('input', function() {
+            updateHiddenField();
+        });
+        
+        editor.addEventListener('keyup', function() {
+            updateToolbarState();
+        });
+        
+        editor.addEventListener('mouseup', function() {
+            updateToolbarState();
+        });
+        
+        editor.addEventListener('focus', function() {
+            updateToolbarState();
+        });
+        
+        // Handle paste events to clean up formatting
+        editor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            
+            // Get plain text from clipboard
+            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+            
+            // Insert the plain text
+            document.execCommand('insertText', false, text);
+            
+            updateHiddenField();
+        });
+        
+            // Handle keyboard shortcuts and list continuation
+            editor.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'b':
+                            e.preventDefault();
+                            formatDoc('bold');
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            formatDoc('italic');
+                            break;
+                        case 'u':
+                            e.preventDefault();
+                            formatDoc('underline');
+                            break;
+                    }
+                }
+                
+                // Handle Tab key for list indentation
+                if (e.key === 'Tab') {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        let currentElement = range.commonAncestorContainer;
+                        
+                        // Find the closest list item
+                        while (currentElement && currentElement !== editor) {
+                            if (currentElement.nodeType === Node.ELEMENT_NODE && currentElement.tagName === 'LI') {
+                                e.preventDefault();
+                                
+                                const listItem = currentElement;
+                                const parentList = listItem.parentNode;
+                                const listType = parentList.tagName; // OL or UL
+                                
+                                if (e.shiftKey) {
+                                    // Shift+Tab: Outdent (move to parent level)
+                                    outdentListItem(listItem);
+                                } else {
+                                    // Tab: Indent (create nested list)
+                                    indentListItem(listItem, listType);
+                                }
+                                
+                                updateHiddenField();
+                                updateToolbarState();
+                                return;
+                            }
+                            currentElement = currentElement.parentNode;
+                        }
+                    }
+                }
+            
+                // Handle Enter key for list continuation and line breaks
+                if (e.key === 'Enter') {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        let currentElement = range.commonAncestorContainer;
+                        
+                        // Find the closest list item or list parent
+                        while (currentElement && currentElement !== editor) {
+                            if (currentElement.nodeType === Node.ELEMENT_NODE) {
+                                const tagName = currentElement.tagName;
+                                
+                                // Handle list items
+                                if (tagName === 'LI') {
+                                    const listItem = currentElement;
+                                    const list = listItem.parentNode;
+                                    
+                                    // Check if list item is empty
+                                    const text = (listItem.textContent || listItem.innerText || '').trim();
+                                    
+                                    if (text === '' || text === '\u00A0') {
+                                        // Empty list item - check if it's nested
+                                        const nestedList = listItem.querySelector('ol, ul');
+                                        if (nestedList || (list.parentNode && list.parentNode.tagName === 'LI')) {
+                                            // If nested, move up one level instead of exiting completely
+                                            e.preventDefault();
+                                            outdentListItem(listItem);
+                                            updateHiddenField();
+                                            updateToolbarState();
+                                            return;
+                                        } else {
+                                            // Not nested - exit the list completely
+                                            e.preventDefault();
+                                            
+                                            // Remove the empty list item
+                                            listItem.parentNode.removeChild(listItem);
+                                            
+                                            // Create a new paragraph after the list
+                                            const newP = document.createElement('p');
+                                            newP.innerHTML = '<br>';
+                                            
+                                            if (list.nextSibling) {
+                                                list.parentNode.insertBefore(newP, list.nextSibling);
+                                            } else {
+                                                list.parentNode.appendChild(newP);
+                                            }
+                                            
+                                            // Position cursor in the new paragraph
+                                            const newRange = document.createRange();
+                                            newRange.setStart(newP, 0);
+                                            newRange.collapse(true);
+                                            selection.removeAllRanges();
+                                            selection.addRange(newRange);
+                                            
+                                            updateHiddenField();
+                                            updateToolbarState();
+                                            return;
+                                        }
+                                    } else {
+                                        // Non-empty list item - let browser handle normally for continuation
+                                        setTimeout(() => {
+                                            updateHiddenField();
+                                            updateToolbarState();
+                                        }, 10);
+                                        return;
+                                    }
+                                }
+                                
+                                // Handle being inside ordered or unordered lists
+                                if (tagName === 'OL' || tagName === 'UL') {
+                                    // Let browser handle list continuation normally
+                                    setTimeout(() => {
+                                        updateHiddenField();
+                                        updateToolbarState();
+                                    }, 10);
+                                    return;
+                                }
+                            }
+                            currentElement = currentElement.parentNode;
+                        }
+                    }
+                    
+                    // Default behavior for non-list elements
+                    if (!e.shiftKey) {
+                        // Create a new line with proper spacing
+                        document.execCommand('insertHTML', false, '<br><br>');
+                        e.preventDefault();
+                        updateHiddenField();
+                    }
+                }
+                
+                // Handle backspace in lists
+                if (e.key === 'Backspace') {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        let currentElement = range.commonAncestorContainer;
+                        
+                        // Check if we're at the beginning of a list item
+                        while (currentElement && currentElement !== editor) {
+                            if (currentElement.nodeType === Node.ELEMENT_NODE && currentElement.tagName === 'LI') {
+                                const listItem = currentElement;
+                                
+                                // Check if cursor is at the very beginning of the list item
+                                if (range.startOffset === 0 && range.collapsed) {
+                                    const text = (listItem.textContent || listItem.innerText || '').trim();
+                                    
+                                    if (text === '' || text === '\u00A0') {
+                                        // Empty list item - remove it and exit list or move up level
+                                        e.preventDefault();
+                                        
+                                        const list = listItem.parentNode;
+                                        const isNested = list.parentNode && list.parentNode.tagName === 'LI';
+                                        
+                                        if (isNested) {
+                                            // Nested list - move up one level
+                                            outdentListItem(listItem);
+                                        } else {
+                                            // Top level - remove item
+                                            listItem.parentNode.removeChild(listItem);
+                                            
+                                            // If list is now empty, remove it entirely
+                                            if (list.children.length === 0) {
+                                                const newP = document.createElement('p');
+                                                newP.innerHTML = '<br>';
+                                                list.parentNode.replaceChild(newP, list);
+                                                
+                                                // Position cursor
+                                                const newRange = document.createRange();
+                                                newRange.setStart(newP, 0);
+                                                newRange.collapse(true);
+                                                selection.removeAllRanges();
+                                                selection.addRange(newRange);
+                                            }
+                                        }
+                                        
+                                        updateHiddenField();
+                                        updateToolbarState();
+                                        return;
+                                    }
+                                }
+                                break;
+                            }
+                            currentElement = currentElement.parentNode;
+                        }
+                    }
+                }
+            });
+        
+        // Prevent losing focus when clicking toolbar buttons
+        const toolbarButtons = document.querySelectorAll('.toolbar-btn');
+        toolbarButtons.forEach(button => {
+            button.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+            });
+        });
+        
+        // Handle font size selector
+        const fontSizeSelector = document.querySelector('.font-size-selector');
+        if (fontSizeSelector) {
+            fontSizeSelector.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+            });
+        }
+        
+        // Initial toolbar state update
+        setTimeout(() => {
+            updateToolbarState();
+        }, 100);
+    }
+    
+    // Form submission handler to ensure content is saved
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            updateHiddenField();
+        });
+    }
+});
+
+// Additional utility functions for rich text editing
+
+// Clean up HTML content (remove unwanted tags/attributes)
+function cleanHTML(html) {
+    const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    
+    // Remove unwanted elements
+    const allElements = div.querySelectorAll('*');
+    allElements.forEach(el => {
+        if (!allowedTags.includes(el.tagName.toLowerCase())) {
+            el.outerHTML = el.innerHTML;
+        }
+        
+        // Remove all attributes except for basic ones
+        if (el.attributes) {
+            Array.from(el.attributes).forEach(attr => {
+                if (!['class'].includes(attr.name)) {
+                    el.removeAttribute(attr.name);
+                }
+            });
+        }
+    });
+    
+    return div.innerHTML;
+}
+
+// Insert HTML at cursor position
+function insertHTMLAtCursor(html) {
+    const editor = document.getElementById('editor');
+    editor.focus();
+    
+    if (document.selection) {
+        // IE
+        const range = document.selection.createRange();
+        range.pasteHTML(html);
+    } else if (window.getSelection) {
+        // Modern browsers
+        const selection = window.getSelection();
+        if (selection.getRangeAt && selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            
+            const el = document.createElement('div');
+            el.innerHTML = html;
+            const frag = document.createDocumentFragment();
+            let node;
+            while ((node = el.firstChild)) {
+                frag.appendChild(node);
+            }
+            range.insertNode(frag);
+            
+            // Move cursor to end of inserted content
+            const newRange = document.createRange();
+            newRange.setStartAfter(frag);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        }
+    }
+    
+    updateHiddenField();
+}
+
+// Get selected text
+function getSelectedText() {
+    const selection = window.getSelection();
+    return selection.toString();
+}
+
+// Check if editor has content
+function hasContent() {
+    const editor = document.getElementById('editor');
+    if (!editor) return false;
+    
+    const text = editor.textContent || editor.innerText || '';
+    return text.trim().length > 0;
+}
+
+
 function initAccessibility() {
     // Add skip links
     const skipLink = document.createElement('a');

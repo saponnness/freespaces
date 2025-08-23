@@ -3,12 +3,15 @@
 {% block title %}{{ profile.user.username }} - Freespaces{% endblock %}
 
 {% block content %}
+<!-- Add Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
 <div class="max-w-4xl mx-auto px-4">
     <!-- Profile Header -->
     <div class="glass-effect rounded-3xl shadow-lg p-8 mb-8">
         <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-            <!-- Avatar -->
-            <div class="flex-shrink-0">
+            <!-- Avatar with Edit Button -->
+            <div class="flex-shrink-0 relative">
                 {% if profile.avatar %}
                     <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}" 
                          class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
@@ -19,24 +22,104 @@
                         </span>
                     </div>
                 {% endif %}
+                
+                {% if user == profile.user %}
+                    <button onclick="document.getElementById('avatar-upload').click()" 
+                            class="absolute -bottom-2 -right-2 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Hidden file input -->
+                    <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                {% endif %}
             </div>
             
             <!-- Profile Info -->
             <div class="flex-1 text-center md:text-left">
-                <h1 class="text-3xl font-bold gradient-text mb-2">
-                    {% if profile.user.first_name %}
-                        {{ profile.user.first_name }} {{ profile.user.last_name }}
-                    {% else %}
-                        {{ profile.user.username }}
+                <!-- Name Section -->
+                <div id="name-display" class="mb-2">
+                    <h1 class="text-3xl font-bold gradient-text inline">
+                        {% if profile.user.first_name %}
+                            {{ profile.user.first_name }} {{ profile.user.last_name }}
+                        {% else %}
+                            {{ profile.user.username }}
+                        {% endif %}
+                    </h1>
+                    {% if user == profile.user %}
+                        <button onclick="toggleNameEdit()" class="ml-2 text-gray-500 hover:text-blue-500">
+                            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
                     {% endif %}
-                </h1>
+                </div>
+                
+                {% if user == profile.user %}
+                    <!-- Name Edit Form (Hidden by default) -->
+                    <div id="name-edit" class="mb-2 hidden">
+                        <form method="post" action="{% url 'accounts:update_name' %}">
+                            {% csrf_token %}
+                            <div class="flex gap-2 items-center">
+                                {{ name_form.first_name }}
+                                {{ name_form.last_name }}
+                                <button type="submit" class="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600">
+                                    Save
+                                </button>
+                                <button type="button" onclick="toggleNameEdit()" class="bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
                 
                 <p class="text-gray-600 text-lg mb-4">@{{ profile.user.username }}</p>
                 
-                {% if profile.bio %}
-                    <p class="text-gray-700 mb-6 leading-relaxed">{{ profile.bio }}</p>
+                <!-- Bio Section with Rich Text Support -->
+                <div id="bio-display" class="mb-6">
+                    {% if profile.bio %}
+                        <div class="rich-text-content text-gray-700 leading-relaxed">
+                            {{ profile.bio|safe }}
+                        </div>
+                        {% if user == profile.user %}
+                            <button onclick="toggleBioEdit()" class="text-sm text-blue-500 hover:text-blue-600 mt-1">
+                                Edit bio
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        {% if user == profile.user %}
+                            <button onclick="toggleBioEdit()" class="text-blue-500 hover:text-blue-600 text-sm">
+                                + Add a bio
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                {% if user == profile.user %}
+                    <!-- Bio Edit Form (Hidden by default) -->
+                    <div id="bio-edit" class="mb-6 hidden">
+                        <form method="post" action="{% url 'accounts:update_bio' %}">
+                            {% csrf_token %}
+                            {{ bio_form.bio }}
+                            <div class="mt-2">
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                    Save Bio
+                                </button>
+                                <button type="button" onclick="toggleBioEdit()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 {% endif %}
                 
+                <!-- Info and Social Links -->
                 <div class="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-600 mb-6">
                     {% if profile.location %}
                         <div class="flex items-center glass-effect px-3 py-2 rounded-full">
@@ -70,6 +153,87 @@
                     </div>
                 </div>
                 
+                <!-- Social Media Links -->
+                <div id="social-display" class="mb-6">
+                    {% if profile.facebook_url or profile.instagram_url or profile.tiktok_url %}
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                            {% if profile.facebook_url %}
+                                <a href="{{ profile.facebook_url }}" target="_blank" 
+                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-blue-600 hover:bg-blue-50">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                    Facebook
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile.instagram_url %}
+                                <a href="{{ profile.instagram_url }}" target="_blank" 
+                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-pink-600 hover:bg-pink-50">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988s11.988-5.367 11.988-11.988C24.005 5.367 18.638.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.596-3.185-1.537-.737-.941-.737-2.115 0-3.056.737-.941 1.888-1.537 3.185-1.537 1.297 0 2.448.596 3.185 1.537.737.941.737 2.115 0 3.056-.737.941-1.888 1.537-3.185 1.537zm7.119 0c-1.297 0-2.448-.596-3.185-1.537-.737-.941-.737-2.115 0-3.056.737-.941 1.888-1.537 3.185-1.537 1.297 0 2.448.596 3.185 1.537.737.941.737 2.115 0 3.056-.737.941-1.888 1.537-3.185 1.537z"/>
+                                    </svg>
+                                    Instagram
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile.tiktok_url %}
+                                <a href="{{ profile.tiktok_url }}" target="_blank" 
+                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-black hover:bg-gray-50">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M19.321 5.562a5.124 5.124 0 0 1-.443-.258 6.228 6.228 0 0 1-1.137-.966c-.849-1.011-1.232-2.219-1.177-3.315V.936h-3.631v14.111c0 .84-.334 1.606-.897 2.17a3.073 3.073 0 0 1-2.188.905c-1.704 0-3.085-1.382-3.085-3.086 0-1.704 1.381-3.086 3.085-3.086.337 0 .662.057.966.161v-3.755a6.834 6.834 0 0 0-.966-.069c-3.785 0-6.85 3.065-6.85 6.849 0 3.785 3.065 6.85 6.85 6.85z"/>
+                                    </svg>
+                                    TikTok
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% if user == profile.user %}
+                            <button onclick="toggleSocialEdit()" class="text-sm text-blue-500 hover:text-blue-600 mt-2">
+                                Edit social links
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        {% if user == profile.user %}
+                            <button onclick="toggleSocialEdit()" class="text-blue-500 hover:text-blue-600 text-sm">
+                                + Add social media links
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                {% if user == profile.user %}
+                    <!-- Social Links Edit Form (Hidden by default) -->
+                    <div id="social-edit" class="mb-6 hidden">
+                        <form method="post" action="{% url 'accounts:update_social_links' %}">
+                            {% csrf_token %}
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+                                    {{ social_form.facebook_url }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                                    {{ social_form.instagram_url }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
+                                    {{ social_form.tiktok_url }}
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                                <button type="submit" 
+                                        class="flex-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                                    Save Social Links
+                                </button>
+                                <button type="button" onclick="toggleSocialEdit()" 
+                                        class="flex-1 glass-effect text-gray-700 py-3 px-6 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+                
                 <!-- Stats -->
                 <div class="flex justify-center md:justify-start gap-8 mb-6">
                     <div class="text-center">
@@ -81,13 +245,6 @@
                         <div class="text-gray-600 text-sm">Likes</div>
                     </div>
                 </div>
-                
-                {% if user == profile.user %}
-                    <a href="{% url 'accounts:edit_profile' %}" 
-                       class="inline-block bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-full hover:shadow-lg transition-all duration-200 font-semibold">
-                        Edit Profile
-                    </a>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -141,7 +298,10 @@
                                         </a>
                                     </h3>
                                     
-                                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ post.excerpt }}</p>
+                                    <!-- Rich text excerpt with proper formatting -->
+                                    <div class="rich-text-excerpt text-gray-600 text-sm mb-4 leading-relaxed">
+                                        {{ post.excerpt|safe|truncatewords_html:15 }}
+                                    </div>
                                     
                                     <div class="flex items-center justify-between">
                                         <span class="text-gray-500 text-sm">{{ post.created_at|date:"M d, Y" }}</span>
@@ -175,4 +335,39 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Image Cropping Modal -->
+{% if user == profile.user %}
+<div id="cropModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center" style="user-select: none;">
+    <div class="bg-white rounded-lg max-w-lg w-full mx-4" onclick="event.stopPropagation();">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">Crop Your Profile Picture</h3>
+            <div class="mb-4 overflow-hidden" style="max-height: 400px;">
+                <img id="cropImage" class="max-w-full block" style="max-height: 400px;">
+            </div>
+            <div class="text-sm text-gray-600 mb-4">
+                Drag to reposition • Scroll to zoom • Drag corners to resize crop area
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeCropModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                    Cancel
+                </button>
+                <button onclick="saveCroppedImage()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Save Picture
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden form for cropped image -->
+<form id="cropped-form" method="post" action="{% url 'accounts:update_avatar' %}" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" id="cropped-image-data" name="cropped_image">
+</form>
+{% endif %}
+
+<!-- Add Cropper.js Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
 {% endblock %}

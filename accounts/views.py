@@ -3,7 +3,11 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import CustomUserCreationForm, ProfileUpdateForm, UserUpdateForm
+from django.http import JsonResponse
+from .forms import (
+    CustomUserCreationForm, ProfileUpdateForm, UserUpdateForm,
+    AvatarUpdateForm, NameUpdateForm, BioUpdateForm, SocialLinksUpdateForm
+)
 from .models import Profile
 
 def register(request):
@@ -29,11 +33,22 @@ def profile(request, username=None):
         user = request.user
     
     profile, created = Profile.objects.get_or_create(user=user)
-    return render(request, 'accounts/profile.html', {'profile': profile})
+    
+    # Create forms for inline editing (only for own profile)
+    context = {'profile': profile}
+    if request.user == user:
+        context.update({
+            'avatar_form': AvatarUpdateForm(instance=profile),
+            'name_form': NameUpdateForm(instance=user),
+            'bio_form': BioUpdateForm(instance=profile),
+            'social_form': SocialLinksUpdateForm(instance=profile),
+        })
+    
+    return render(request, 'accounts/profile.html', context)
 
 @login_required
 def edit_profile(request):
-    """Edit user profile"""
+    """Edit user profile (keep for backward compatibility)"""
     profile, created = Profile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
@@ -54,3 +69,91 @@ def edit_profile(request):
         'profile_form': profile_form
     }
     return render(request, 'accounts/edit_profile.html', context)
+
+@login_required
+def update_avatar(request):
+    """Update user avatar"""
+    if request.method == 'POST':
+        profile = get_object_or_404(Profile, user=request.user)
+        
+        # Handle cropped image data
+        if 'cropped_image' in request.POST:
+            import base64
+            from django.core.files.base import ContentFile
+            from django.core.files.storage import default_storage
+            import uuid
+            
+            try:
+                # Get base64 image data
+                image_data = request.POST['cropped_image']
+                format, imgstr = image_data.split(';base64,')
+                ext = format.split('/')[-1]
+                
+                # Create file from base64 data
+                data = ContentFile(base64.b64decode(imgstr))
+                filename = f"profile_pics/{uuid.uuid4()}.{ext}"
+                
+                # Delete old avatar if it exists and is not default
+                if profile.avatar and 'default.jpg' not in profile.avatar.name:
+                    profile.avatar.delete()
+                
+                # Save new avatar
+                profile.avatar.save(filename, data, save=True)
+                messages.success(request, 'Avatar updated successfully!')
+                
+            except Exception as e:
+                messages.error(request, 'Error processing image.')
+        else:
+            # Handle regular file upload (fallback)
+            form = AvatarUpdateForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Avatar updated successfully!')
+            else:
+                messages.error(request, 'Error updating avatar.')
+    
+    return redirect('accounts:profile')
+
+@login_required
+def update_name(request):
+    """Update user name"""
+    if request.method == 'POST':
+        form = NameUpdateForm(request.POST, instance=request.user)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Name updated successfully!')
+        else:
+            messages.error(request, 'Error updating name.')
+    
+    return redirect('accounts:profile')
+
+@login_required
+def update_bio(request):
+    """Update user bio"""
+    if request.method == 'POST':
+        profile = get_object_or_404(Profile, user=request.user)
+        form = BioUpdateForm(request.POST, instance=profile)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Bio updated successfully!')
+        else:
+            messages.error(request, 'Error updating bio.')
+    
+    return redirect('accounts:profile')
+
+@login_required
+def update_social_links(request):
+    """Update social media links"""
+    if request.method == 'POST':
+        profile = get_object_or_404(Profile, user=request.user)
+        form = SocialLinksUpdateForm(request.POST, instance=profile)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Social links updated successfully!')
+        else:
+            messages.error(request, 'Error updating social links.')
+    
+    return redirect('accounts:profile')

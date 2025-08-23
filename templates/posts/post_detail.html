@@ -55,8 +55,8 @@
     <!-- Post Content -->
     <div class="glass-effect rounded-3xl p-8 mb-8 shadow-lg">
         <div class="prose prose-lg max-w-none text-gray-800">
-            <div class="formatted-content">
-                {{ post.content|linebreaks|safe }}
+            <div class="rich-text-content">
+                {{ post.content|safe }}
             </div>
         </div>
     </div>
