@@ -23,8 +23,6 @@ def search(request):
             status='published'
         ).filter(
             Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(author__username__icontains=query) |
             Q(category__name__icontains=query)
         ).select_related('author', 'category').distinct()
     

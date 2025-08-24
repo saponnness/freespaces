@@ -22,7 +22,7 @@ def post_list(request):
     if search_query:
         posts = posts.filter(
             Q(title__icontains=search_query) | 
-            Q(content__icontains=search_query)
+            Q(category__name__icontains=search_query)
         )
     
     context = {
