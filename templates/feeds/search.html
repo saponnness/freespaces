@@ -43,13 +43,56 @@
         
         <!-- Popular Search Tags -->
         <div class="mt-6">
-            <p class="text-sm text-gray-600 mb-3">Popular searches:</p>
+            <p class="text-sm text-gray-600 mb-3">Popular categories:</p>
             <div class="flex flex-wrap gap-2">
-                <a href="?q=photography" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">📸 Photography</a>
-                <a href="?q=workspace" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🏢 Workspace</a>
-                <a href="?q=design" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🎨 Design</a>
-                <a href="?q=minimal" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">✨ Minimal</a>
-                <a href="?q=creative" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">💡 Creative</a>
+                {% for category in popular_categories %}
+                    <a href="?q={{ category.name|lower }}" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">
+                        {% if category.name == "Photography" %}
+                            📸
+                        {% elif category.name == "Programming" or category.name == "Web Design" %}
+                            💻
+                        {% elif category.name == "Workspace" %}
+                            🏢
+                        {% elif category.name == "Art & Design" or category.name == "Art" or category.name == "Design" %}
+                            🎨
+                        {% elif category.name == "Lifestyle" %}
+                            🌿
+                        {% elif category.name == "Food" %}
+                            🍜
+                        {% elif category.name == "Travel" %}
+                            ✈️
+                        {% elif category.name == "Music" %}
+                            🎵
+                        {% elif category.name == "Sports" or category.name == "Fitness" %}
+                            ⚽
+                        {% elif category.name == "Gaming" %}
+                            🎮
+                        {% elif category.name == "Books" or category.name == "Reading" %}
+                            📚
+                        {% elif category.name == "Technology" or category.name == "Tech" %}
+                            🔧
+                        {% elif category.name == "Fashion" %}
+                            👗
+                        {% elif category.name == "Business" %}
+                            💼
+                        {% elif category.name == "Education" %}
+                            🎓
+                        {% else %}
+                            🏷️
+                        {% endif %}
+                        {{ category.name }}
+                        {% if category.post_count %}
+                            <span class="text-xs opacity-75">({{ category.post_count }})</span>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <!-- Fallback popular searches if no categories exist -->
+                    <a href="?q=photography" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">📸 Photography</a>
+                    <a href="?q=workspace" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🏢 Workspace</a>
+                    <a href="?q=design" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🎨 Design</a>
+                    <a href="?q=minimal" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">✨ Minimal</a>
+                    <a href="?q=creative" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">💡 Creative</a>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -148,26 +191,44 @@
             
             <!-- Trending topics -->
             <div class="text-left max-w-md mx-auto">
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Trending topics:</h4>
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Popular topics:</h4>
                 <div class="space-y-2">
-                    <a href="?q=minimalist+workspace" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-lg">🏢</span>
-                            <span class="text-gray-700">Minimalist Workspace</span>
-                        </div>
-                    </a>
-                    <a href="?q=photography+tips" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-lg">📸</span>
-                            <span class="text-gray-700">Photography Tips</span>
-                        </div>
-                    </a>
-                    <a href="?q=web+design+inspiration" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-lg">💻</span>
-                            <span class="text-gray-700">Web Design Inspiration</span>
-                        </div>
-                    </a>
+                    {% for category in popular_categories|slice:":3" %}
+                        <a href="?q={{ category.name|lower }}" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-lg">
+                                    {% if category.name == "Photography" %}📸
+                                    {% elif category.name == "Programming" or category.name == "Web Design" %}💻
+                                    {% elif category.name == "Workspace" %}🏢
+                                    {% else %}🎨{% endif %}
+                                </span>
+                                <span class="text-gray-700">{{ category.name }}</span>
+                                {% if category.post_count %}
+                                    <span class="text-xs text-gray-500">({{ category.post_count }} posts)</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% empty %}
+                        <!-- Fallback if no categories -->
+                        <a href="?q=photography" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-lg">📸</span>
+                                <span class="text-gray-700">Photography</span>
+                            </div>
+                        </a>
+                        <a href="?q=workspace" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-lg">🏢</span>
+                                <span class="text-gray-700">Workspace</span>
+                            </div>
+                        </a>
+                        <a href="?q=design" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-lg">🎨</span>
+                                <span class="text-gray-700">Design</span>
+                            </div>
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
