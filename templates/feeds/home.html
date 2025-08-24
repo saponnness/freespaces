@@ -37,13 +37,13 @@
         <!-- Category Pills - Now with flex-wrap for multiple rows -->
         <div class="flex flex-wrap gap-3 pb-2">
             <!-- All Categories Button -->
-            <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="all">
+            <button class="category-filter-btn tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform active" data-category="all">
                 ✨ All
             </button>
             
             <!-- Dynamic Categories from Database -->
             {% for category in categories %}
-                <button class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="{{ category.name|lower }}">
+                <button class="category-filter-btn tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 whitespace-nowrap hover:scale-105 transition-transform" data-category="{{ category.name|lower }}">
                     {% if category.name == "Photography" %}
                         📸
                     {% elif category.name == "Programming" or category.name == "Web Design" %}
@@ -86,13 +86,30 @@
         </div>
     </div>
 
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="text-center py-8 hidden">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        <p class="text-gray-600 mt-2">Loading posts...</p>
+    </div>
+
+    <!-- No posts message -->
+    <div id="no-posts-message" class="text-center py-12 hidden">
+        <div class="glass-effect rounded-3xl p-8">
+            <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-2xl">📝</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No posts found</h3>
+            <p class="text-gray-600">No posts available in this category yet.</p>
+        </div>
+    </div>
+
     <!-- Recent Posts Section -->
-    {% if recent_posts %}
-    <div class="mb-12">
+    <div id="posts-container" class="mb-12">
+        {% if recent_posts %}
         <div class="masonry-grid">
             {% for post in recent_posts|dictsortreversed:"created_at" %}
                 {% if post.status == 'published' %}
-                    <div class="masonry-item">
+                    <div class="masonry-item post-item" data-category="{{ post.category.name|lower|default:'uncategorized' }}">
                         <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
                             <div class="relative">
                                 {% if post.featured_image %}
@@ -186,8 +203,8 @@
                 {% endif %}
             {% endfor %}
         </div>
+        {% endif %}
     </div>
-    {% endif %}
 
     <!-- Features Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">

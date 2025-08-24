@@ -16,6 +16,100 @@ function getCookie(name) {
 
 const csrftoken = getCookie('csrftoken');
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.category-filter-btn');
+    const postItems = document.querySelectorAll('.post-item');
+    const postsContainer = document.getElementById('posts-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const noPostsMessage = document.getElementById('no-posts-message');
+    
+    // Handle category filter clicks
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedCategory = this.getAttribute('data-category');
+            
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('bg-purple-200', 'text-purple-800');
+                btn.classList.add('text-purple-700');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active', 'bg-purple-200', 'text-purple-800');
+            this.classList.remove('text-purple-700');
+            
+            // Show loading indicator briefly for better UX
+            showLoading();
+            
+            setTimeout(() => {
+                filterPosts(selectedCategory);
+                hideLoading();
+            }, 300);
+        });
+    });
+    
+    function showLoading() {
+        loadingIndicator.classList.remove('hidden');
+        postsContainer.style.opacity = '0.5';
+        noPostsMessage.classList.add('hidden');
+    }
+    
+    function hideLoading() {
+        loadingIndicator.classList.add('hidden');
+        postsContainer.style.opacity = '1';
+    }
+    
+    function filterPosts(category) {
+        let visiblePostsCount = 0;
+        
+        postItems.forEach(post => {
+            const postCategory = post.getAttribute('data-category');
+            
+            if (category === 'all' || postCategory === category) {
+                post.style.display = 'block';
+                // Add fade-in animation
+                post.style.opacity = '0';
+                post.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    post.style.transition = 'all 0.3s ease';
+                    post.style.opacity = '1';
+                    post.style.transform = 'translateY(0)';
+                }, visiblePostsCount * 50); // Stagger the animations
+                
+                visiblePostsCount++;
+            } else {
+                post.style.display = 'none';
+            }
+        });
+        
+        // Show "no posts" message if no posts are visible
+        if (visiblePostsCount === 0) {
+            noPostsMessage.classList.remove('hidden');
+            postsContainer.classList.add('hidden');
+        } else {
+            noPostsMessage.classList.add('hidden');
+            postsContainer.classList.remove('hidden');
+        }
+        
+        // Update page title and heading based on selected category
+        const trendingHeading = document.querySelector('h2');
+        if (category === 'all') {
+            trendingHeading.textContent = 'Trending Now';
+        } else {
+            const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+            trendingHeading.textContent = `${categoryName} Posts`;
+        }
+    }
+    
+    // Initialize with "All" category active
+    document.querySelector('[data-category="all"]').classList.add('active', 'bg-purple-200', 'text-purple-800');
+    document.querySelector('[data-category="all"]').classList.remove('text-purple-700');
+});
+
+
 // Like Button Functionality
 function initLikeButtons() {
     document.addEventListener('click', function(e) {
