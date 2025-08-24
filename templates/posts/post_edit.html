@@ -29,7 +29,7 @@
                                     <option value="2">Small</option>
                                     <option value="3" selected>Normal size</option>
                                     <option value="5">Large</option>
-                                    <option value="7">Extra large</option>>
+                                    <option value="7">Extra large</option>
                                 </select>
                                 
                                 <div class="toolbar-group">
@@ -64,13 +64,27 @@
                                  class="editor-content" 
                                  contenteditable="true" 
                                  placeholder="Tell your story..."
-                                 oninput="updateHiddenField()">{{ field.value|default:'' }}</div>
+                                 oninput="updateHiddenField()"></div>
                             
                             <textarea name="{{ field.name }}" 
                                       id="hidden-content"
                                       class="hidden-textarea"
                                       style="display: none;">{{ field.value|default:'' }}</textarea>
                         </div>
+                        
+                        <script>
+                        // Initialize the rich text editor content after the DOM is loaded
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const editor = document.getElementById('editor');
+                            const hiddenField = document.getElementById('hidden-content');
+                            
+                            if (editor && hiddenField && hiddenField.value) {
+                                // Set the HTML content in the editor
+                                editor.innerHTML = hiddenField.value;
+                            }
+                        });
+                        </script>
+                        
                     {% elif field.name == 'featured_image' %}
                         <div class="relative">
                             {% if post.featured_image %}
