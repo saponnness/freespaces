@@ -261,7 +261,7 @@
         
         {% if profile.user.posts.all %}
             <div class="masonry-grid">
-                {% for post in profile.user.posts.all %}
+                {% for post in profile.user.posts.all|dictsortreversed:"created_at" %}
                     {% if post.status == 'published' or user == profile.user %}
                         <div class="masonry-item">
                             <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
@@ -278,7 +278,7 @@
                                     <div class="absolute top-4 left-4">
                                         {% if post.category %}
                                             <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                                {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏠{% else %}🎨{% endif %}
+                                                {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏢{% else %}🎨{% endif %}
                                                 {{ post.category.name }}
                                             </span>
                                         {% endif %}

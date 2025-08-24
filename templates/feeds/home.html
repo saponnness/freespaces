@@ -63,7 +63,7 @@
                     {% elif category.name == "Programming" or category.name == "Web Design" %}
                         💻
                     {% elif category.name == "Workspace" %}
-                        🏠
+                        🏢
                     {% elif category.name == "Art & Design" or category.name == "Art" or category.name == "Design" %}
                         🎨
                     {% elif category.name == "Lifestyle" %}
@@ -104,105 +104,107 @@
     {% if recent_posts %}
     <div class="mb-12">
         <div class="masonry-grid">
-            {% for post in recent_posts %}
-                <div class="masonry-item">
-                    <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
-                        <div class="relative">
-                            {% if post.featured_image %}
-                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
-                                     class="w-full object-cover masonry-image">
-                            {% else %}
-                                <div class="w-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center image-overlay masonry-placeholder">
-                                    <span class="text-white font-medium">{{ post.category.name|default:"Freespaces" }}</span>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="absolute top-4 left-4">
-                                {% if post.category %}
-                                    <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                        {% if post.category.name == "Photography" %}
-                                            📸
-                                        {% elif post.category.name == "Programming" or post.category.name == "Web Design" %}
-                                            💻
-                                        {% elif post.category.name == "Workspace" %}
-                                            🏠
-                                        {% elif post.category.name == "Art & Design" or post.category.name == "Art" or post.category.name == "Design" %}
-                                            🎨
-                                        {% elif post.category.name == "Lifestyle" %}
-                                            🌿
-                                        {% elif post.category.name == "Food" %}
-                                            🍜
-                                        {% elif post.category.name == "Travel" %}
-                                            ✈️
-                                        {% elif post.category.name == "Music" %}
-                                            🎵
-                                        {% elif post.category.name == "Sports" or post.category.name == "Fitness" %}
-                                            ⚽
-                                        {% elif post.category.name == "Gaming" %}
-                                            🎮
-                                        {% elif post.category.name == "Books" or post.category.name == "Reading" %}
-                                            📚
-                                        {% elif post.category.name == "Technology" or post.category.name == "Tech" %}
-                                            🔧
-                                        {% elif post.category.name == "Fashion" %}
-                                            👗
-                                        {% elif post.category.name == "Business" %}
-                                            💼
-                                        {% elif post.category.name == "Education" %}
-                                            🎓
-                                        {% else %}
-                                            🏷️
-                                        {% endif %}
-                                        {{ post.category.name }}
-                                    </span>
-                                {% endif %}
-                            </div>
-                            
-                            <button class="absolute top-4 right-4 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg text-gray-800 mb-2 leading-tight">
-                                <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
-                                    {{ post.title }}
-                                </a>
-                            </h3>
-                            
-                            <!-- Rich text excerpt with truncation -->
-                            <div class="text-gray-600 text-sm mb-4 leading-relaxed rich-text-excerpt">
-                                {% if post.excerpt %}
-                                    {{ post.excerpt|safe }}
+            {% for post in recent_posts|dictsortreversed:"created_at" %}
+                {% if post.status == 'published' %}
+                    <div class="masonry-item">
+                        <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
+                            <div class="relative">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                         class="w-full object-cover masonry-image">
                                 {% else %}
-                                    <!-- Auto-generate excerpt from content if no manual excerpt -->
-                                    <div class="excerpt-content">{{ post.content|safe|truncatewords_html:25 }}</div>
+                                    <div class="w-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center masonry-placeholder">
+                                        <span class="text-white font-medium">{{ post.category.name|default:"Freespaces" }}</span>
+                                    </div>
                                 {% endif %}
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    {% if post.author.profile.avatar %}
-                                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
-                                             class="w-8 h-8 rounded-full avatar">
-                                    {% else %}
-                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
-                                            <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
-                                        </div>
+                                
+                                <div class="absolute top-4 left-4">
+                                    {% if post.category %}
+                                        <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                                            {% if post.category.name == "Photography" %}
+                                                📸
+                                            {% elif post.category.name == "Programming" or post.category.name == "Web Design" %}
+                                                💻
+                                            {% elif post.category.name == "Workspace" %}
+                                                🏢
+                                            {% elif post.category.name == "Art & Design" or post.category.name == "Art" or post.category.name == "Design" %}
+                                                🎨
+                                            {% elif post.category.name == "Lifestyle" %}
+                                                🌿
+                                            {% elif post.category.name == "Food" %}
+                                                🍜
+                                            {% elif post.category.name == "Travel" %}
+                                                ✈️
+                                            {% elif post.category.name == "Music" %}
+                                                🎵
+                                            {% elif post.category.name == "Sports" or post.category.name == "Fitness" %}
+                                                ⚽
+                                            {% elif post.category.name == "Gaming" %}
+                                                🎮
+                                            {% elif post.category.name == "Books" or post.category.name == "Reading" %}
+                                                📚
+                                            {% elif post.category.name == "Technology" or post.category.name == "Tech" %}
+                                                🔧
+                                            {% elif post.category.name == "Fashion" %}
+                                                👗
+                                            {% elif post.category.name == "Business" %}
+                                                💼
+                                            {% elif post.category.name == "Education" %}
+                                                🎓
+                                            {% else %}
+                                                🏷️
+                                            {% endif %}
+                                            {{ post.category.name }}
+                                        </span>
                                     {% endif %}
-                                    <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
                                 </div>
                                 
-                                <div class="flex items-center space-x-4">
-                                    {% include 'includes/like_button.html' %}
+                                <button class="absolute top-4 right-4 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2 leading-tight">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                        {{ post.title }}
+                                    </a>
+                                </h3>
+                                
+                                <!-- Rich text excerpt with truncation -->
+                                <div class="text-gray-600 text-sm mb-4 leading-relaxed rich-text-excerpt">
+                                    {% if post.excerpt %}
+                                        {{ post.excerpt|safe|truncatewords_html:15 }}
+                                    {% else %}
+                                        <!-- Auto-generate excerpt from content if no manual excerpt -->
+                                        <div class="excerpt-content">{{ post.content|safe|truncatewords_html:15 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        {% if post.author.profile.avatar %}
+                                            <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
+                                                 class="w-8 h-8 rounded-full avatar">
+                                        {% else %}
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
+                                                <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center space-x-4">
+                                        {% include 'includes/like_button.html' %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
@@ -244,8 +246,4 @@
         </div>
     {% endif %}
 </div>
-
-<style>
-
-</style>
 {% endblock %}

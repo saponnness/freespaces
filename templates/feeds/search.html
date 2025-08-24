@@ -46,7 +46,7 @@
             <p class="text-sm text-gray-600 mb-3">Popular searches:</p>
             <div class="flex flex-wrap gap-2">
                 <a href="?q=photography" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">📸 Photography</a>
-                <a href="?q=workspace" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🏠 Workspace</a>
+                <a href="?q=workspace" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🏢 Workspace</a>
                 <a href="?q=design" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">🎨 Design</a>
                 <a href="?q=minimal" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">✨ Minimal</a>
                 <a href="?q=creative" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">💡 Creative</a>
@@ -58,7 +58,7 @@
     {% if query %}
         {% if posts %}
             <div class="masonry-grid">
-                {% for post in posts %}
+                {% for post in posts|dictsortreversed:"created_at" %}
                     <div class="masonry-item">
                         <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
                             <div class="relative">
@@ -74,7 +74,7 @@
                                 <div class="absolute top-4 left-4">
                                     {% if post.category %}
                                         <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                            {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏠{% else %}🎨{% endif %}
+                                            {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏢{% else %}🎨{% endif %}
                                             {{ post.category.name }}
                                         </span>
                                     {% endif %}
@@ -82,7 +82,7 @@
                                 
                                 <div class="absolute top-4 right-4">
                                     <span class="bg-white/90 text-gray-600 text-xs px-2 py-1 rounded-full">
-                                        {{ post.published_at|date:"M d" }}
+                                        {{ post.created_at|date:"M d" }}
                                     </span>
                                 </div>
                             </div>
@@ -95,11 +95,11 @@
                                 </h3>
                                 
                                 <!-- Rich text preview -->
-                                <div class="rich-text-preview mb-4">
+                                <div class="rich-text-excerpt text-gray-600 text-sm mb-4 leading-relaxed">
                                     {% if post.excerpt %}
-                                        {{ post.excerpt|safe }}
+                                        {{ post.excerpt|safe|truncatewords_html:15 }}
                                     {% else %}
-                                        {{ post.content|safe|truncatewords_html:20 }}
+                                        {{ post.content|safe|truncatewords_html:15 }}
                                     {% endif %}
                                 </div>
                                 
@@ -152,7 +152,7 @@
                 <div class="space-y-2">
                     <a href="?q=minimalist+workspace" class="block p-3 rounded-xl hover:bg-white/50 transition-colors">
                         <div class="flex items-center space-x-3">
-                            <span class="text-lg">🏠</span>
+                            <span class="text-lg">🏢</span>
                             <span class="text-gray-700">Minimalist Workspace</span>
                         </div>
                     </a>
@@ -173,8 +173,4 @@
         </div>
     {% endif %}
 </div>
-
-<style>
-
-</style>
 {% endblock %}
