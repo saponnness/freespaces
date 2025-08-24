@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.http import Http404
 from .models import Post, Category
 from .forms import PostForm
 
@@ -34,8 +35,22 @@ def post_list(request):
 
 def post_detail(request, pk):
     """Display single post"""
-    post = get_object_or_404(Post, pk=pk, status='published')
-    return render(request, 'posts/post_detail.html', {'post': post})
+    try:
+        post = Post.objects.get(pk=pk)
+        
+        # If post is published, anyone can view it
+        if post.status == 'published':
+            return render(request, 'posts/post_detail.html', {'post': post})
+        
+        # If post is draft, only the author can view it
+        if post.status == 'draft':
+            if request.user.is_authenticated and request.user == post.author:
+                return render(request, 'posts/post_detail.html', {'post': post})
+            else:
+                raise Http404("No Post matches the given query.")
+                
+    except Post.DoesNotExist:
+        raise Http404("No Post matches the given query.")
 
 @login_required
 def post_create(request):

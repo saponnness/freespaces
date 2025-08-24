@@ -14,13 +14,22 @@
         {% endif %}
         
         <div class="flex items-center justify-between mb-6">
-            {% if post.category %}
-                <a href="{% url 'posts:category' category_name=post.category.name %}" 
-                    class="category-badge text-purple-600 text-sm font-semibold px-4 py-2 rounded-full hover:scale-105 transition-transform inline-flex items-center space-x-2">
-                    <span class="emoji">{% if post.category.name == "Photography" %}📸{% elif post.category.name == "Programming" %}💻{% elif post.category.name == "Lifestyle" %}🌿{% else %}🎨{% endif %}</span>
-                    <span>{{ post.category.name }}</span>
-                </a>
-            {% endif %}
+            <div class="flex items-center space-x-3">
+                {% if post.category %}
+                    <a href="{% url 'posts:category' category_name=post.category.name %}" 
+                        class="category-badge text-purple-600 text-sm font-semibold px-4 py-2 rounded-full hover:scale-105 transition-transform inline-flex items-center space-x-2">
+                        <span class="emoji">{% if post.category.name == "Photography" %}📸{% elif post.category.name == "Programming" %}💻{% elif post.category.name == "Lifestyle" %}🌿{% else %}🎨{% endif %}</span>
+                        <span>{{ post.category.name }}</span>
+                    </a>
+                {% endif %}
+                
+                <!-- Draft Status Badge -->
+                {% if post.status == 'draft' %}
+                    <span class="bg-yellow-100 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full">
+                        📝 Draft
+                    </span>
+                {% endif %}
+            </div>
             
             {% if user == post.author %}
                 <div class="flex items-center space-x-3">
@@ -46,7 +55,13 @@
                 {% endif %}
                 <div>
                     <p class="font-semibold text-gray-800">{{ post.author.username }}</p>
-                    <p class="text-sm text-gray-500">{{ post.published_at|date:"F d, Y" }} • {{ post.updated_at|date:"g:i A" }}</p>
+                    <p class="text-sm text-gray-500">
+                        {% if post.status == 'published' %}
+                            {{ post.published_at|date:"F d, Y" }} • {{ post.updated_at|date:"g:i A" }}
+                        {% else %}
+                            Created {{ post.created_at|date:"F d, Y" }} • {{ post.updated_at|date:"g:i A" }}
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -65,27 +80,37 @@
     <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-6">
-                {% include 'includes/like_button.html' %}
-                
-                <div class="flex items-center space-x-2 text-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" 
-                            d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/>
-                    </svg>
-                    <span class="text-sm font-medium">0 Comments</span>
-                </div>
-                
-                <div class="flex items-center space-x-2 text-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
-                    </svg>
-                    <span class="text-sm font-medium">Share</span>
-                </div>
+                {% if post.status == 'published' %}
+                    {% include 'includes/like_button.html' %}
+                    
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" 
+                                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/>
+                        </svg>
+                        <span class="text-sm font-medium">0 Comments</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                        </svg>
+                        <span class="text-sm font-medium">Share</span>
+                    </div>
+                {% else %}
+                    <div class="text-yellow-600 text-sm font-medium">
+                        📝 This is a draft post - only you can see it
+                    </div>
+                {% endif %}
             </div>
             
             <div class="text-gray-500 text-sm">
-                Published {{ post.published_at|date:"F d, Y" }}
+                {% if post.status == 'published' %}
+                    Published {{ post.published_at|date:"F d, Y" }}
+                {% else %}
+                    Draft created {{ post.created_at|date:"F d, Y" }}
+                {% endif %}
             </div>
         </div>
     </div>
@@ -112,16 +137,18 @@
         </div>
     </div>
 
-    <!-- Related Posts -->
-    <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">More from {{ post.author.username }}</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- This would be populated with related posts -->
-            <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl p-4 text-center">
-                <p class="text-gray-600">More posts coming soon!</p>
+    <!-- Related Posts (only show for published posts) -->
+    {% if post.status == 'published' %}
+        <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">More from {{ post.author.username }}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- This would be populated with related posts -->
+                <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl p-4 text-center">
+                    <p class="text-gray-600">More posts coming soon!</p>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 
     <!-- Back to Posts -->
     <div class="text-center">
