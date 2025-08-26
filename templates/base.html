@@ -62,7 +62,16 @@
                         </a>
                         <!-- Profile Dropdown -->
                         <div class="relative">
-                            <button id="profileButton" class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 cursor-pointer hover:scale-105 transition-transform avatar focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"></button>
+                            {% if user.profile.avatar %}
+                                <button id="profileButton" class="w-10 h-10 rounded-full cursor-pointer hover:scale-105 transition-transform avatar focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 overflow-hidden">
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" 
+                                        class="w-full h-full object-cover rounded-full">
+                                </button>
+                            {% else %}
+                                <button id="profileButton" class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 cursor-pointer hover:scale-105 transition-transform avatar focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">{{ user.username|first|upper }}</span>
+                                </button>
+                            {% endif %}
                             
                             <!-- Dropdown Menu -->
                             <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
@@ -73,7 +82,7 @@
                                 <a href="{% url 'accounts:profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                     <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                     </svg>
                                     View Profile
                                 </a>
@@ -87,7 +96,6 @@
                                         Logout
                                     </button>
                                 </form>
-
                             </div>
                         </div>
                         
