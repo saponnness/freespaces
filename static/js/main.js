@@ -715,35 +715,6 @@ function performSearch(query) {
     }
 }
 
-// Social sharing functionality
-function initSocialSharing() {
-    const shareButtons = document.querySelectorAll('[data-share]');
-    
-    shareButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const platform = this.dataset.share;
-            const url = window.location.href;
-            const title = document.title;
-            
-            let shareUrl = '';
-            
-            switch(platform) {
-                case 'x':
-                    shareUrl = `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-                    break;
-                case 'facebook':
-                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-                    break;
-
-            }
-            
-            if (shareUrl) {
-                window.open(shareUrl, '_blank', 'width=600,height=400');
-            }
-        });
-    });
-}
 
 function initReadingProgress() {
     const progressBar = document.querySelector('.reading-progress');
@@ -2672,6 +2643,176 @@ function hasContent() {
 }
 
 
+// Share Modal Functions
+// Add this section to your main.js file
+
+/**
+ * Share functionality for posts
+ * Handles sharing to social media platforms and copying links
+ */
+
+// Open share modal
+function openShareModal() {
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Add animation
+        const modalContent = modal.querySelector('.bg-white');
+        modalContent.style.opacity = '0';
+        modalContent.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            modalContent.style.transition = 'all 0.2s ease-out';
+            modalContent.style.opacity = '1';
+            modalContent.style.transform = 'scale(1)';
+        }, 10);
+    }
+}
+
+// Close share modal
+function closeShareModal() {
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+        const modalContent = modal.querySelector('.bg-white');
+        modalContent.style.transition = 'all 0.2s ease-in';
+        modalContent.style.opacity = '0';
+        modalContent.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }, 200);
+    }
+}
+
+// Share to Facebook
+function shareToFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`;
+    
+    // Open in new tab
+    window.open(facebookUrl, '_blank', 'noopener,noreferrer');
+    closeShareModal();
+}
+
+// Share to Twitter/X
+function shareToTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    const twitterUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+    
+    // Open in new tab
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+    closeShareModal();
+}
+
+// Copy link to clipboard
+function copyLink() {
+    const url = window.location.href;
+    
+    // Modern browsers
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('Link copied to clipboard!');
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+            fallbackCopyTextToClipboard(url);
+        });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyTextToClipboard(url);
+    }
+    
+    closeShareModal();
+}
+
+// Fallback copy method for older browsers
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showToast('Link copied to clipboard!');
+        } else {
+            showToast('Failed to copy link', 'error');
+        }
+    } catch (err) {
+        console.error('Fallback: Could not copy text: ', err);
+        showToast('Failed to copy link', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    if (toast && toastMessage) {
+        toastMessage.textContent = message;
+        
+        // Set toast color based on type
+        const toastContent = toast.querySelector('div');
+        if (type === 'error') {
+            toastContent.className = 'bg-red-500 text-white px-6 py-3 rounded-full shadow-lg';
+        } else {
+            toastContent.className = 'bg-green-500 text-white px-6 py-3 rounded-full shadow-lg';
+        }
+        
+        // Show toast
+        toast.classList.remove('hidden');
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            toast.style.transition = 'all 0.3s ease-out';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            toast.style.transition = 'all 0.3s ease-in';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 300);
+        }, 3000);
+    }
+}
+
+// Handle escape key to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('shareModal');
+        if (modal && !modal.classList.contains('hidden')) {
+            closeShareModal();
+        }
+    }
+});
+
+// Initialize share functionality when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+});
+
+
 function initAccessibility() {
     // Add skip links
     const skipLink = document.createElement('a');
@@ -2767,16 +2908,6 @@ window.Freespaces = {
     closeDeleteModal,
     initAccessibility,
     initPerformanceOptimizations,
-    
-    // Theme management
-    setTheme: function(theme) {
-        if (theme === 'night') {
-            document.body.classList.add('night-theme');
-        } else {
-            document.body.classList.remove('night-theme');
-        }
-        localStorage.setItem('theme', theme);
-    },
     
     // Analytics helpers
     trackEvent: function(eventName, eventData = {}) {
