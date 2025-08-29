@@ -1606,3 +1606,133 @@ textarea {
         color: #000;
     }
 }
+
+
+/* Additional CSS to add to your existing styles */
+
+/* Caption styles for different states */
+.image-caption.editable-caption {
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+.image-caption.editable-caption:hover {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.image-caption.static-caption {
+    cursor: default;
+    border: none;
+    padding: 4px 0;
+}
+
+.image-caption.static-caption:empty {
+    display: none;
+}
+
+/* Placeholder text styling */
+.image-caption:empty:before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+    font-style: italic;
+    pointer-events: none;
+}
+
+.image-caption.editable-caption:focus:empty:before {
+    content: '';
+}
+
+/* Editor-only elements (hidden in published view) */
+.editor-only {
+    display: none;
+}
+
+/* When in edit mode, show editor-only elements */
+.rich-text-editor .editor-only,
+[contenteditable="true"] .editor-only,
+.inline-image-container:hover .editor-only {
+    display: flex;
+}
+
+/* Remove extra spacing after images */
+.inline-image-container + div:empty,
+.inline-image-container + br,
+.inline-image-container + div br:only-child {
+    display: none;
+}
+
+/* Better caption selection styling */
+.image-caption::selection {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+.image-caption::-moz-selection {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+/* Improved focus states */
+.image-caption.editable-caption:focus {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+}
+
+/* Animation for caption appearance */
+.image-caption-container {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+    .image-caption {
+        font-size: 13px;
+        padding: 4px 6px;
+    }
+    
+    .remove-inline-image {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        top: 4px;
+        right: 4px;
+    }
+}
+
+/* Ensure delete buttons are never shown on view pages */
+.rich-text-content .remove-inline-image,
+.rich-text-content .editor-only {
+    display: none !important;
+}
+
+/* Remove any pointer events from captions in view mode */
+.rich-text-content .image-caption {
+    cursor: default !important;
+    border: none !important;
+}
+
+.rich-text-content .image-caption:hover {
+    border-color: transparent !important;
+}
+
+/* Ensure no hover effects on image containers in view mode */
+.rich-text-content .inline-image-container {
+    border: none !important;
+}
+
+.rich-text-content .inline-image-container:hover {
+    border: none !important;
+    border-color: transparent !important;
+}

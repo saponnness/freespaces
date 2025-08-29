@@ -22,40 +22,50 @@
                     {% if field.name == 'content' %}
                         <div class="rich-text-editor">
                             <div class="toolbar">
-                                <select class="font-size-selector" onchange="formatDoc('fontSize', this.value)">
-                                    <option value="2">Small</option>
-                                    <option value="3" selected>Normal size</option>
-                                    <option value="5">Large</option>
-                                    <option value="7">Extra large</option>
-                                </select>
-                                
-                                <div class="toolbar-group">
-                                    <button type="button" class="toolbar-btn" onclick="formatDoc('bold')" title="Bold">
-                                        <strong>B</strong>
-                                    </button>
-                                    <button type="button" class="toolbar-btn" onclick="formatDoc('italic')" title="Italic">
-                                        <em>I</em>
-                                    </button>
-                                    <button type="button" class="toolbar-btn" onclick="formatDoc('underline')" title="Underline">
-                                        <u>U</u>
-                                    </button>
-                                </div>
-                                
-                                <div class="toolbar-group">
-                                    <button type="button" class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List">
-                                        <span>1.</span>
-                                    </button>
-                                    <button type="button" class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">
-                                        <span>•</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="toolbar-group">
-                                    <button type="button" class="toolbar-btn" onclick="insertBlockquote()" title="Quote">
-                                        <span>"</span>
-                                    </button>
-                                </div>
+                            <!-- Font Size Selector -->
+                            <select class="font-size-selector" onchange="formatDoc('fontSize', this.value)">
+                                <option value="2">Small</option>
+                                <option value="3" selected>Normal size</option>
+                                <option value="5">Large</option>
+                                <option value="7">Extra large</option>
+                            </select>
+                            
+                            <!-- Text Formatting Group -->
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" onclick="formatDoc('bold')" title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="formatDoc('italic')" title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="formatDoc('underline')" title="Underline">
+                                    <u>U</u>
+                                </button>
                             </div>
+                            
+                            <!-- List Group -->
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List">
+                                    <span>1.</span>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">
+                                    <span>•</span>
+                                </button>
+                            </div>
+                            
+                            <!-- Quote and Media Group -->
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" onclick="insertBlockquote()" title="Quote">
+                                    <span>"</span>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertInlineImage()" title="Insert Image">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                             
                             <div id="editor" 
                                  class="editor-content" 
