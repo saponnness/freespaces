@@ -83,13 +83,14 @@
                 {% if post.status == 'published' %}
                     {% include 'includes/like_button.html' %}
                     
-                    <div class="flex items-center space-x-2 text-gray-600">
+                    <button class="comment-toggle-btn flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer" 
+                            data-post-id="{{ post.id }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" 
                                 d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/>
                         </svg>
-                        <span class="text-sm font-medium">0 Comments</span>
-                    </div>
+                        <span class="text-sm font-medium comment-count">{{ post.comments.count }} Comments</span>
+                    </button>
                     
                     <button onclick="openShareModal()" class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,6 +115,76 @@
             </div>
         </div>
     </div>
+
+    <!-- Comments Section -->
+    {% if post.status == 'published' %}
+        <div id="comments-section" class="glass-effect rounded-3xl p-6 mb-8 shadow-lg hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Comments</h3>
+                <button id="close-comments" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            {% if user.is_authenticated %}
+                <!-- Comment Form -->
+                <form id="comment-form" class="mb-6">
+                    {% csrf_token %}
+                    <div class="flex space-x-3">
+                        <div class="flex-shrink-0">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" 
+                                     class="w-10 h-10 rounded-full avatar">
+                            {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">{{ user.username|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <textarea id="comment-content" name="content" 
+                                    placeholder="Write a comment..." 
+                                    class="w-full p-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                    rows="3" maxlength="1000"></textarea>
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="text-sm text-gray-500">
+                                    <span id="char-count">0</span>/1000 characters
+                                </div>
+                                <button type="submit" 
+                                        class="bg-gradient-to-r from-purple-400 to-blue-400 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled>
+                                    Post Comment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+                    <p class="text-blue-700 text-center">
+                        <a href="{% url 'accounts:login' %}" class="font-semibold hover:underline">Login</a> 
+                        to join the conversation!
+                    </p>
+                </div>
+            {% endif %}
+            
+            <!-- Comments Container -->
+            <div id="comments-container">
+                <div id="comments-loading" class="text-center py-8 hidden">
+                    <div class="inline-flex items-center space-x-2 text-gray-500">
+                        <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Loading comments...</span>
+                    </div>
+                </div>
+                <div id="comments-list"></div>
+            </div>
+        </div>
+    {% endif %}
 
     <!-- Author Info -->
     <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">

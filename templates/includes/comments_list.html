@@ -1,0 +1,22 @@
+<div class="comments-list">
+    {% for comment in comments %}
+        {% include 'includes/comment_item.html' %}
+    {% empty %}
+        <div class="text-center text-gray-500 py-8">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/>
+            </svg>
+            <p>No comments yet. Be the first to comment!</p>
+        </div>
+    {% endfor %}
+    
+    {% if comments.has_next %}
+        <div class="text-center mt-4">
+            <button class="load-more-comments bg-gradient-to-r from-purple-400 to-blue-400 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-semibold text-sm"
+                    data-next-page="{{ comments.next_page_number }}">
+                Load More Comments
+            </button>
+        </div>
+    {% endif %}
+</div>

@@ -269,9 +269,285 @@ function createFloatingHeart(button) {
     }, 1000);
 }
 
+
+// Comment System Functionality
+function initCommentSystem() {
+    const commentToggleBtn = document.querySelector('.comment-toggle-btn');
+    const commentsSection = document.getElementById('comments-section');
+    const closeCommentsBtn = document.getElementById('close-comments');
+    const commentForm = document.getElementById('comment-form');
+    const commentContent = document.getElementById('comment-content');
+    const charCount = document.getElementById('char-count');
+    
+    // Toggle comments section visibility
+    if (commentToggleBtn) {
+        commentToggleBtn.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            if (commentsSection.classList.contains('hidden')) {
+                showCommentsSection();
+                loadComments(postId);
+            } else {
+                hideCommentsSection();
+            }
+        });
+    }
+    
+    // Close comments section
+    if (closeCommentsBtn) {
+        closeCommentsBtn.addEventListener('click', hideCommentsSection);
+    }
+    
+    // Character count for comment textarea
+    if (commentContent && charCount) {
+        commentContent.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            
+            const submitBtn = commentForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = count === 0 || count > 1000;
+            }
+        });
+    }
+    
+    // Handle comment form submission
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleCommentSubmit(this);
+        });
+    }
+    
+    // Handle comment deletion
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-comment-btn')) {
+            e.preventDefault();
+            const btn = e.target.closest('.delete-comment-btn');
+            const commentId = btn.dataset.commentId;
+            handleCommentDelete(commentId);
+        }
+        
+        // Handle load more comments
+        if (e.target.closest('.load-more-comments')) {
+            e.preventDefault();
+            const btn = e.target.closest('.load-more-comments');
+            const nextPage = btn.dataset.nextPage;
+            const postId = document.querySelector('.comment-toggle-btn').dataset.postId;
+            loadMoreComments(postId, nextPage);
+        }
+    });
+}
+
+function showCommentsSection() {
+    const commentsSection = document.getElementById('comments-section');
+    if (commentsSection) {
+        commentsSection.classList.remove('hidden');
+        // Smooth scroll to comments
+        commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function hideCommentsSection() {
+    const commentsSection = document.getElementById('comments-section');
+    if (commentsSection) {
+        commentsSection.classList.add('hidden');
+    }
+}
+
+function loadComments(postId, page = 1) {
+    const commentsLoading = document.getElementById('comments-loading');
+    const commentsList = document.getElementById('comments-list');
+    
+    if (commentsLoading) commentsLoading.classList.remove('hidden');
+    
+    fetch(`/interactions/comments/${postId}/?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            if (commentsLoading) commentsLoading.classList.add('hidden');
+            
+            if (page === 1) {
+                commentsList.innerHTML = data.comments_html;
+            } else {
+                // Append new comments for pagination
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.comments_html;
+                const newComments = tempDiv.querySelectorAll('.comment-item');
+                newComments.forEach(comment => {
+                    commentsList.appendChild(comment);
+                });
+                
+                // Update load more button
+                const loadMoreBtn = commentsList.querySelector('.load-more-comments');
+                if (loadMoreBtn) {
+                    if (data.has_next) {
+                        loadMoreBtn.dataset.nextPage = data.current_page + 1;
+                    } else {
+                        loadMoreBtn.remove();
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            if (commentsLoading) commentsLoading.classList.add('hidden');
+            showNotification('Error loading comments', 'error');
+        });
+}
+
+function loadMoreComments(postId, page) {
+    loadComments(postId, page);
+}
+
+function handleCommentSubmit(form) {
+    const formData = new FormData(form);
+    const postId = document.querySelector('.comment-toggle-btn').dataset.postId;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    
+    // Disable submit button and show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Posting...';
+    
+    fetch(`/interactions/comment/add/${postId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Clear form
+            form.reset();
+            document.getElementById('char-count').textContent = '0';
+            
+            // Add new comment to the top of the list
+            const commentsList = document.getElementById('comments-list');
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.comment_html;
+            const newComment = tempDiv.firstElementChild;
+            
+            // Insert at the beginning of comments list
+            const commentsContainer = commentsList.querySelector('.comments-list') || commentsList;
+            if (commentsContainer.firstChild) {
+                commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
+            } else {
+                commentsContainer.appendChild(newComment);
+            }
+            
+            // Update comment count
+            updateCommentCount(data.comment_count);
+            
+            // Show success notification
+            showNotification('Comment posted successfully!', 'success');
+            
+            // Animate new comment
+            newComment.style.opacity = '0';
+            newComment.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                newComment.style.transition = 'all 0.3s ease';
+                newComment.style.opacity = '1';
+                newComment.style.transform = 'translateY(0)';
+            }, 100);
+        } else {
+            showNotification(data.error || 'Error posting comment', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error posting comment:', error);
+        showNotification('Error posting comment', 'error');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    });
+}
+
+function handleCommentDelete(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+    
+    fetch(`/interactions/comment/delete/${commentId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove comment from DOM
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (commentItem) {
+                commentItem.style.transition = 'all 0.3s ease';
+                commentItem.style.opacity = '0';
+                commentItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    commentItem.remove();
+                }, 300);
+            }
+            
+            // Update comment count
+            updateCommentCount(data.comment_count);
+            
+            showNotification('Comment deleted successfully!', 'success');
+        } else {
+            showNotification(data.error || 'Error deleting comment', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting comment:', error);
+        showNotification('Error deleting comment', 'error');
+    });
+}
+
+function updateCommentCount(count) {
+    const commentCountSpan = document.querySelector('.comment-count');
+    if (commentCountSpan) {
+        commentCountSpan.textContent = `${count} Comments`;
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-full shadow-lg text-white font-semibold text-sm transform transition-all duration-300 translate-x-full`;
+    
+    // Set background color based on type
+    if (type === 'success') {
+        notification.classList.add('bg-green-500');
+    } else if (type === 'error') {
+        notification.classList.add('bg-red-500');
+    } else {
+        notification.classList.add('bg-blue-500');
+    }
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initLikeButtons();
+    initCommentSystem();
     
     // Add CSS animation for floating heart
     if (!document.getElementById('heart-animation-css')) {
