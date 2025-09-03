@@ -107,6 +107,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize with "All" category active
     document.querySelector('[data-category="all"]').classList.add('active', 'bg-purple-200', 'text-purple-800');
     document.querySelector('[data-category="all"]').classList.remove('text-purple-700');
+    
+    // Initialize link functionality
+    console.log('About to initialize link functionality');
+    initLinkFunctionality();
+    console.log('Link functionality initialization complete');
+    
+    // Debug: Check if modal exists
+    const modal = document.getElementById('linkModal');
+    if (modal) {
+        console.log('Modal found during initialization');
+        console.log('Modal classes:', modal.className);
+        console.log('Modal HTML:', modal.outerHTML.substring(0, 200) + '...');
+        console.log('Modal parent:', modal.parentElement);
+        console.log('Modal computed style display:', window.getComputedStyle(modal).display);
+    } else {
+        console.log('Modal NOT found during initialization');
+        console.log('All elements with id:', document.querySelectorAll('[id]'));
+        console.log('All elements with linkModal in class:', document.querySelectorAll('[class*="linkModal"]'));
+    }
 });
 
 
@@ -2019,6 +2038,286 @@ function insertLink(url, text) {
     } else {
         const linkText = text || prompt('Enter link text:', url);
         insertHTMLAtCursor(`<a href="${url}">${linkText}</a>`);
+    }
+}
+
+// Enhanced Link Management Functions
+function openLinkModal() {
+    console.log('openLinkModal called');
+    const modal = document.getElementById('linkModal');
+    if (modal) {
+        console.log('Modal found, removing hidden class');
+        console.log('Modal current classes:', modal.className);
+        modal.classList.remove('hidden');
+        console.log('Modal classes after removing hidden:', modal.className);
+        
+        // Pre-fill with selected text if any
+        const selectedText = getSelectedText();
+        const linkTextInput = document.getElementById('linkText');
+        if (linkTextInput && selectedText) {
+            linkTextInput.value = selectedText;
+        }
+        
+        // Focus on URL input
+        const linkUrlInput = document.getElementById('linkUrl');
+        if (linkUrlInput) {
+            linkUrlInput.focus();
+        }
+        
+        // Debug modal visibility
+        console.log('Modal computed style display:', window.getComputedStyle(modal).display);
+        console.log('Modal computed style visibility:', window.getComputedStyle(modal).visibility);
+        console.log('Modal computed style z-index:', window.getComputedStyle(modal).zIndex);
+        console.log('Modal offset dimensions:', modal.offsetWidth, 'x', modal.offsetHeight);
+        console.log('Modal getBoundingClientRect:', modal.getBoundingClientRect());
+    } else {
+        console.log('Modal not found');
+    }
+}
+
+function closeLinkModal() {
+    const modal = document.getElementById('linkModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        
+        // Clear form
+        const form = document.getElementById('linkForm');
+        if (form) {
+            form.reset();
+        }
+    }
+}
+
+function insertLinkFromModal() {
+    console.log('insertLinkFromModal called');
+    const linkTextInput = document.getElementById('linkText');
+    const linkUrlInput = document.getElementById('linkUrl');
+    
+    if (!linkTextInput || !linkUrlInput) {
+        console.log('Input elements not found');
+        return;
+    }
+    
+    const linkText = linkTextInput.value.trim();
+    const linkUrl = linkUrlInput.value.trim();
+    
+    if (!linkUrl) {
+        alert('Please enter a URL');
+        return;
+    }
+    
+    if (!linkText) {
+        alert('Please enter link text');
+        return;
+    }
+    
+    // Check if we're editing an existing link
+    const isEditing = linkTextInput.dataset.editing === 'true';
+    
+    if (isEditing) {
+        // Remove the old link first
+        const oldLinkElement = document.querySelector(`[data-link-id="${linkTextInput.dataset.linkId}"]`);
+        if (oldLinkElement) {
+            // Replace the link with just the text
+            const textNode = document.createTextNode(oldLinkElement.textContent);
+            oldLinkElement.parentNode.replaceChild(textNode, oldLinkElement);
+        }
+    }
+    
+    // Insert the new link
+    const linkHTML = `<a href="${linkUrl}" class="rich-text-link" data-link-id="${Date.now()}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+    
+    const selectedText = getSelectedText();
+    if (selectedText && !isEditing) {
+        // Replace selected text with link
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = linkHTML;
+            const linkElement = tempDiv.firstElementChild;
+            range.insertNode(linkElement);
+        }
+    } else {
+        // Insert at cursor position
+        insertHTMLAtCursor(linkHTML);
+    }
+    
+    // Close modal and update hidden field
+    closeLinkModal();
+    updateHiddenField();
+    
+    // Clear editing data
+    if (linkTextInput.dataset.editing) {
+        delete linkTextInput.dataset.editing;
+        delete linkTextInput.dataset.linkId;
+    }
+}
+
+function editLink(button) {
+    const linkElement = button.closest('.rich-text-link') || button.closest('a');
+    if (!linkElement) return;
+    
+    const linkText = linkElement.textContent;
+    const linkUrl = linkElement.href;
+    const linkId = linkElement.dataset.linkId || Date.now();
+    
+    // Set editing mode
+    const linkTextInput = document.getElementById('linkText');
+    const linkUrlInput = document.getElementById('linkUrl');
+    
+    if (linkTextInput && linkUrlInput) {
+        linkTextInput.value = linkText;
+        linkUrlInput.value = linkUrl;
+        linkTextInput.dataset.editing = 'true';
+        linkTextInput.dataset.linkId = linkId;
+        
+        // Update modal title
+        const modalTitle = document.querySelector('#linkModal h3');
+        if (modalTitle) {
+            modalTitle.textContent = 'Edit Link';
+        }
+        
+        // Update submit button
+        const submitBtn = document.querySelector('#linkForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Update Link';
+        }
+        
+        // Open modal
+        openLinkModal();
+    }
+}
+
+function removeLink(button) {
+    const linkElement = button.closest('.rich-text-link') || button.closest('a');
+    if (!linkElement) return;
+    
+    // Replace link with just the text
+    const textNode = document.createTextNode(linkElement.textContent);
+    linkElement.parentNode.replaceChild(textNode, linkElement);
+    
+    // Hide tooltip
+    hideLinkTooltip();
+    
+    // Update hidden field
+    updateHiddenField();
+}
+
+function showLinkTooltip(linkElement, event) {
+    console.log('showLinkTooltip called');
+    const tooltip = document.getElementById('linkTooltip');
+    if (!tooltip) {
+        console.log('Tooltip not found');
+        return;
+    }
+    
+    const url = linkElement.href;
+    const tooltipUrl = document.getElementById('tooltipUrl');
+    if (tooltipUrl) {
+        tooltipUrl.textContent = url;
+    }
+    
+    // Position tooltip above the link
+    const rect = linkElement.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + rect.width / 2}px`;
+    tooltip.style.top = `${rect.top - 10}px`;
+    tooltip.style.transform = 'translateX(-50%) translateY(-100%)';
+    
+    tooltip.classList.remove('hidden');
+    console.log('Tooltip shown');
+}
+
+function hideLinkTooltip() {
+    const tooltip = document.getElementById('linkTooltip');
+    if (tooltip) {
+        tooltip.classList.add('hidden');
+    }
+}
+
+function handleLinkClick(event) {
+    const link = event.target.closest('a');
+    if (!link) return;
+    
+    // Check if it's a rich text link
+    if (link.classList.contains('rich-text-link')) {
+        // Open in new tab
+        window.open(link.href, '_blank', 'noopener,noreferrer');
+        event.preventDefault();
+    }
+}
+
+function initLinkFunctionality() {
+    console.log('Initializing link functionality...');
+    
+    // Initialize link form submission
+    const linkForm = document.getElementById('linkForm');
+    if (linkForm) {
+        console.log('Link form found, adding submit listener');
+        linkForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            insertLinkFromModal();
+        });
+    } else {
+        console.log('Link form not found');
+    }
+    
+    // Add event delegation for modal close actions
+    document.addEventListener('click', function(e) {
+        if (e.target.hasAttribute('data-action') && e.target.getAttribute('data-action') === 'close-modal') {
+            console.log('Modal close action detected');
+            closeLinkModal();
+        }
+    });
+    
+    // Add event delegation for link button clicks
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.toolbar-btn') && e.target.closest('.toolbar-btn').getAttribute('onclick')?.includes('openLinkModal')) {
+            console.log('Link button clicked');
+            e.preventDefault();
+            openLinkModal();
+        }
+    });
+    
+    // Initialize link tooltip functionality for post detail page
+    const richTextContent = document.querySelector('.rich-text-content');
+    if (richTextContent) {
+        // Add event listeners for link interactions
+        richTextContent.addEventListener('mouseover', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.classList.contains('rich-text-link')) {
+                showLinkTooltip(link, e);
+            }
+        });
+        
+        richTextContent.addEventListener('mouseout', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.classList.contains('rich-text-link')) {
+                hideLinkTooltip();
+            }
+        });
+        
+        richTextContent.addEventListener('click', handleLinkClick);
+    }
+    
+    // Initialize link interactions in editor
+    const editor = document.getElementById('editor');
+    if (editor) {
+        // Add event listeners for link interactions in editor
+        editor.addEventListener('mouseover', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.classList.contains('rich-text-link')) {
+                showLinkTooltip(link, e);
+            }
+        });
+        
+        editor.addEventListener('mouseout', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.classList.contains('rich-text-link')) {
+                hideLinkTooltip();
+            }
+        });
     }
 }
 
