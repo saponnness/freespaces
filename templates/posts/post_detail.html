@@ -75,6 +75,21 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    // Initialize link functionality for post detail
+    document.addEventListener('DOMContentLoaded', function() {
+        const richTextContent = document.querySelector('.rich-text-content');
+        if (richTextContent) {
+            // Add target="_blank" to all links
+            const links = richTextContent.querySelectorAll('a');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+        }
+    });
+    </script>
 
     <!-- Engagement Section -->
     <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">
