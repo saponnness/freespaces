@@ -303,4 +303,195 @@
     </div>
 </div>
 
+<!-- Link Hover Tooltip for Published Content -->
+<div id="publishedLinkTooltip" class="fixed z-50 hidden bg-white rounded-lg shadow-lg border border-gray-200 p-3 max-w-xs">
+    <div class="flex items-center justify-between">
+        <div class="flex-1">
+            <div id="publishedTooltipUrl" class="text-blue-600 text-sm font-medium truncate"></div>
+        </div>
+        <div class="flex items-center space-x-2 ml-3">
+            <button onclick="copyLinkToClipboard()" class="text-blue-500 hover:text-blue-700 transition-colors" title="Copy Link">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Link hover functionality for published content
+document.addEventListener('DOMContentLoaded', function() {
+    const richTextContent = document.querySelector('.rich-text-content');
+    if (!richTextContent) return;
+    
+    let tooltipTimeout;
+    let currentHoveredLink = null;
+    
+    // Handle mouse events on links in published content
+    richTextContent.addEventListener('mouseover', function(e) {
+        if (e.target.tagName === 'A') {
+            currentHoveredLink = e.target;
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => {
+                showPublishedLinkTooltip(e.target, e);
+            }, 500);
+        }
+    });
+    
+    richTextContent.addEventListener('mouseout', function(e) {
+        if (e.target.tagName === 'A') {
+            clearTimeout(tooltipTimeout);
+            hidePublishedLinkTooltip();
+            currentHoveredLink = null;
+        }
+    });
+    
+    // Hide tooltip when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#publishedLinkTooltip') && !e.target.closest('a')) {
+            hidePublishedLinkTooltip();
+        }
+    });
+    
+    // Handle link clicks to open in new tab if target="_blank"
+    richTextContent.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+            const link = e.target;
+            if (link.target === '_blank') {
+                // Link will open in new tab automatically
+                return;
+            } else {
+                // For internal links, let them navigate normally
+                // For external links, open in new tab
+                if (link.hostname !== window.location.hostname) {
+                    e.preventDefault();
+                    window.open(link.href, '_blank');
+                }
+            }
+        }
+    });
+});
+
+// Show link tooltip for published content
+function showPublishedLinkTooltip(linkElement, event) {
+    const tooltip = document.getElementById('publishedLinkTooltip');
+    const tooltipUrl = document.getElementById('publishedTooltipUrl');
+    
+    if (!tooltip || !tooltipUrl) return;
+    
+    // Set URL text
+    tooltipUrl.textContent = linkElement.href;
+    
+    // Position tooltip
+    const rect = linkElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    let top = rect.top - tooltipRect.height - 10;
+    
+    // Adjust if tooltip goes off screen
+    if (left < 10) left = 10;
+    if (left + tooltipRect.width > window.innerWidth - 10) {
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    if (top < 10) {
+        top = rect.bottom + 10;
+    }
+    
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    
+    // Show tooltip
+    tooltip.classList.remove('hidden');
+    tooltip.classList.add('show');
+}
+
+// Hide link tooltip for published content
+function hidePublishedLinkTooltip() {
+    const tooltip = document.getElementById('publishedLinkTooltip');
+    if (tooltip) {
+        tooltip.classList.add('hidden');
+        tooltip.classList.remove('show');
+    }
+}
+
+// Copy link to clipboard
+function copyLinkToClipboard() {
+    const tooltipUrl = document.getElementById('publishedTooltipUrl');
+    if (!tooltipUrl) return;
+    
+    const url = tooltipUrl.textContent;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            showToast('Link copied to clipboard!', 'success');
+        }).catch(function() {
+            fallbackCopyTextToClipboard(url);
+        });
+    } else {
+        fallbackCopyTextToClipboard(url);
+    }
+    
+    hidePublishedLinkTooltip();
+}
+
+// Fallback copy function for older browsers
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showToast('Link copied to clipboard!', 'success');
+        } else {
+            showToast('Failed to copy link', 'error');
+        }
+    } catch (err) {
+        showToast('Failed to copy link', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    if (!toast || !toastMessage) return;
+    
+    toastMessage.textContent = message;
+    
+    // Update background color based on type
+    const toastDiv = toast.querySelector('div');
+    toastDiv.className = `px-6 py-3 rounded-full shadow-lg text-white`;
+    
+    if (type === 'success') {
+        toastDiv.classList.add('bg-green-500');
+    } else if (type === 'error') {
+        toastDiv.classList.add('bg-red-500');
+    } else {
+        toastDiv.classList.add('bg-blue-500');
+    }
+    
+    // Show toast
+    toast.classList.remove('hidden');
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+</script>
+
 {% endblock %}
