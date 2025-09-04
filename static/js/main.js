@@ -1,3 +1,11 @@
+// Global variables for link management (ensure they're available)
+if (typeof window.linkModalMode === 'undefined') {
+    window.linkModalMode = 'insert';
+}
+if (typeof window.currentEditingLink === 'undefined') {
+    window.currentEditingLink = null;
+}
+
 // CSRF Token Helper
 function getCookie(name) {
     let cookieValue = null;
@@ -2023,21 +2031,33 @@ function insertLink(url, text) {
 }
 
 // Enhanced Link Management Functions
-let currentEditingLink = null;
-let linkModalMode = 'insert'; // 'insert' or 'edit'
+// Global variables for link management
+window.currentEditingLink = window.currentEditingLink || null;
+window.linkModalMode = window.linkModalMode || 'insert'; // 'insert' or 'edit'
 
 // Open link modal for inserting new link
 function openLinkModal() {
     const modal = document.getElementById('linkModal');
     const form = document.getElementById('linkForm');
     const title = document.getElementById('linkModalTitle');
+    
+    // Check if required elements exist
+    if (!modal || !form || !title) {
+        console.error('Link modal elements not found');
+        return;
+    }
+    
     const submitBtn = form.querySelector('button[type="submit"]');
+    if (!submitBtn) {
+        console.error('Submit button not found in link form');
+        return;
+    }
     
     // Reset form
     form.reset();
     
     // Set mode and UI
-    linkModalMode = 'insert';
+    window.linkModalMode = 'insert';
     title.textContent = 'Insert Link';
     submitBtn.textContent = 'Insert Link';
     
@@ -2046,7 +2066,10 @@ function openLinkModal() {
     
     // Focus on first input
     setTimeout(() => {
-        document.getElementById('linkText').focus();
+        const textInput = document.getElementById('linkText');
+        if (textInput) {
+            textInput.focus();
+        }
     }, 100);
 }
 
@@ -2055,12 +2078,24 @@ function openEditLinkModal(linkElement) {
     const modal = document.getElementById('linkModal');
     const form = document.getElementById('linkForm');
     const title = document.getElementById('linkModalTitle');
+    
+    // Check if required elements exist
+    if (!modal || !form || !title) {
+        console.error('Link modal elements not found');
+        return;
+    }
+    
     const submitBtn = form.querySelector('button[type="submit"]');
     const textInput = document.getElementById('linkText');
     const urlInput = document.getElementById('linkUrl');
     
+    if (!submitBtn || !textInput || !urlInput) {
+        console.error('Link form elements not found');
+        return;
+    }
+    
     // Set mode and UI
-    linkModalMode = 'edit';
+    window.linkModalMode = 'edit';
     title.textContent = 'Edit Link';
     submitBtn.textContent = 'Update Link';
     
@@ -2069,7 +2104,7 @@ function openEditLinkModal(linkElement) {
     urlInput.value = linkElement.href;
     
     // Store reference to the link being edited
-    currentEditingLink = linkElement;
+    window.currentEditingLink = linkElement;
     
     // Show modal
     modal.classList.remove('hidden');
@@ -2083,9 +2118,11 @@ function openEditLinkModal(linkElement) {
 // Close link modal
 function closeLinkModal() {
     const modal = document.getElementById('linkModal');
-    modal.classList.add('hidden');
-    currentEditingLink = null;
-    linkModalMode = 'insert';
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    window.currentEditingLink = null;
+    window.linkModalMode = 'insert';
 }
 
 // Handle link form submission
@@ -2120,16 +2157,16 @@ function handleLinkFormSubmit(event) {
     submitBtn.disabled = true;
     
     try {
-        if (linkModalMode === 'edit' && currentEditingLink) {
-            // Edit existing link
-            editExistingLink(currentEditingLink, linkText, linkUrl);
-        } else {
-            // Insert new link
-            insertNewLink(linkText, linkUrl);
-        }
-        
-        closeLinkModal();
-        showLinkSuccess(linkModalMode === 'edit' ? 'Link updated successfully!' : 'Link inserted successfully!');
+            if (window.linkModalMode === 'edit' && window.currentEditingLink) {
+        // Edit existing link
+        editExistingLink(window.currentEditingLink, linkText, linkUrl);
+    } else {
+        // Insert new link
+        insertNewLink(linkText, linkUrl);
+    }
+    
+    closeLinkModal();
+    showLinkSuccess(window.linkModalMode === 'edit' ? 'Link updated successfully!' : 'Link inserted successfully!');
     } catch (error) {
         console.error('Error handling link:', error);
         showLinkError('An error occurred. Please try again.');
@@ -4018,6 +4055,16 @@ window.addEventListener('unhandledrejection', function(e) {
     // Could send to error tracking service
 });
 
+// Ensure link functions are available globally
+window.openLinkModal = openLinkModal;
+window.closeLinkModal = closeLinkModal;
+window.openEditLinkModal = openEditLinkModal;
+window.handleLinkFormSubmit = handleLinkFormSubmit;
+window.showLinkTooltip = showLinkTooltip;
+window.hideLinkTooltip = hideLinkTooltip;
+window.removeLink = removeLink;
+window.autoFormatUrl = autoFormatUrl;
+
 // Link Management Initialization
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize link form submission
@@ -4025,6 +4072,47 @@ document.addEventListener('DOMContentLoaded', function() {
     if (linkForm) {
         linkForm.addEventListener('submit', handleLinkFormSubmit);
     }
+    
+    // Initialize link buttons with event listeners
+    const linkButtons = document.querySelectorAll('.toolbar-btn[onclick*="openLinkModal"]');
+    linkButtons.forEach(button => {
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof openLinkModal === 'function') {
+                openLinkModal();
+            } else {
+                console.error('openLinkModal function not available');
+            }
+        });
+    });
+    
+    // Initialize close buttons
+    const closeButtons = document.querySelectorAll('button[onclick*="closeLinkModal"]');
+    closeButtons.forEach(button => {
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof closeLinkModal === 'function') {
+                closeLinkModal();
+            } else {
+                console.error('closeLinkModal function not available');
+            }
+        });
+    });
+    
+    // Initialize URL input auto-formatting
+    const urlInputs = document.querySelectorAll('input[onblur*="autoFormatUrl"]');
+    urlInputs.forEach(input => {
+        input.removeAttribute('onblur');
+        input.addEventListener('blur', function(e) {
+            if (typeof autoFormatUrl === 'function') {
+                autoFormatUrl(this);
+            } else {
+                console.error('autoFormatUrl function not available');
+            }
+        });
+    });
     
     // Initialize link tooltip functionality for editor
     const editor = document.getElementById('editor');

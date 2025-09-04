@@ -61,7 +61,7 @@
                                 <button type="button" class="toolbar-btn" onclick="insertBlockquote()" title="Quote">
                                     <span>"</span>
                                 </button>
-                                <button type="button" class="toolbar-btn" onclick="openLinkModal()" title="Insert Link">
+                                <button type="button" class="toolbar-btn" onclick="if(typeof openLinkModal === 'function') openLinkModal(); else console.error('openLinkModal not loaded');" title="Insert Link">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                             d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
@@ -210,7 +210,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-100">
                 <h3 class="text-xl font-bold text-gray-800" id="linkModalTitle">Insert Link</h3>
-                <button onclick="closeLinkModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <button onclick="if(typeof closeLinkModal === 'function') closeLinkModal(); else console.error('closeLinkModal not loaded');" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -236,7 +236,7 @@
                            name="linkUrl" 
                            class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent bg-white/80"
                            placeholder="https://example.com"
-                           onblur="autoFormatUrl(this)"
+                                                       onblur="if(typeof autoFormatUrl === 'function') autoFormatUrl(this); else console.error('autoFormatUrl not loaded');"
                            required>
                 </div>
                 
@@ -246,7 +246,7 @@
                         Insert Link
                     </button>
                     <button type="button" 
-                            onclick="closeLinkModal()"
+                            onclick="if(typeof closeLinkModal === 'function') closeLinkModal(); else console.error('closeLinkModal not loaded');"
                             class="flex-1 glass-effect text-gray-700 py-3 px-6 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold">
                         Cancel
                     </button>
