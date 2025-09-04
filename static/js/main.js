@@ -3665,3 +3665,288 @@ window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled promise rejection:', e.reason);
     // Could send to error tracking service
 });
+
+// ========================================
+// RICH TEXT LINK FUNCTIONALITY
+// ========================================
+
+// Global variables for link functionality
+let currentEditingLink = null;
+let isEditingMode = false;
+
+// Open link modal for inserting new link
+function openLinkModal() {
+    const modal = document.getElementById('linkModal');
+    const title = document.getElementById('linkModalTitle');
+    const urlInput = document.getElementById('linkUrl');
+    const textInput = document.getElementById('linkText');
+    
+    if (!modal) return;
+    
+    // Reset form
+    title.textContent = 'Insert Link';
+    urlInput.value = '';
+    textInput.value = '';
+    isEditingMode = false;
+    currentEditingLink = null;
+    
+    // Check if text is selected
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    
+    if (selectedText) {
+        textInput.value = selectedText;
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    urlInput.focus();
+}
+
+// Close link modal
+function closeLinkModal() {
+    const modal = document.getElementById('linkModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Insert or update link
+function insertLink() {
+    const urlInput = document.getElementById('linkUrl');
+    const textInput = document.getElementById('linkText');
+    
+    if (!urlInput || !textInput) return;
+    
+    const url = urlInput.value.trim();
+    const text = textInput.value.trim();
+    
+    if (!url) {
+        alert('Please enter a URL');
+        return;
+    }
+    
+    if (!text) {
+        alert('Please enter link text');
+        return;
+    }
+    
+    // Ensure URL has protocol
+    let finalUrl = url;
+    if (!url.match(/^https?:\/\//)) {
+        finalUrl = 'https://' + url;
+    }
+    
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    if (isEditingMode && currentEditingLink) {
+        // Update existing link
+        currentEditingLink.href = finalUrl;
+        currentEditingLink.textContent = text;
+        currentEditingLink.style.textDecoration = 'underline';
+        currentEditingLink.style.color = '#2563eb';
+    } else {
+        // Insert new link
+        const selection = window.getSelection();
+        
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            
+            // Delete selected content
+            range.deleteContents();
+            
+            // Create link element
+            const link = document.createElement('a');
+            link.href = finalUrl;
+            link.textContent = text;
+            link.style.textDecoration = 'underline';
+            link.style.color = '#2563eb';
+            link.setAttribute('data-link-id', Date.now().toString());
+            
+            // Insert link
+            range.insertNode(link);
+            
+            // Move cursor after the link
+            range.setStartAfter(link);
+            range.setEndAfter(link);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else {
+            // No selection, insert at cursor position
+            insertHTMLAtCursor(`<a href="${finalUrl}" style="text-decoration: underline; color: #2563eb;" data-link-id="${Date.now()}">${text}</a>`);
+        }
+    }
+    
+    // Update hidden field
+    updateHiddenField();
+    
+    // Close modal
+    closeLinkModal();
+}
+
+// Show link tooltip when text is selected
+function showLinkTooltip(linkElement) {
+    const tooltip = document.getElementById('linkTooltip');
+    const urlDisplay = document.getElementById('tooltipUrl');
+    
+    if (!tooltip || !urlDisplay) return;
+    
+    // Set URL in tooltip
+    urlDisplay.textContent = linkElement.href;
+    
+    // Position tooltip
+    const rect = linkElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    let top = rect.top - tooltipRect.height - 10;
+    
+    // Adjust if tooltip goes off screen
+    if (left < 10) left = 10;
+    if (left + tooltipRect.width > window.innerWidth - 10) {
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    if (top < 10) {
+        top = rect.bottom + 10;
+    }
+    
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    
+    // Show tooltip
+    tooltip.classList.remove('hidden');
+    
+    // Store reference to current link
+    currentEditingLink = linkElement;
+}
+
+// Hide link tooltip
+function hideLinkTooltip() {
+    const tooltip = document.getElementById('linkTooltip');
+    if (tooltip) {
+        tooltip.classList.add('hidden');
+    }
+    currentEditingLink = null;
+}
+
+// Edit link functionality
+function editLink() {
+    if (!currentEditingLink) return;
+    
+    const modal = document.getElementById('linkModal');
+    const title = document.getElementById('linkModalTitle');
+    const urlInput = document.getElementById('linkUrl');
+    const textInput = document.getElementById('linkText');
+    
+    if (!modal) return;
+    
+    // Set form values
+    title.textContent = 'Edit Link';
+    urlInput.value = currentEditingLink.href;
+    textInput.value = currentEditingLink.textContent;
+    isEditingMode = true;
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    urlInput.focus();
+    
+    // Hide tooltip
+    hideLinkTooltip();
+}
+
+// Remove link functionality
+function removeLink() {
+    if (!currentEditingLink) return;
+    
+    const linkElement = currentEditingLink;
+    const parent = linkElement.parentNode;
+    
+    // Create text node with link content
+    const textNode = document.createTextNode(linkElement.textContent);
+    
+    // Replace link with text
+    parent.replaceChild(textNode, linkElement);
+    
+    // Update hidden field
+    updateHiddenField();
+    
+    // Hide tooltip
+    hideLinkTooltip();
+}
+
+// Handle text selection in editor
+function handleTextSelection() {
+    const selection = window.getSelection();
+    
+    if (selection.rangeCount === 0) {
+        hideLinkTooltip();
+        return;
+    }
+    
+    const range = selection.getRangeAt(0);
+    let node = range.commonAncestorContainer;
+    
+    // Find if selection is within a link
+    while (node && node !== document.getElementById('editor')) {
+        if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
+            showLinkTooltip(node);
+            return;
+        }
+        node = node.parentNode;
+    }
+    
+    // Check if selection contains a link
+    const linkElements = range.cloneContents().querySelectorAll('a');
+    if (linkElements.length > 0) {
+        showLinkTooltip(linkElements[0]);
+        return;
+    }
+    
+    hideLinkTooltip();
+}
+
+// Initialize link functionality
+function initLinkFunctionality() {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    // Add event listeners
+    editor.addEventListener('mouseup', handleTextSelection);
+    editor.addEventListener('keyup', handleTextSelection);
+    editor.addEventListener('selectionchange', handleTextSelection);
+    
+    // Handle clicks outside editor
+    document.addEventListener('click', function(e) {
+        if (!editor.contains(e.target) && !document.getElementById('linkTooltip')?.contains(e.target)) {
+            hideLinkTooltip();
+        }
+    });
+    
+    // Handle escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideLinkTooltip();
+            closeLinkModal();
+        }
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initLinkFunctionality();
+    initPostDetailLinks();
+});
+
+// Initialize post detail link functionality
+function initPostDetailLinks() {
+    const postContent = document.querySelector('.rich-text-content');
+    if (!postContent) return;
+    
+    // Make all links open in new tab
+    const links = postContent.querySelectorAll('a');
+    links.forEach(link => {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+    });
+}

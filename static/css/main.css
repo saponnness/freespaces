@@ -1736,3 +1736,171 @@ textarea {
     border: none !important;
     border-color: transparent !important;
 }
+
+/* ========================================
+   RICH TEXT LINK FUNCTIONALITY STYLES
+   ======================================== */
+
+/* Link Modal Styles */
+#linkModal {
+    backdrop-filter: blur(4px);
+}
+
+#linkModal .bg-white {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Link Tooltip Styles */
+#linkTooltip {
+    animation: tooltipFadeIn 0.2s ease-out;
+    z-index: 1000;
+}
+
+#linkTooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Link styling in editor */
+#editor a {
+    text-decoration: underline !important;
+    color: #2563eb !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#editor a:hover {
+    color: #1d4ed8 !important;
+    text-decoration: underline !important;
+}
+
+/* Link styling in post detail view */
+.rich-text-content a {
+    text-decoration: underline !important;
+    color: #2563eb !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    word-break: break-all;
+}
+
+.rich-text-content a:hover {
+    color: #1d4ed8 !important;
+    text-decoration: underline !important;
+    background-color: rgba(37, 99, 235, 0.1);
+    border-radius: 2px;
+    padding: 1px 2px;
+    margin: -1px -2px;
+}
+
+/* Link hover tooltip for post detail */
+.rich-text-content a:hover::after {
+    content: attr(href);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    animation: linkTooltipFadeIn 0.2s ease-out;
+}
+
+.rich-text-content a:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    margin-bottom: 1px;
+}
+
+@keyframes linkTooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Toolbar button hover effects */
+.toolbar-btn:hover {
+    background-color: rgba(251, 191, 36, 0.1);
+    transform: scale(1.05);
+}
+
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+/* Modal input focus styles */
+#linkModal input:focus {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+    outline: none;
+}
+
+/* Tooltip button hover effects */
+#linkTooltip button:hover {
+    transform: scale(1.1);
+}
+
+#linkTooltip button:active {
+    transform: scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #linkModal .max-w-md {
+        max-width: 95%;
+        margin: 1rem;
+    }
+    
+    #linkTooltip {
+        max-width: 90vw;
+    }
+    
+    .rich-text-content a:hover::after {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
