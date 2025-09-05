@@ -70,7 +70,7 @@
     <!-- Post Content -->
     <div class="glass-effect rounded-3xl p-8 mb-8 shadow-lg">
         <div class="prose prose-lg max-w-none text-gray-800">
-            <div class="rich-text-content">
+            <div class="rich-text-content" id="post-content">
                 {{ post.content|safe }}
             </div>
         </div>
@@ -302,5 +302,37 @@
         <span id="toastMessage">Link copied to clipboard!</span>
     </div>
 </div>
+
+<script>
+// Initialize link functionality for post detail page
+document.addEventListener('DOMContentLoaded', function() {
+    const postContent = document.getElementById('post-content');
+    if (!postContent) return;
+    
+    // Add click handlers to all links in the post content
+    const links = postContent.querySelectorAll('a');
+    links.forEach(link => {
+        // Ensure links open in new tab
+        if (!link.hasAttribute('target')) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+        }
+        
+        // Add hover functionality to show URL
+        link.addEventListener('mouseenter', function() {
+            const url = this.getAttribute('href');
+            if (url) {
+                this.setAttribute('title', url);
+            }
+        });
+        
+        // Handle click to open in new tab
+        link.addEventListener('click', function(event) {
+            // Let the default behavior handle opening in new tab
+            // The target="_blank" attribute will ensure it opens in new tab
+        });
+    });
+});
+</script>
 
 {% endblock %}

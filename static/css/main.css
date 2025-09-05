@@ -1736,3 +1736,170 @@ textarea {
     border: none !important;
     border-color: transparent !important;
 }
+
+/* ===== RICH TEXT LINK FUNCTIONALITY ===== */
+
+/* Link styling in editor */
+.editor-content a {
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.editor-content a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Link styling in view mode */
+.rich-text-content a {
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rich-text-content a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Link tooltip styling */
+#linkTooltip {
+    z-index: 9999;
+    pointer-events: auto;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+#linkTooltip::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+#linkTooltip::after {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid #e5e7eb;
+}
+
+/* Modal animations */
+#linkModal, #linkEditModal {
+    animation: modalFadeIn 0.3s ease-in-out;
+}
+
+#linkModal.hidden, #linkEditModal.hidden {
+    animation: modalFadeOut 0.3s ease-in-out;
+}
+
+/* Link button in toolbar */
+.toolbar-btn[onclick*="openLinkModal"] {
+    position: relative;
+}
+
+.toolbar-btn[onclick*="openLinkModal"]:hover {
+    background-color: rgba(251, 191, 36, 0.1);
+}
+
+.toolbar-btn[onclick*="openLinkModal"].active {
+    background-color: rgba(251, 191, 36, 0.2);
+    color: #f59e0b;
+}
+
+/* Link edit/remove buttons in tooltip */
+#linkTooltip button {
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+#linkTooltip button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Focus states for link modals */
+#linkModal input:focus, #linkEditModal input:focus {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+/* Link validation styling */
+.link-input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.link-input-error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* Responsive adjustments for link modals */
+@media (max-width: 640px) {
+    #linkModal .fixed.inset-0.flex.items-center.justify-center.p-4,
+    #linkEditModal .fixed.inset-0.flex.items-center.justify-center.p-4 {
+        padding: 1rem;
+    }
+    
+    #linkModal .max-w-md,
+    #linkEditModal .max-w-md {
+        max-width: calc(100vw - 2rem);
+    }
+    
+    #linkTooltip {
+        max-width: calc(100vw - 2rem);
+        left: 1rem !important;
+        right: 1rem !important;
+        transform: none !important;
+    }
+}
