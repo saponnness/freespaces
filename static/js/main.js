@@ -544,11 +544,148 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Account Settings Functionality
+function initAccountSettings() {
+    // Add confirmation for password change
+    const passwordForm = document.querySelector('form[action*="change-password"]');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to change your password?')) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Add real-time validation feedback for all forms on account settings page
+    const accountForms = document.querySelectorAll('form[action*="settings/"], form[action*="accounts/"]');
+    accountForms.forEach(form => {
+        const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.classList.add('border-red-300');
+                    this.classList.remove('border-gray-200');
+                } else {
+                    this.classList.remove('border-red-300');
+                    this.classList.add('border-gray-200');
+                }
+            });
+        });
+    });
+
+    // Enhanced validation for account settings
+    initAccountFormsValidation();
+}
+
+function initAccountFormsValidation() {
+    // Check if we're on the login page - if so, skip validation feedback
+    const isLoginPage = document.querySelector('form[method="post"]:not([action])') &&
+                       document.querySelector('input[name="username"]') &&
+                       document.querySelector('input[name="password"]') &&
+                       !document.querySelector('input[name="email"]') &&
+                       !document.querySelector('input[name*="new_password"]');
+
+    // Username validation (skip for login page)
+    const usernameInput = document.querySelector('input[name="username"]');
+    if (usernameInput && !isLoginPage) {
+        usernameInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            const feedback = this.parentElement.querySelector('.validation-feedback') ||
+                           createValidationFeedback(this.parentElement);
+
+            if (value.length < 3) {
+                showValidationError(feedback, 'Username must be at least 3 characters long');
+            } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                showValidationError(feedback, 'Username can only contain letters, numbers, and underscores');
+            } else {
+                showValidationSuccess(feedback, 'Username is valid');
+            }
+        });
+    }
+
+    // Email validation (skip for login page, though login page doesn't have email field)
+    const emailInput = document.querySelector('input[name="email"]');
+    if (emailInput && !isLoginPage) {
+        emailInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            const feedback = this.parentElement.querySelector('.validation-feedback') ||
+                           createValidationFeedback(this.parentElement);
+
+            if (value && !isValidEmail(value)) {
+                showValidationError(feedback, 'Please enter a valid email address');
+            } else if (value) {
+                showValidationSuccess(feedback, 'Email format is valid');
+            } else {
+                hideValidationFeedback(feedback);
+            }
+        });
+    }
+
+    // Password strength validation for new passwords (skip for login page)
+    const newPasswordInputs = document.querySelectorAll('input[name*="new_password"], input[name*="password1"]');
+    if (!isLoginPage) {
+        newPasswordInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const strength = calculatePasswordStrength(this.value);
+                const feedback = this.parentElement.querySelector('.validation-feedback') ||
+                               createValidationFeedback(this.parentElement);
+
+                if (this.value.length === 0) {
+                    hideValidationFeedback(feedback);
+                    return;
+                }
+
+                if (strength < 2) {
+                    showValidationError(feedback, 'Password is too weak');
+                } else if (strength < 3) {
+                    showValidationWarning(feedback, 'Password strength: Medium');
+                } else {
+                    showValidationSuccess(feedback, 'Password strength: Strong');
+                }
+            });
+        });
+    }
+}
+
+function createValidationFeedback(parent) {
+    const feedback = document.createElement('div');
+    feedback.className = 'validation-feedback text-sm mt-1 hidden';
+    parent.appendChild(feedback);
+    return feedback;
+}
+
+function showValidationError(feedback, message) {
+    feedback.className = 'validation-feedback text-sm mt-1 text-red-600';
+    feedback.innerHTML = `<svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>${message}`;
+}
+
+function showValidationWarning(feedback, message) {
+    feedback.className = 'validation-feedback text-sm mt-1 text-yellow-600';
+    feedback.innerHTML = `<svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>${message}`;
+}
+
+function showValidationSuccess(feedback, message) {
+    feedback.className = 'validation-feedback text-sm mt-1 text-green-600';
+    feedback.innerHTML = `<svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>${message}`;
+}
+
+function hideValidationFeedback(feedback) {
+    feedback.className = 'validation-feedback text-sm mt-1 hidden';
+    feedback.innerHTML = '';
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initLikeButtons();
     initCommentSystem();
-    
+    initAccountSettings();
+
     // Add CSS animation for floating heart
     if (!document.getElementById('heart-animation-css')) {
         const style = document.createElement('style');

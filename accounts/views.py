@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
 from .forms import (
     CustomUserCreationForm, ProfileUpdateForm, UserUpdateForm,
-    AvatarUpdateForm, NameUpdateForm, BioUpdateForm, SocialLinksUpdateForm
+    AvatarUpdateForm, NameUpdateForm, BioUpdateForm, SocialLinksUpdateForm,
+    UsernameUpdateForm, EmailUpdateForm, CustomPasswordChangeForm,
+    AccountDeletionForm, PersonalInfoUpdateForm
 )
 from .models import Profile
 
@@ -157,3 +159,103 @@ def update_social_links(request):
             messages.error(request, 'Error updating social links.')
     
     return redirect('accounts:profile')
+
+# Account Settings Views
+@login_required
+def account_settings(request):
+    """Main account settings view"""
+    profile, created = Profile.objects.get_or_create(user=request.user)
+
+    context = {
+        'username_form': UsernameUpdateForm(instance=request.user, user=request.user),
+        'email_form': EmailUpdateForm(instance=request.user, user=request.user),
+        'personal_info_form': PersonalInfoUpdateForm(instance=request.user),
+        'password_form': CustomPasswordChangeForm(user=request.user),
+        'deletion_form': AccountDeletionForm(user=request.user),
+    }
+
+    return render(request, 'accounts/account_settings.html', context)
+
+@login_required
+def update_username(request):
+    """Update username"""
+    if request.method == 'POST':
+        form = UsernameUpdateForm(request.POST, instance=request.user, user=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Username updated successfully!')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
+
+    return redirect('accounts:account_settings')
+
+@login_required
+def update_email(request):
+    """Update email address"""
+    if request.method == 'POST':
+        form = EmailUpdateForm(request.POST, instance=request.user, user=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Email address updated successfully!')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
+
+    return redirect('accounts:account_settings')
+
+@login_required
+def change_password(request):
+    """Change user password"""
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Keep user logged in after password change
+            messages.success(request, 'Password changed successfully!')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
+
+    return redirect('accounts:account_settings')
+
+@login_required
+def delete_account(request):
+    """Delete user account"""
+    if request.method == 'POST':
+        form = AccountDeletionForm(request.POST, user=request.user)
+
+        if form.is_valid():
+            # Delete the user account
+            user = request.user
+            user.delete()
+            messages.success(request, 'Your account has been deleted successfully.')
+            return redirect('feeds:home')  # Redirect to home page after deletion
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
+
+    return redirect('accounts:account_settings')
+
+@login_required
+def update_personal_info(request):
+    """Update personal information (first name, last name)"""
+    if request.method == 'POST':
+        form = PersonalInfoUpdateForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Personal information updated successfully!')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.replace("_", " ").title()}: {error}')
+
+    return redirect('accounts:account_settings')

@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Settings - Freespaces{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+    <!-- Page Header -->
+    <div class="glass-effect rounded-3xl shadow-lg p-8 mb-8">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-pink-400 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold gradient-text">Account Settings</h1>
+            <p class="text-gray-600 mt-2">Manage your account information and preferences</p>
+        </div>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="space-y-8">
+        <!-- Personal Information Section -->
+        <div class="glass-effect rounded-3xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold gradient-text mb-6">Personal Information</h2>
+            
+            <form method="post" action="{% url 'accounts:update_personal_info' %}" class="space-y-6">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">First Name</label>
+                        {{ personal_info_form.first_name }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Last Name</label>
+                        {{ personal_info_form.last_name }}
+                    </div>
+                </div>
+                
+                <button type="submit" 
+                        class="bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                    Update Personal Information
+                </button>
+            </form>
+        </div>
+
+        <!-- Account Information Section -->
+        <div class="glass-effect rounded-3xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold gradient-text mb-6">Account Information</h2>
+            
+            <!-- Username Update -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Username</h3>
+                <form method="post" action="{% url 'accounts:update_username' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">New Username</label>
+                        {{ username_form.username }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Current Password</label>
+                        <div class="relative">
+                            {{ username_form.current_password }}
+                            <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                                </svg>
+                                <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="bg-gradient-to-r from-blue-400 to-purple-400 text-white py-2 px-4 rounded-xl hover:shadow-lg transition-all duration-200 font-semibold">
+                        Update Username
+                    </button>
+                </form>
+            </div>
+
+            <!-- Email Update -->
+            <div class="border-t border-gray-200 pt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Email Address</h3>
+                <form method="post" action="{% url 'accounts:update_email' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">New Email Address</label>
+                        {{ email_form.email }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Current Password</label>
+                        <div class="relative">
+                            {{ email_form.current_password }}
+                            <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                                </svg>
+                                <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="bg-gradient-to-r from-blue-400 to-purple-400 text-white py-2 px-4 rounded-xl hover:shadow-lg transition-all duration-200 font-semibold">
+                        Update Email
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Password Change Section -->
+        <div class="glass-effect rounded-3xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold gradient-text mb-6">Change Password</h2>
+
+            <form method="post" action="{% url 'accounts:change_password' %}" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Current Password</label>
+                    <div class="relative">
+                        {{ password_form.old_password }}
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                            </svg>
+                            <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">New Password</label>
+                    <div class="relative">
+                        {{ password_form.new_password1 }}
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                            </svg>
+                            <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Confirm New Password</label>
+                    <div class="relative">
+                        {{ password_form.new_password2 }}
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                            </svg>
+                            <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="bg-gradient-to-r from-green-400 to-blue-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                    Change Password
+                </button>
+            </form>
+        </div>
+
+        <!-- Danger Zone Section -->
+        <div class="glass-effect rounded-3xl shadow-lg p-8 border-2 border-red-200">
+            <h2 class="text-2xl font-bold text-red-600 mb-6">Danger Zone</h2>
+            
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-red-800 mb-4">Delete Account</h3>
+                <p class="text-red-700 mb-6">
+                    Once you delete your account, there is no going back. Please be certain.
+                    All your posts, comments, and profile information will be permanently deleted.
+                </p>
+                
+                <form method="post" action="{% url 'accounts:delete_account' %}" class="space-y-4"
+                      onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-red-700 text-sm font-semibold mb-2">Enter your password to confirm</label>
+                        <div class="relative">
+                            {{ deletion_form.current_password }}
+                            <button type="button" class="password-toggle absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <svg class="eye-closed w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"></path>
+                                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                                </svg>
+                                <svg class="eye-open w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {{ deletion_form.confirm_deletion }}
+                        <label class="text-red-700 text-sm font-semibold">I understand that this action cannot be undone</label>
+                    </div>
+
+                    <button type="submit"
+                            class="bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                        Delete My Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Profile Link -->
+    <div class="text-center mt-8">
+        <a href="{% url 'accounts:profile' %}" 
+           class="inline-flex items-center text-amber-600 hover:text-pink-600 font-semibold transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Profile
+        </a>
+    </div>
+</div>
+{% endblock %}
