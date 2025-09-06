@@ -2006,22 +2006,6 @@ function setBackgroundColor(color) {
     formatDoc('hiliteColor', color);
 }
 
-// Insert functions
-function insertLink(url, text) {
-    if (!url) {
-        url = prompt('Enter URL:');
-        if (!url) return;
-    }
-    
-    const selectedText = getSelectedText();
-    if (selectedText) {
-        formatDoc('createLink', url);
-    } else {
-        const linkText = text || prompt('Enter link text:', url);
-        insertHTMLAtCursor(`<a href="${url}">${linkText}</a>`);
-    }
-}
-
 function insertImage(src, alt) {
     if (!src) {
         src = prompt('Enter image URL:');
@@ -3505,6 +3489,218 @@ document.addEventListener('keydown', function(e) {
 
 // Initialize share functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+});
+
+// Link Modal Functions
+function openLinkModal() {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
+    
+    const modal = document.getElementById('linkModal');
+    const textInput = document.getElementById('linkText');
+    const urlInput = document.getElementById('linkUrl');
+    
+    if (!modal || !textInput || !urlInput) return;
+    
+    // Reset form
+    textInput.value = '';
+    urlInput.value = '';
+    
+    // Get current selection
+    const selection = window.getSelection();
+    let selectedText = '';
+    let existingLink = null;
+    
+    if (selection.rangeCount > 0) {
+        selectedText = selection.toString().trim();
+        
+        // Check if we're inside a link
+        let node = selection.anchorNode;
+        while (node && node !== editor) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
+                existingLink = node;
+                break;
+            }
+            if (node.parentNode) {
+                node = node.parentNode;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    // Fill form with existing data
+    if (existingLink) {
+        textInput.value = existingLink.textContent || '';
+        urlInput.value = existingLink.href || '';
+        
+        // Store reference in the modal
+        modal.setAttribute('data-editing-link', 'true');
+        modal.linkElement = existingLink;
+    } else {
+        textInput.value = selectedText;
+        modal.setAttribute('data-editing-link', 'false');
+        modal.linkElement = null;
+    }
+    
+    // Store selection in modal
+    if (selection.rangeCount > 0) {
+        modal.selectionRange = selection.getRangeAt(0).cloneRange();
+    } else {
+        modal.selectionRange = null;
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus appropriate field
+    if (existingLink) {
+        urlInput.focus();
+        urlInput.select();
+    } else if (textInput.value) {
+        urlInput.focus();
+    } else {
+        textInput.focus();
+    }
+    
+    // Animation
+    const modalContent = modal.querySelector('.bg-white');
+    modalContent.style.opacity = '0';
+    modalContent.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        modalContent.style.transition = 'all 0.2s ease-out';
+        modalContent.style.opacity = '1';
+        modalContent.style.transform = 'scale(1)';
+    }, 10);
+}
+
+function closeLinkModal() {
+    const modal = document.getElementById('linkModal');
+    if (!modal) return;
+    
+    const modalContent = modal.querySelector('.bg-white');
+    modalContent.style.transition = 'all 0.2s ease-in';
+    modalContent.style.opacity = '0';
+    modalContent.style.transform = 'scale(0.95)';
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        
+        // Clean up
+        modal.linkElement = null;
+        modal.selectionRange = null;
+        modal.removeAttribute('data-editing-link');
+    }, 200);
+}
+
+function insertLink() {
+    const modal = document.getElementById('linkModal');
+    const textInput = document.getElementById('linkText');
+    const urlInput = document.getElementById('linkUrl');
+    const editor = document.getElementById('editor');
+    
+    if (!modal || !textInput || !urlInput || !editor) return;
+    
+    const linkText = textInput.value.trim();
+    const linkUrl = urlInput.value.trim();
+    
+    // Validation - check URL first since it's the first field
+    if (!linkUrl) {
+        urlInput.focus();
+        urlInput.style.borderColor = '#ef4444';
+        setTimeout(() => {
+            urlInput.style.borderColor = '';
+        }, 2000);
+        return;
+    }
+    
+    if (!linkText) {
+        textInput.focus();
+        textInput.style.borderColor = '#ef4444';
+        setTimeout(() => {
+            textInput.style.borderColor = '';
+        }, 2000);
+        return;
+    }
+    
+    // Normalize URL
+    let finalUrl = linkUrl;
+    if (!finalUrl.match(/^https?:\/\//)) {
+        finalUrl = 'https://' + finalUrl;
+    }
+    
+    // Create the link HTML - always open in new tab
+    const linkHTML = `<a href="${finalUrl}" style="text-decoration: underline; color: #2563eb;" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+    
+    editor.focus();
+    
+    const isEditing = modal.getAttribute('data-editing-link') === 'true';
+    const existingLink = modal.linkElement;
+    
+    if (isEditing && existingLink) {
+        // Simple replacement for editing
+        existingLink.outerHTML = linkHTML;
+    } else {
+        // Insert new link using insertHTML
+        document.execCommand('insertHTML', false, linkHTML);
+    }
+    
+    updateHiddenField();
+    closeLinkModal();
+    
+    if (typeof showToast === 'function') {
+        showToast('Link inserted successfully!', 'success');
+    }
+}
+
+// Initialize link functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('linkModal');
+        
+        if (modal && !modal.classList.contains('hidden')) {
+            if (e.key === 'Escape') {
+                closeLinkModal();
+            } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                insertLink();
+            }
+        }
+        
+        // Ctrl+K to open link modal
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            const editor = document.getElementById('editor');
+            if (editor && document.activeElement === editor) {
+                e.preventDefault();
+                openLinkModal();
+            }
+        }
+    });
+    
+    // Handle clicking on existing links
+    const editor = document.getElementById('editor');
+    if (editor && editor.getAttribute('contenteditable') === 'true') {
+        editor.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.ctrlKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Select the link
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNode(e.target);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                setTimeout(() => {
+                    openLinkModal();
+                }, 10);
+            }
+        });
+    }
 });
 
 
