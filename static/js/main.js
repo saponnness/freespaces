@@ -612,6 +612,50 @@ function calculatePasswordStrength(password) {
     return strength;
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle single password toggle (login page)
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password-input');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const eyeClosed = document.getElementById('eye-closed');
+            const eyeOpen = document.getElementById('eye-open');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Handle multiple password toggles (register page)
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    
+    passwordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const passwordField = this.previousElementSibling;
+            const eyeClosed = this.querySelector('.eye-closed');
+            const eyeOpen = this.querySelector('.eye-open');
+            
+            if (passwordField && passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else if (passwordField) {
+                passwordField.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+            }
+        });
+    });
+});
+
 
 // Category filter functionality
 function initCategoryFilters() {
