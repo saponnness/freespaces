@@ -3536,6 +3536,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Link Modal Functions
+// Also update the openLinkModal function to better preserve selection
 function openLinkModal() {
     const editor = document.getElementById('editor');
     if (!editor) return;
@@ -3550,19 +3551,26 @@ function openLinkModal() {
     textInput.value = '';
     urlInput.value = '';
     
-    // Get current selection
+    // Get current selection and preserve it more carefully
     const selection = window.getSelection();
     let selectedText = '';
     let existingLink = null;
+    let rangeToSave = null;
     
     if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
         selectedText = selection.toString().trim();
         
+        // Clone the range to preserve the exact cursor position
+        rangeToSave = range.cloneRange();
+        
         // Check if we're inside a link
-        let node = selection.anchorNode;
+        let node = range.commonAncestorContainer;
         while (node && node !== editor) {
             if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
                 existingLink = node;
+                // For existing links, select the entire link
+                rangeToSave.selectNode(node);
                 break;
             }
             if (node.parentNode) {
@@ -3571,14 +3579,32 @@ function openLinkModal() {
                 break;
             }
         }
+    } else {
+        // No selection - create a range at current cursor position
+        const range = document.createRange();
+        const focusNode = selection.focusNode || editor.lastChild || editor;
+        const focusOffset = selection.focusOffset || 0;
+        
+        try {
+            if (focusNode.nodeType === Node.TEXT_NODE) {
+                range.setStart(focusNode, Math.min(focusOffset, focusNode.textContent.length));
+            } else {
+                range.setStart(focusNode, Math.min(focusOffset, focusNode.childNodes.length));
+            }
+            range.collapse(true);
+            rangeToSave = range;
+        } catch (e) {
+            // If there's an error setting the range, create one at the end of the editor
+            range.selectNodeContents(editor);
+            range.collapse(false);
+            rangeToSave = range;
+        }
     }
     
     // Fill form with existing data
     if (existingLink) {
         textInput.value = existingLink.textContent || '';
         urlInput.value = existingLink.href || '';
-        
-        // Store reference in the modal
         modal.setAttribute('data-editing-link', 'true');
         modal.linkElement = existingLink;
     } else {
@@ -3587,12 +3613,8 @@ function openLinkModal() {
         modal.linkElement = null;
     }
     
-    // Store selection in modal
-    if (selection.rangeCount > 0) {
-        modal.selectionRange = selection.getRangeAt(0).cloneRange();
-    } else {
-        modal.selectionRange = null;
-    }
+    // Store the range in the modal
+    modal.selectionRange = rangeToSave;
     
     // Show modal
     modal.classList.remove('hidden');
@@ -3651,7 +3673,7 @@ function insertLink() {
     const linkText = textInput.value.trim();
     const linkUrl = urlInput.value.trim();
     
-    // Validation - check URL first since it's the first field
+    // Validation
     if (!linkUrl) {
         urlInput.focus();
         urlInput.style.borderColor = '#ef4444';
@@ -3676,20 +3698,50 @@ function insertLink() {
         finalUrl = 'https://' + finalUrl;
     }
     
-    // Create the link HTML - always open in new tab
+    // Create the link HTML
     const linkHTML = `<a href="${finalUrl}" style="text-decoration: underline; color: #2563eb;" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
     
     editor.focus();
     
     const isEditing = modal.getAttribute('data-editing-link') === 'true';
     const existingLink = modal.linkElement;
+    const savedRange = modal.selectionRange;
     
     if (isEditing && existingLink) {
-        // Simple replacement for editing
+        // Replace existing link
         existingLink.outerHTML = linkHTML;
     } else {
-        // Insert new link using insertHTML
-        document.execCommand('insertHTML', false, linkHTML);
+        // Insert new link at the saved cursor position
+        if (savedRange) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(savedRange);
+            
+            // Delete any selected content first
+            savedRange.deleteContents();
+            
+            // Create a text node and link element
+            const linkElement = document.createElement('a');
+            linkElement.href = finalUrl;
+            linkElement.style.textDecoration = 'underline';
+            linkElement.style.color = '#2563eb';
+            linkElement.target = '_blank';
+            linkElement.rel = 'noopener noreferrer';
+            linkElement.textContent = linkText;
+            
+            // Insert the link element
+            savedRange.insertNode(linkElement);
+            
+            // Position cursor after the link
+            const newRange = document.createRange();
+            newRange.setStartAfter(linkElement);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        } else {
+            // Fallback: insert at current cursor position
+            document.execCommand('insertHTML', false, linkHTML);
+        }
     }
     
     updateHiddenField();
