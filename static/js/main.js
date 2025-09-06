@@ -3699,7 +3699,7 @@ function insertLink() {
     }
     
     // Create the link HTML
-    const linkHTML = `<a href="${finalUrl}" style="text-decoration: underline; color: #2563eb;" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+    const linkHTML = `<a href="${finalUrl}" style="text-decoration: underline; color: #002280;" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
     
     editor.focus();
     
@@ -3724,7 +3724,7 @@ function insertLink() {
             const linkElement = document.createElement('a');
             linkElement.href = finalUrl;
             linkElement.style.textDecoration = 'underline';
-            linkElement.style.color = '#2563eb';
+            linkElement.style.color = '#002280';
             linkElement.target = '_blank';
             linkElement.rel = 'noopener noreferrer';
             linkElement.textContent = linkText;

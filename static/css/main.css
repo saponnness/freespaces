@@ -1808,14 +1808,14 @@ textarea {
 
 /* Link in rich text content (view mode) */
 .rich-text-content a {
-    color: #2563eb;
+    color: #002280;
     text-decoration: underline;
     text-underline-offset: 2px;
     transition: color 0.2s ease;
 }
 
 .rich-text-content a:hover {
-    color: #1d4ed8;
+    color: #0044ff;
 }
 
 /* Modal backdrop blur effect */
@@ -1929,6 +1929,6 @@ textarea {
 }
 
 .link-preview a {
-    color: #2563eb;
+    color: #002280;
     text-decoration: underline;
 }
