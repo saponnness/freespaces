@@ -32,6 +32,102 @@ body {
     word-wrap: break-word;
 }
 
+/* Enhanced Profile Styles */
+.profile-section {
+    transition: all 0.3s ease;
+}
+
+.profile-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Edit Buttons */
+.profile-edit-btn {
+    position: relative;
+    overflow: hidden;
+    transform: translateY(0);
+    transition: all 0.2s ease;
+}
+
+.profile-edit-btn:hover {
+    transform: translateY(-1px);
+}
+
+.profile-edit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.profile-edit-btn:hover::before {
+    left: 100%;
+}
+
+/* Profile Add Buttons */
+.profile-add-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-add-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(236, 72, 153, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-add-container:hover::after {
+    opacity: 1;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .profile-edit-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .profile-add-container {
+        padding: 1.5rem;
+    }
+
+    .profile-add-container button {
+        font-size: 0.875rem;
+    }
+}
+
+/* Focus states for accessibility */
+.profile-edit-btn:focus,
+.profile-add-container button:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: rgba(251, 191, 36, 0.5);
+    ring-offset: 2px;
+}
+
+/* Icon transitions */
+.profile-edit-btn svg,
+.profile-add-container svg {
+    transition: all 0.2s ease;
+}
+
+.profile-edit-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.profile-add-container:hover svg {
+    transform: rotate(90deg) scale(1.1);
+}
+
 /* Emoji support */
 .emoji {
     font-style: normal;

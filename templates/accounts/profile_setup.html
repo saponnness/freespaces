@@ -86,7 +86,7 @@
 
                         <!-- Edit Button -->
                         <button type="button" onclick="document.getElementById('setup-avatar-upload').click()"
-                                class="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-600 transition-colors">
+                                class="absolute -bottom-1 -right-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white rounded-full w-8 h-8 flex items-center justify-center hover:shadow-lg transition-all duration-200 hover:scale-105">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -114,9 +114,9 @@
 
             <!-- Submit Button -->
             <div class="pt-4">
-                <button type="submit" 
+                <button type="submit"
                         id="setup-submit-btn"
-                        class="w-full bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="btn-primary w-full py-3 px-6 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                     Complete Setup
                 </button>
             </div>
@@ -146,10 +146,10 @@
                 Drag to reposition • Scroll to zoom • Drag corners to resize crop area
             </div>
             <div class="flex justify-end space-x-3">
-                <button onclick="closeSetupCropModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                <button onclick="closeSetupCropModal()" class="cancel-button px-4 py-2 rounded">
                     Cancel
                 </button>
-                <button onclick="saveSetupCroppedImage()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <button onclick="saveSetupCroppedImage()" class="btn-primary px-4 py-2 rounded">
                     Save Picture
                 </button>
             </div>

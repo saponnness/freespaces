@@ -201,7 +201,7 @@
                 <h3 class="font-bold text-lg text-gray-800">@{{ post.author.username }}</h3>
                 <p class="text-gray-600 text-sm">Creative enthusiast sharing amazing content</p>
             </div>
-            <a href="{% url 'accounts:profile' %}" 
+            <a href="{% url 'accounts:profile' username=post.author.username %}"
                class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-semibold text-sm">
                 View Profile
             </a>

@@ -8,54 +8,51 @@
 
 <div class="max-w-4xl mx-auto px-4">
     <!-- Profile Header -->
-    <div class="glass-effect rounded-3xl shadow-lg p-8 mb-8">
-        <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+    <div class="glass-effect rounded-3xl shadow-lg p-10 mb-8 profile-section">
+        <div class="flex flex-col md:flex-row items-center md:items-start space-y-8 md:space-y-0 md:space-x-12">
             <!-- Avatar with Edit Button -->
             <div class="flex-shrink-0 relative">
                 {% if profile.avatar %}
-                    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}" 
-                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}"
+                         class="w-40 h-40 rounded-full object-cover border-4 border-white shadow-xl">
                 {% else %}
-                    <div class="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center shadow-lg border-4 border-white">
-                        <span class="text-white text-4xl font-bold">
+                    <div class="w-40 h-40 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center shadow-xl border-4 border-white">
+                        <span class="text-white text-5xl font-bold">
                             {{ profile.user.username|first|upper }}
                         </span>
                     </div>
                 {% endif %}
                 
                 {% if user == profile.user %}
-                    <button onclick="document.getElementById('avatar-upload').click()" 
-                            class="absolute -bottom-2 -right-2 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <button onclick="document.getElementById('avatar-upload').click()"
+                            class="absolute -bottom-3 -right-3 bg-gradient-to-r from-amber-400 to-pink-400 text-white rounded-full w-12 h-12 flex items-center justify-center hover:shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </button>
-                    
+
                     <!-- Hidden file input -->
                     <input type="file" id="avatar-upload" accept="image/*" class="hidden">
                 {% endif %}
             </div>
             
             <!-- Profile Info -->
-            <div class="flex-1 text-center md:text-left">
+            <div class="flex-1 text-center md:text-left space-y-6">
                 <!-- Username Section -->
-                <div id="username-display" class="mb-2">
-                    <h1 class="text-3xl font-bold gradient-text inline">
+                <div id="username-display" class="mb-4">
+                    <h1 class="text-4xl font-bold gradient-text inline">
                         @{{ profile.user.username }}
                     </h1>
                     {% if user == profile.user %}
-                        <!-- DEBUG: User can edit ({{ user.username }} == {{ profile.user.username }}) -->
-                        <button onclick="toggleUsernameEdit()" class="ml-2 text-gray-500 hover:text-blue-500" id="username-edit-btn">
-                            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button onclick="toggleUsernameEdit()" class="ml-3 text-gray-500 hover:text-amber-500 transition-colors" id="username-edit-btn">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
                         </button>
-                    {% else %}
-                        <!-- DEBUG: User cannot edit ({{ user.username }} != {{ profile.user.username }}) -->
                     {% endif %}
                 </div>
 
@@ -74,10 +71,10 @@
                                        maxlength="20"
                                        pattern="[a-zA-Z0-9_]+"
                                        required>
-                                <button type="submit" class="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600">
+                                <button type="submit" class="btn-primary px-3 py-2 rounded">
                                     Save
                                 </button>
-                                <button type="button" onclick="toggleUsernameEdit()" class="bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600">
+                                <button type="button" onclick="toggleUsernameEdit()" class="cancel-button px-3 py-2 rounded">
                                     Cancel
                                 </button>
                             </div>
@@ -89,167 +86,197 @@
                 {% endif %}
                 
                 <!-- Bio Section with Rich Text Support -->
-                <div id="bio-display" class="mb-6">
+                <div id="bio-display" class="mb-8">
                     {% if profile.bio %}
-                        <div class="rich-text-content text-gray-700 leading-relaxed">
-                            {{ profile.bio|safe }}
+                        <div class="glass-effect rounded-2xl p-6 mb-4">
+                            <div class="rich-text-content text-gray-700 text-lg leading-relaxed">
+                                {{ profile.bio|safe }}
+                            </div>
                         </div>
                         {% if user == profile.user %}
-                            <button onclick="toggleBioEdit()" class="text-sm text-blue-500 hover:text-blue-600 mt-1">
+                            <button onclick="toggleBioEdit()" class="profile-edit-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-amber-600 bg-white/50 hover:bg-white/80 rounded-lg border border-gray-200 hover:border-amber-300 transition-all duration-200 hover:shadow-sm">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
                                 Edit bio
                             </button>
                         {% endif %}
                     {% else %}
                         {% if user == profile.user %}
-                            <button onclick="toggleBioEdit()" class="text-blue-500 hover:text-blue-600 text-sm">
-                                + Add a bio
-                            </button>
+                            <div class="profile-add-container glass-effect rounded-2xl p-8 border-2 border-dashed border-gray-300 hover:border-amber-300 transition-all duration-200 hover:bg-white/60">
+                                <button onclick="toggleBioEdit()" class="inline-flex items-center justify-center w-full text-gray-600 hover:text-amber-600 text-base font-medium transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Add a bio to tell people about yourself
+                                </button>
+                            </div>
                         {% endif %}
                     {% endif %}
                 </div>
                 
                 {% if user == profile.user %}
                     <!-- Bio Edit Form (Hidden by default) -->
-                    <div id="bio-edit" class="mb-6 hidden">
-                        <form method="post" action="{% url 'accounts:update_bio' %}">
-                            {% csrf_token %}
-                            {{ bio_form.bio }}
-                            <div class="mt-2">
-                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                                    Save Bio
-                                </button>
-                                <button type="button" onclick="toggleBioEdit()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                    <div id="bio-edit" class="mb-8 hidden">
+                        <div class="glass-effect rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Bio</h3>
+                            <form method="post" action="{% url 'accounts:update_bio' %}">
+                                {% csrf_token %}
+                                {{ bio_form.bio }}
+                                <div class="flex gap-4 mt-6">
+                                    <button type="submit" class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                                        Save Bio
+                                    </button>
+                                    <button type="button" onclick="toggleBioEdit()" class="glass-effect text-gray-700 px-6 py-3 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 {% endif %}
                 
                 <!-- Info and Social Links -->
-                <div class="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-600 mb-6">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600 mb-8">
                     {% if profile.location %}
-                        <div class="flex items-center glass-effect px-3 py-2 rounded-full">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        <div class="flex items-center glass-effect px-4 py-3 rounded-full shadow-sm">
+                            <svg class="w-5 h-5 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                            {{ profile.location }}
+                            <span class="font-medium">{{ profile.location }}</span>
                         </div>
                     {% endif %}
-                    
+
                     {% if profile.website %}
-                        <div class="flex items-center glass-effect px-3 py-2 rounded-full">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        <div class="flex items-center glass-effect px-4 py-3 rounded-full shadow-sm">
+                            <svg class="w-5 h-5 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                             </svg>
-                            <a href="{{ profile.website }}" target="_blank" 
-                               class="text-blue-500 hover:underline">Website</a>
+                            <a href="{{ profile.website }}" target="_blank"
+                               class="text-blue-500 hover:underline font-medium">Website</a>
                         </div>
                     {% endif %}
-                    
-                    <div class="flex items-center glass-effect px-3 py-2 rounded-full">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+
+                    <div class="flex items-center glass-effect px-4 py-3 rounded-full shadow-sm">
+                        <svg class="w-5 h-5 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        Joined {{ profile.created_at|date:"M Y" }}
+                        <span class="font-medium">Joined {{ profile.created_at|date:"M Y" }}</span>
                     </div>
                 </div>
                 
                 <!-- Social Media Links -->
-                <div id="social-display" class="mb-6">
+                <div id="social-display" class="mb-8">
                     {% if profile.facebook_url or profile.instagram_url or profile.tiktok_url %}
-                        <div class="flex flex-wrap justify-center md:justify-start gap-3">
-                            {% if profile.facebook_url %}
-                                <a href="{{ profile.facebook_url }}" target="_blank" 
-                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-blue-600 hover:bg-blue-50">
-                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                    </svg>
-                                    Facebook
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile.instagram_url %}
-                                <a href="{{ profile.instagram_url }}" target="_blank" 
-                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-pink-600 hover:bg-pink-50">
-                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988s11.988-5.367 11.988-11.988C24.005 5.367 18.638.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.596-3.185-1.537-.737-.941-.737-2.115 0-3.056.737-.941 1.888-1.537 3.185-1.537 1.297 0 2.448.596 3.185 1.537.737.941.737 2.115 0 3.056-.737.941-1.888 1.537-3.185 1.537zm7.119 0c-1.297 0-2.448-.596-3.185-1.537-.737-.941-.737-2.115 0-3.056.737-.941 1.888-1.537 3.185-1.537 1.297 0 2.448.596 3.185 1.537.737.941.737 2.115 0 3.056-.737.941-1.888 1.537-3.185 1.537z"/>
-                                    </svg>
-                                    Instagram
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile.tiktok_url %}
-                                <a href="{{ profile.tiktok_url }}" target="_blank" 
-                                   class="flex items-center glass-effect px-3 py-2 rounded-full text-black hover:bg-gray-50">
-                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M19.321 5.562a5.124 5.124 0 0 1-.443-.258 6.228 6.228 0 0 1-1.137-.966c-.849-1.011-1.232-2.219-1.177-3.315V.936h-3.631v14.111c0 .84-.334 1.606-.897 2.17a3.073 3.073 0 0 1-2.188.905c-1.704 0-3.085-1.382-3.085-3.086 0-1.704 1.381-3.086 3.085-3.086.337 0 .662.057.966.161v-3.755a6.834 6.834 0 0 0-.966-.069c-3.785 0-6.85 3.065-6.85 6.849 0 3.785 3.065 6.85 6.85 6.85z"/>
-                                    </svg>
-                                    TikTok
-                                </a>
-                            {% endif %}
+                        <div class="glass-effect rounded-2xl p-6 mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Social Media</h3>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                                {% if profile.facebook_url %}
+                                    <a href="{{ profile.facebook_url }}" target="_blank"
+                                       class="flex items-center glass-effect px-4 py-3 rounded-full text-blue-600 hover:bg-blue-50 transition-all duration-200 hover:scale-105 shadow-sm">
+                                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                        </svg>
+                                        <span class="font-medium">Facebook</span>
+                                    </a>
+                                {% endif %}
+
+                                {% if profile.instagram_url %}
+                                    <a href="{{ profile.instagram_url }}" target="_blank"
+                                       class="flex items-center glass-effect px-4 py-3 rounded-full text-pink-600 hover:bg-pink-50 transition-all duration-200 hover:scale-105 shadow-sm">
+                                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                        </svg>
+                                        <span class="font-medium">Instagram</span>
+                                    </a>
+                                {% endif %}
+
+                                {% if profile.tiktok_url %}
+                                    <a href="{{ profile.tiktok_url }}" target="_blank"
+                                       class="flex items-center glass-effect px-4 py-3 rounded-full text-black hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm">
+                                        <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                                        </svg>
+                                        <span class="font-medium">TikTok</span>
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
                         {% if user == profile.user %}
-                            <button onclick="toggleSocialEdit()" class="text-sm text-blue-500 hover:text-blue-600 mt-2">
+                            <button onclick="toggleSocialEdit()" class="profile-edit-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-amber-600 bg-white/50 hover:bg-white/80 rounded-lg border border-gray-200 hover:border-amber-300 transition-all duration-200 hover:shadow-sm">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                </svg>
                                 Edit social links
                             </button>
                         {% endif %}
                     {% else %}
                         {% if user == profile.user %}
-                            <button onclick="toggleSocialEdit()" class="text-blue-500 hover:text-blue-600 text-sm">
-                                + Add social media links
-                            </button>
+                            <div class="profile-add-container glass-effect rounded-2xl p-8 border-2 border-dashed border-gray-300 hover:border-amber-300 transition-all duration-200 hover:bg-white/60">
+                                <button onclick="toggleSocialEdit()" class="inline-flex items-center justify-center w-full text-gray-600 hover:text-amber-600 text-base font-medium transition-colors duration-200">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Add social media links to connect with others
+                                </button>
+                            </div>
                         {% endif %}
                     {% endif %}
                 </div>
                 
                 {% if user == profile.user %}
                     <!-- Social Links Edit Form (Hidden by default) -->
-                    <div id="social-edit" class="mb-6 hidden">
-                        <form method="post" action="{% url 'accounts:update_social_links' %}">
-                            {% csrf_token %}
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
-                                    {{ social_form.facebook_url }}
+                    <div id="social-edit" class="mb-8 hidden">
+                        <div class="glass-effect rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-6">Edit Social Media Links</h3>
+                            <form method="post" action="{% url 'accounts:update_social_links' %}">
+                                {% csrf_token %}
+                                <div class="space-y-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+                                        {{ social_form.facebook_url }}
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+                                        {{ social_form.instagram_url }}
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">TikTok</label>
+                                        {{ social_form.tiktok_url }}
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
-                                    {{ social_form.instagram_url }}
+                                <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                                    <button type="submit"
+                                            class="flex-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white py-4 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
+                                        Save Social Links
+                                    </button>
+                                    <button type="button" onclick="toggleSocialEdit()"
+                                            class="flex-1 glass-effect text-gray-700 py-4 px-6 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold">
+                                        Cancel
+                                    </button>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
-                                    {{ social_form.tiktok_url }}
-                                </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                                <button type="submit" 
-                                        class="flex-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white py-3 px-6 rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold">
-                                    Save Social Links
-                                </button>
-                                <button type="button" onclick="toggleSocialEdit()" 
-                                        class="flex-1 glass-effect text-gray-700 py-3 px-6 rounded-2xl hover:bg-white/70 transition-all duration-200 font-semibold">
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 {% endif %}
                 
                 <!-- Stats -->
-                <div class="flex justify-center md:justify-start gap-8 mb-6">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-gray-900">{{ profile.posts_count }}</div>
-                        <div class="text-gray-600 text-sm">Posts</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-gray-900">{{ profile.likes_received }}</div>
-                        <div class="text-gray-600 text-sm">Likes</div>
+                <div class="glass-effect rounded-2xl p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Activity</h3>
+                    <div class="flex justify-center md:justify-start gap-12">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold gradient-text">{{ profile.posts_count }}</div>
+                            <div class="text-gray-600 text-sm font-medium mt-1">Posts</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold gradient-text">{{ profile.likes_received }}</div>
+                            <div class="text-gray-600 text-sm font-medium mt-1">Likes</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -325,16 +352,30 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="glass-effect rounded-3xl p-12 text-center">
-                <div class="text-gray-500 mb-4">
-                    {% if user == profile.user %}
-                        You haven't created any posts yet.
-                    {% else %}
-                        {{ profile.user.username }} hasn't published any posts yet.
-                    {% endif %}
+            <div class="glass-effect rounded-3xl p-16 text-center">
+                <div class="mb-8">
+                    <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-pink-400 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <div class="text-gray-500 text-lg mb-2">
+                        {% if user == profile.user %}
+                            You haven't created any posts yet.
+                        {% else %}
+                            {{ profile.user.username }} hasn't published any posts yet.
+                        {% endif %}
+                    </div>
+                    <div class="text-gray-400 text-sm">
+                        {% if user == profile.user %}
+                            Share your creative spaces and inspire others!
+                        {% else %}
+                            Check back later for new content.
+                        {% endif %}
+                    </div>
                 </div>
                 {% if user == profile.user %}
-                    <a href="{% url 'posts:create' %}" class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-full hover:shadow-lg transition-all duration-200 font-semibold">
+                    <a href="{% url 'posts:create' %}" class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-4 rounded-full hover:shadow-lg transition-all duration-200 font-semibold text-lg">
                         Create your first post!
                     </a>
                 {% endif %}
@@ -356,10 +397,10 @@
                 Drag to reposition • Scroll to zoom • Drag corners to resize crop area
             </div>
             <div class="flex justify-end space-x-3">
-                <button onclick="closeCropModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                <button onclick="closeCropModal()" class="cancel-button px-4 py-2 rounded">
                     Cancel
                 </button>
-                <button onclick="saveCroppedImage()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <button onclick="saveCroppedImage()" class="btn-primary px-4 py-2 rounded">
                     Save Picture
                 </button>
             </div>
