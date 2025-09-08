@@ -10,21 +10,15 @@
         <p class="text-xl text-gray-600 mb-8">Discover & share your creative journey through photography, programming, lifestyle, and more</p>
 
         {% if user.is_authenticated %}
-            <a href="{% url 'posts:create' %}" 
+            <a href="{% url 'posts:create' %}"
                class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-3 rounded-full hover:shadow-lg transition-all duration-200 text-lg font-medium">
                 Share Your Story
             </a>
         {% else %}
-            <div class="space-x-4">
-                <a href="{% url 'accounts:register' %}" 
-                   class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-3 rounded-full hover:shadow-lg transition-all duration-200 text-lg font-medium">
-                    Join Freespaces
-                </a>
-                <a href="{% url 'posts:list' %}" 
-                   class="glass-effect text-gray-700 px-8 py-3 rounded-full hover:bg-white/90 transition-all duration-200 text-lg font-medium">
-                    Explore Posts
-                </a>
-            </div>
+            <a href="{% url 'posts:list' %}"
+               class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-8 py-3 rounded-full hover:shadow-lg transition-all duration-200 text-lg font-medium">
+                Explore Posts
+            </a>
         {% endif %}
     </div>
 

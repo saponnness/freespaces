@@ -1893,6 +1893,68 @@ textarea {
     }
 }
 
+/* Enhanced Modal System Styles */
+.modal-input {
+    transition: all 0.2s ease;
+}
+
+.modal-input:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+}
+
+.modal-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.input-error {
+    animation: fadeInError 0.2s ease-in-out;
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Button styles for different modal types */
+.confirm-button {
+    transition: all 0.2s ease;
+}
+
+.confirm-button:not(.danger-button):hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.confirm-button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+/* Icon color variations */
+.warning-icon.text-amber-500 {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.warning-icon.text-red-500 {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.warning-icon.text-blue-500 {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.warning-icon.text-green-500 {
+    background: rgba(34, 197, 94, 0.1);
+}
+
 /* Link selection highlight in editor */
 #editor a.selected-link {
     background-color: rgba(245, 158, 11, 0.2);

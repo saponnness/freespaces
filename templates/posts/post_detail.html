@@ -54,7 +54,7 @@
                     </div>
                 {% endif %}
                 <div>
-                    <p class="font-semibold text-gray-800">{{ post.author.username }}</p>
+                    <p class="font-semibold text-gray-800">@{{ post.author.username }}</p>
                     <p class="text-sm text-gray-500">
                         {% if post.status == 'published' %}
                             {{ post.published_at|date:"F d, Y" }} • {{ post.updated_at|date:"g:i A" }}
@@ -164,7 +164,7 @@
             {% else %}
                 <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
                     <p class="text-blue-700 text-center">
-                        <a href="{% url 'accounts:login' %}" class="font-semibold hover:underline">Login</a> 
+                        <a href="{% url 'accounts:oauth_login' %}" class="font-semibold hover:underline">Login</a>
                         to join the conversation!
                     </p>
                 </div>
@@ -198,7 +198,7 @@
                 </div>
             {% endif %}
             <div class="flex-1">
-                <h3 class="font-bold text-lg text-gray-800">{{ post.author.username }}</h3>
+                <h3 class="font-bold text-lg text-gray-800">@{{ post.author.username }}</h3>
                 <p class="text-gray-600 text-sm">Creative enthusiast sharing amazing content</p>
             </div>
             <a href="{% url 'accounts:profile' %}" 

@@ -41,45 +41,52 @@
             
             <!-- Profile Info -->
             <div class="flex-1 text-center md:text-left">
-                <!-- Name Section -->
-                <div id="name-display" class="mb-2">
+                <!-- Username Section -->
+                <div id="username-display" class="mb-2">
                     <h1 class="text-3xl font-bold gradient-text inline">
-                        {% if profile.user.first_name %}
-                            {{ profile.user.first_name }} {{ profile.user.last_name }}
-                        {% else %}
-                            {{ profile.user.username }}
-                        {% endif %}
+                        @{{ profile.user.username }}
                     </h1>
                     {% if user == profile.user %}
-                        <button onclick="toggleNameEdit()" class="ml-2 text-gray-500 hover:text-blue-500">
+                        <!-- DEBUG: User can edit ({{ user.username }} == {{ profile.user.username }}) -->
+                        <button onclick="toggleUsernameEdit()" class="ml-2 text-gray-500 hover:text-blue-500" id="username-edit-btn">
                             <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
                         </button>
+                    {% else %}
+                        <!-- DEBUG: User cannot edit ({{ user.username }} != {{ profile.user.username }}) -->
                     {% endif %}
                 </div>
-                
+
                 {% if user == profile.user %}
-                    <!-- Name Edit Form (Hidden by default) -->
-                    <div id="name-edit" class="mb-2 hidden">
-                        <form method="post" action="{% url 'accounts:update_name' %}">
+                    <!-- Username Edit Form (Hidden by default) -->
+                    <div id="username-edit" class="mb-2 hidden">
+                        <form method="post" action="{% url 'accounts:update_username' %}">
                             {% csrf_token %}
                             <div class="flex gap-2 items-center">
-                                {{ name_form.first_name }}
-                                {{ name_form.last_name }}
+                                <span class="text-2xl font-bold text-gray-500">@</span>
+                                <input type="text"
+                                       name="username"
+                                       value="{{ profile.user.username }}"
+                                       class="text-2xl font-bold bg-transparent border-b-2 border-amber-400 focus:outline-none focus:border-pink-400 transition-colors"
+                                       minlength="3"
+                                       maxlength="20"
+                                       pattern="[a-zA-Z0-9_]+"
+                                       required>
                                 <button type="submit" class="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600">
                                     Save
                                 </button>
-                                <button type="button" onclick="toggleNameEdit()" class="bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600">
+                                <button type="button" onclick="toggleUsernameEdit()" class="bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600">
                                     Cancel
                                 </button>
                             </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                3-20 characters, letters, numbers, and underscores only
+                            </p>
                         </form>
                     </div>
                 {% endif %}
-                
-                <p class="text-gray-600 text-lg mb-4">@{{ profile.user.username }}</p>
                 
                 <!-- Bio Section with Rich Text Support -->
                 <div id="bio-display" class="mb-6">

@@ -143,11 +143,11 @@
                 </a>
             {% else %}
                 <div class="space-x-4">
-                    <a href="{% url 'accounts:register' %}" 
+                    <a href="{% url 'accounts:oauth_login' %}"
                        class="bg-gradient-to-r from-amber-400 to-pink-400 text-white px-6 py-3 rounded-full hover:shadow-lg transition-all duration-200 font-semibold">
                        Join to Create
                     </a>
-                    <a href="{% url 'posts:list' %}" 
+                    <a href="{% url 'posts:list' %}"
                        class="glass-effect text-gray-700 px-6 py-3 rounded-full hover:bg-white/70 transition-all duration-200 font-semibold">
                        Explore Other Posts
                     </a>

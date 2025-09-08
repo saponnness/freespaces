@@ -466,41 +466,50 @@ function handleCommentSubmit(form) {
 }
 
 function handleCommentDelete(commentId) {
-    if (!confirm('Are you sure you want to delete this comment?')) {
-        return;
-    }
-    
-    fetch(`/interactions/comment/delete/${commentId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrftoken
+    showConfirmationModal({
+        title: 'Delete Comment',
+        message: 'Are you sure you want to delete this comment?',
+        type: 'warning',
+        confirmText: 'Delete Comment',
+        cancelText: 'Cancel',
+        dangerZoneText: 'This action cannot be undone. The comment will be permanently deleted.',
+        onConfirm: () => {
+            fetch(`/interactions/comment/delete/${commentId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove comment from DOM
+                    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    if (commentItem) {
+                        commentItem.style.transition = 'all 0.3s ease';
+                        commentItem.style.opacity = '0';
+                        commentItem.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            commentItem.remove();
+                        }, 300);
+                    }
+
+                    // Update comment count
+                    updateCommentCount(data.comment_count);
+
+                    showNotification('Comment deleted successfully!', 'success');
+                } else {
+                    showNotification(data.error || 'Error deleting comment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting comment:', error);
+                showNotification('Error deleting comment', 'error');
+            });
+        },
+        onCancel: () => {
+            // User cancelled, no action needed
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Remove comment from DOM
-            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
-            if (commentItem) {
-                commentItem.style.transition = 'all 0.3s ease';
-                commentItem.style.opacity = '0';
-                commentItem.style.transform = 'translateX(-20px)';
-                setTimeout(() => {
-                    commentItem.remove();
-                }, 300);
-            }
-            
-            // Update comment count
-            updateCommentCount(data.comment_count);
-            
-            showNotification('Comment deleted successfully!', 'success');
-        } else {
-            showNotification(data.error || 'Error deleting comment', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error deleting comment:', error);
-        showNotification('Error deleting comment', 'error');
     });
 }
 
@@ -550,9 +559,23 @@ function initAccountSettings() {
     const passwordForm = document.querySelector('form[action*="change-password"]');
     if (passwordForm) {
         passwordForm.addEventListener('submit', function(e) {
-            if (!confirm('Are you sure you want to change your password?')) {
-                e.preventDefault();
-            }
+            e.preventDefault();
+
+            showConfirmationModal({
+                title: 'Change Password',
+                message: 'Are you sure you want to change your password?',
+                type: 'warning',
+                confirmText: 'Change Password',
+                cancelText: 'Cancel',
+                dangerZoneText: 'You will need to sign in again on all your devices after changing your password.',
+                onConfirm: () => {
+                    // Submit the form
+                    passwordForm.submit();
+                },
+                onCancel: () => {
+                    // User cancelled, no action needed
+                }
+            });
         });
     }
 
@@ -1252,8 +1275,25 @@ function initPostManagement() {
     if (bulkDeleteBtn) {
         bulkDeleteBtn.addEventListener('click', function() {
             const selectedPosts = getSelectedPosts();
-            if (selectedPosts.length > 0 && confirm(`Delete ${selectedPosts.length} posts?`)) {
-                bulkDeletePosts(selectedPosts);
+            if (selectedPosts.length > 0) {
+                showConfirmationModal({
+                    title: `Delete ${selectedPosts.length} Posts`,
+                    message: `Are you sure you want to delete ${selectedPosts.length} selected posts?`,
+                    type: 'danger',
+                    confirmText: `Delete ${selectedPosts.length} Posts`,
+                    cancelText: 'Cancel',
+                    requireConfirmation: true,
+                    confirmationText: 'I understand that this will permanently delete all selected posts and their associated data.',
+                    dangerZoneText: 'This will permanently delete all selected posts and their associated data. This action cannot be undone.',
+                    onConfirm: () => {
+                        bulkDeletePosts(selectedPosts);
+                    },
+                    onCancel: () => {
+                        // User cancelled, no action needed
+                    }
+                });
+            } else {
+                showToast('Please select posts to delete', 'warning');
             }
         });
     }
@@ -1285,14 +1325,15 @@ function bulkDeletePosts(postIds) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            showToast(`Successfully deleted ${postIds.length} posts`, 'success');
             location.reload();
         } else {
-            alert('Error deleting posts');
+            showToast('Error deleting posts', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error deleting posts');
+        showToast('Error deleting posts', 'error');
     });
 }
 
@@ -1308,14 +1349,15 @@ function bulkPublishPosts(postIds) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            showToast(`Successfully published ${postIds.length} posts`, 'success');
             location.reload();
         } else {
-            alert('Error publishing posts');
+            showToast('Error publishing posts', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error publishing posts');
+        showToast('Error publishing posts', 'error');
     });
 }
 
@@ -1496,22 +1538,35 @@ function isValidEmail(email) {
 
 function initImageManagement() {
     const removeImageBtn = document.querySelector('.remove-image-btn');
-    
+
     if (removeImageBtn) {
         removeImageBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to remove this image?')) {
-                const preview = document.querySelector('.current-image-preview');
-                if (preview) {
-                    preview.style.display = 'none';
+            showConfirmationModal({
+                title: 'Remove Image',
+                message: 'Are you sure you want to remove this image?',
+                type: 'warning',
+                confirmText: 'Remove Image',
+                cancelText: 'Cancel',
+                dangerZoneText: 'The image will be removed from this post. You can add a new image if needed.',
+                onConfirm: () => {
+                    const preview = document.querySelector('.current-image-preview');
+                    if (preview) {
+                        preview.style.display = 'none';
+                    }
+
+                    // Add hidden input to indicate image removal
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'remove_image';
+                    hiddenInput.value = 'true';
+                    document.querySelector('.edit-form').appendChild(hiddenInput);
+
+                    showToast('Image removed successfully', 'success');
+                },
+                onCancel: () => {
+                    // User cancelled, no action needed
                 }
-                
-                // Add hidden input to indicate image removal
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'remove_image';
-                hiddenInput.value = 'true';
-                document.querySelector('.edit-form').appendChild(hiddenInput);
-            }
+            });
         });
     }
 }
@@ -1840,6 +1895,8 @@ function confirmBulkDelete() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all functionality
     initProfileDropdown();
+    initSetupAvatarCropping();
+    initProfileSetupUsernameValidation();
     // Add other initializations here as needed
 });
 
@@ -1926,6 +1983,7 @@ function openProfileDropdown() {
 
 
 let cropper = null;
+let setupCropper = null;
 
 // JavaScript functions for inline editing
 function toggleNameEdit() {
@@ -1937,11 +1995,21 @@ function toggleNameEdit() {
 }
 
 function toggleBioEdit() {
+    console.log('toggleBioEdit() called');
     const display = document.getElementById('bio-display');
     const edit = document.getElementById('bio-edit');
-    
-    display.classList.toggle('hidden');
-    edit.classList.toggle('hidden');
+
+    console.log('bio display element:', display);
+    console.log('bio edit element:', edit);
+
+    if (display && edit) {
+        display.classList.toggle('hidden');
+        edit.classList.toggle('hidden');
+        console.log('Bio toggled - display hidden:', display.classList.contains('hidden'));
+        console.log('Bio toggled - edit hidden:', edit.classList.contains('hidden'));
+    } else {
+        console.error('Could not find bio display or edit elements');
+    }
 }
 
 function toggleSocialEdit() {
@@ -2019,17 +2087,248 @@ function saveCroppedImage() {
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high',
         });
-        
+
         const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
-        
+
         // Set the cropped image data in hidden input
         document.getElementById('cropped-image-data').value = croppedImage;
-        
+
         // Submit the form
         document.getElementById('cropped-form').submit();
-        
+
         // Close modal
         closeCropModal();
+    }
+}
+
+// Profile Setup Username Validation
+function initProfileSetupUsernameValidation() {
+    const usernameInput = document.getElementById('username-input');
+    const validationDiv = document.getElementById('username-validation');
+    const feedbackDiv = document.getElementById('username-feedback');
+    const submitBtn = document.getElementById('setup-submit-btn');
+
+    if (!usernameInput || !validationDiv || !feedbackDiv || !submitBtn) {
+        return; // Not on profile setup page
+    }
+
+    let validationTimeout;
+    let isValidating = false;
+    let isValid = false;
+
+    function showValidationIcon(type, message = '') {
+        validationDiv.innerHTML = '';
+        feedbackDiv.innerHTML = '';
+        feedbackDiv.classList.add('hidden');
+
+        if (type === 'loading') {
+            validationDiv.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500"></div>';
+        } else if (type === 'success') {
+            validationDiv.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            isValid = true;
+        } else if (type === 'error') {
+            validationDiv.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            if (message) {
+                feedbackDiv.innerHTML = `<span class="text-red-500">${message}</span>`;
+                feedbackDiv.classList.remove('hidden');
+            }
+            isValid = false;
+        }
+
+        // Update submit button state
+        submitBtn.disabled = !isValid || usernameInput.value.trim().length === 0;
+        submitBtn.classList.toggle('opacity-50', submitBtn.disabled);
+        submitBtn.classList.toggle('cursor-not-allowed', submitBtn.disabled);
+    }
+
+    function validateUsername(username) {
+        if (isValidating) return;
+
+        isValidating = true;
+        showValidationIcon('loading');
+
+        // Basic client-side validation first
+        if (username.length < 3) {
+            showValidationIcon('error', 'Username must be at least 3 characters long');
+            isValidating = false;
+            return;
+        }
+
+        if (username.length > 20) {
+            showValidationIcon('error', 'Username must be 20 characters or less');
+            isValidating = false;
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            showValidationIcon('error', 'Username can only contain letters, numbers, and underscores');
+            isValidating = false;
+            return;
+        }
+
+        // Server-side validation for uniqueness
+        fetch('/accounts/api/validate-username/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                showValidationIcon('success');
+            } else {
+                showValidationIcon('error', data.error || 'Username is not available');
+            }
+        })
+        .catch(error => {
+            console.error('Username validation error:', error);
+            showValidationIcon('error', 'Unable to validate username. Please try again.');
+        })
+        .finally(() => {
+            isValidating = false;
+        });
+    }
+
+    // Add event listener for real-time validation
+    usernameInput.addEventListener('input', function() {
+        const username = this.value.trim();
+
+        // Clear previous timeout
+        if (validationTimeout) {
+            clearTimeout(validationTimeout);
+        }
+
+        // Clear validation if empty
+        if (username.length === 0) {
+            validationDiv.innerHTML = '';
+            feedbackDiv.innerHTML = '';
+            feedbackDiv.classList.add('hidden');
+            isValid = false;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            return;
+        }
+
+        // Debounce validation
+        validationTimeout = setTimeout(() => {
+            validateUsername(username);
+        }, 500);
+    });
+
+    // Initial state - disable submit button
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+}
+
+// Profile Setup Avatar cropping functions
+function initSetupAvatarCropping() {
+    const setupAvatarUpload = document.getElementById('setup-avatar-upload');
+    if (setupAvatarUpload) {
+        setupAvatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const image = document.getElementById('setupCropImage');
+                    image.src = event.target.result;
+
+                    // Show modal
+                    document.getElementById('setupCropModal').classList.remove('hidden');
+
+                    // Initialize cropper
+                    if (setupCropper) {
+                        setupCropper.destroy();
+                    }
+
+                    setupCropper = new Cropper(image, {
+                        aspectRatio: 1, // Square crop
+                        viewMode: 2, // Restrict crop box to not exceed canvas
+                        dragMode: 'move',
+                        autoCropArea: 0.8,
+                        cropBoxResizable: true,
+                        cropBoxMovable: true,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        background: true,
+                        responsive: true,
+                        restore: true,
+                        checkCrossOrigin: true,
+                        checkOrientation: true,
+                        modal: true,
+                        scalable: true,
+                        zoomable: true,
+                        zoomOnTouch: true,
+                        zoomOnWheel: true,
+                        wheelZoomRatio: 0.1,
+                        cropBoxResizable: true,
+                        minContainerWidth: 200,
+                        minContainerHeight: 200,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
+
+function closeSetupCropModal() {
+    document.getElementById('setupCropModal').classList.add('hidden');
+    if (setupCropper) {
+        setupCropper.destroy();
+        setupCropper = null;
+    }
+    // Clear the file input
+    const setupUpload = document.getElementById('setup-avatar-upload');
+    if (setupUpload) {
+        setupUpload.value = '';
+    }
+}
+
+function saveSetupCroppedImage() {
+    if (setupCropper) {
+        const canvas = setupCropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        const croppedImage = canvas.toDataURL('image/jpeg', 0.9);
+
+        // Update the profile preview
+        const profilePreview = document.getElementById('profile-preview');
+        if (profilePreview) {
+            if (profilePreview.tagName === 'IMG') {
+                profilePreview.src = croppedImage;
+            } else {
+                // Replace the div with an img element
+                const newImg = document.createElement('img');
+                newImg.src = croppedImage;
+                newImg.alt = 'Profile';
+                newImg.className = 'w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover';
+                newImg.id = 'profile-preview';
+                profilePreview.parentNode.replaceChild(newImg, profilePreview);
+            }
+        }
+
+        // Store the cropped image data for form submission
+        // We'll add a hidden input to the profile setup form
+        let hiddenInput = document.getElementById('setup-profile-image-data');
+        if (!hiddenInput) {
+            hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'profile_image_data';
+            hiddenInput.id = 'setup-profile-image-data';
+            document.getElementById('profile-setup-form').appendChild(hiddenInput);
+        }
+        hiddenInput.value = croppedImage;
+
+        // Close modal
+        closeSetupCropModal();
     }
 }
 
@@ -2189,11 +2488,58 @@ function setBackgroundColor(color) {
 
 function insertImage(src, alt) {
     if (!src) {
-        src = prompt('Enter image URL:');
-        if (!src) return;
+        // Show modal for image URL input
+        showConfirmationModal({
+            title: 'Insert Image',
+            message: 'Enter the image URL and alt text:',
+            type: 'info',
+            confirmText: 'Insert Image',
+            cancelText: 'Cancel',
+            showInput: true,
+            inputPlaceholder: 'Enter image URL (e.g., https://example.com/image.jpg)',
+            inputType: 'url',
+            inputRequired: true,
+            inputValidation: (value) => {
+                if (!value.trim()) return 'Image URL is required';
+                try {
+                    new URL(value);
+                    return true;
+                } catch {
+                    return 'Please enter a valid URL';
+                }
+            },
+            onConfirm: (imageUrl) => {
+                // Now ask for alt text
+                showConfirmationModal({
+                    title: 'Image Alt Text',
+                    message: 'Enter descriptive alt text for accessibility:',
+                    type: 'info',
+                    confirmText: 'Insert Image',
+                    cancelText: 'Skip Alt Text',
+                    showInput: true,
+                    inputPlaceholder: 'Describe the image (optional but recommended)',
+                    inputType: 'text',
+                    inputRequired: false,
+                    onConfirm: (altText) => {
+                        insertHTMLAtCursor(`<img src="${imageUrl}" alt="${altText || ''}" style="max-width: 100%;">`);
+                        showToast('Image inserted successfully', 'success');
+                    },
+                    onCancel: () => {
+                        // Insert without alt text
+                        insertHTMLAtCursor(`<img src="${imageUrl}" alt="" style="max-width: 100%;">`);
+                        showToast('Image inserted successfully', 'success');
+                    }
+                });
+            },
+            onCancel: () => {
+                // User cancelled, no action needed
+            }
+        });
+        return;
     }
-    
-    const altText = alt || prompt('Enter alt text:') || '';
+
+    // If src is provided, use it directly
+    const altText = alt || '';
     insertHTMLAtCursor(`<img src="${src}" alt="${altText}" style="max-width: 100%;">`);
 }
 
@@ -4020,6 +4366,251 @@ function showNotification(title, options = {}) {
     }
 }
 
+// Reusable Modal Confirmation System
+function createConfirmationModal(options = {}) {
+    const {
+        title = 'Confirm Action',
+        message = 'Are you sure you want to proceed?',
+        type = 'warning', // 'warning', 'danger', 'info', 'success'
+        confirmText = 'Confirm',
+        cancelText = 'Cancel',
+        requireConfirmation = false,
+        confirmationText = 'I understand this action cannot be undone',
+        onConfirm = () => {},
+        onCancel = () => {},
+        showInput = false,
+        inputPlaceholder = '',
+        inputType = 'text',
+        inputRequired = false,
+        inputValidation = null,
+        dangerZoneText = null
+    } = options;
+
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 scale-95 transition-all duration-200';
+
+    // Icon based on type
+    const icons = {
+        warning: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>`,
+        danger: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>`,
+        info: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>`,
+        success: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>`
+    };
+
+    // Icon colors
+    const iconColors = {
+        warning: 'text-amber-500',
+        danger: 'text-red-500',
+        info: 'text-blue-500',
+        success: 'text-green-500'
+    };
+
+    // Button styles
+    const buttonStyles = {
+        warning: 'bg-amber-500 hover:bg-amber-600',
+        danger: 'danger-button',
+        info: 'bg-blue-500 hover:bg-blue-600',
+        success: 'bg-green-500 hover:bg-green-600'
+    };
+
+    modal.innerHTML = `
+        <div class="confirmation-modal max-w-md w-full mx-4 p-6 rounded-2xl">
+            <div class="text-center mb-6">
+                <div class="warning-icon w-16 h-16 mx-auto mb-4 ${iconColors[type]}">
+                    ${icons[type]}
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
+                <p class="text-gray-600">${message}</p>
+            </div>
+
+            ${dangerZoneText ? `
+                <div class="danger-zone mb-6">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-red-800 mb-1">Warning</h4>
+                            <p class="text-sm text-red-700">${dangerZoneText}</p>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+
+            ${showInput ? `
+                <div class="mb-6">
+                    <input type="${inputType}"
+                           class="modal-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                           placeholder="${inputPlaceholder}"
+                           ${inputRequired ? 'required' : ''}>
+                    <div class="input-error text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+            ` : ''}
+
+            ${requireConfirmation ? `
+                <div class="mb-6">
+                    <label class="flex items-start space-x-3 cursor-pointer">
+                        <input type="checkbox" class="confirmation-checkbox mt-1" required>
+                        <span class="confirmation-text">${confirmationText}</span>
+                    </label>
+                </div>
+            ` : ''}
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="confirm-button flex-1 py-3 px-6 rounded-xl font-semibold text-white ${buttonStyles[type]} ${requireConfirmation || (showInput && inputRequired) ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${requireConfirmation || (showInput && inputRequired) ? 'disabled' : ''}>
+                    ${confirmText}
+                </button>
+                <button class="cancel-button flex-1 py-3 px-6 rounded-xl font-semibold">
+                    ${cancelText}
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Setup event handlers
+    const confirmBtn = modal.querySelector('.confirm-button');
+    const cancelBtn = modal.querySelector('.cancel-button');
+    const checkbox = modal.querySelector('.confirmation-checkbox');
+    const input = modal.querySelector('.modal-input');
+    const inputError = modal.querySelector('.input-error');
+
+    // Checkbox functionality
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            updateConfirmButton();
+        });
+    }
+
+    // Input validation
+    if (input) {
+        input.addEventListener('input', function() {
+            validateInput();
+            updateConfirmButton();
+        });
+    }
+
+    function validateInput() {
+        if (!input) return true;
+
+        const value = input.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+
+        if (inputRequired && !value) {
+            isValid = false;
+            errorMessage = 'This field is required';
+        } else if (inputValidation && typeof inputValidation === 'function') {
+            const validationResult = inputValidation(value);
+            if (validationResult !== true) {
+                isValid = false;
+                errorMessage = validationResult;
+            }
+        }
+
+        if (inputError) {
+            if (isValid) {
+                inputError.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            } else {
+                inputError.textContent = errorMessage;
+                inputError.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            }
+        }
+
+        return isValid;
+    }
+
+    function updateConfirmButton() {
+        const checkboxValid = !checkbox || checkbox.checked;
+        const inputValid = !input || (!inputRequired || validateInput());
+
+        if (checkboxValid && inputValid) {
+            confirmBtn.disabled = false;
+            confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            confirmBtn.disabled = true;
+            confirmBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Confirm button click
+    confirmBtn.addEventListener('click', function() {
+        if (confirmBtn.disabled) return;
+
+        const inputValue = input ? input.value.trim() : null;
+        onConfirm(inputValue);
+        closeModal(modal);
+    });
+
+    // Cancel button click
+    cancelBtn.addEventListener('click', function() {
+        onCancel();
+        closeModal(modal);
+    });
+
+    // Backdrop click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            onCancel();
+            closeModal(modal);
+        }
+    });
+
+    // Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            onCancel();
+            closeModal(modal);
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    return modal;
+}
+
+function showConfirmationModal(options) {
+    const modal = createConfirmationModal(options);
+    document.body.appendChild(modal);
+
+    // Animate in
+    setTimeout(() => {
+        modal.classList.remove('opacity-0', 'scale-95');
+        modal.classList.add('opacity-100', 'scale-100');
+    }, 10);
+
+    return modal;
+}
+
+function closeModal(modal) {
+    modal.classList.remove('opacity-100', 'scale-100');
+    modal.classList.add('opacity-0', 'scale-95');
+
+    setTimeout(() => {
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+    }, 200);
+}
+
+// Make key functions globally available
+window.showConfirmationModal = showConfirmationModal;
+window.showNotification = showNotification;
+window.showToast = showToast;
+window.closeModal = closeModal;
+window.toggleDeleteButton = toggleDeleteButton;
+window.confirmAccountDeletion = confirmAccountDeletion;
+
 // Global utilities
 window.Freespaces = {
     showToast,
@@ -4030,9 +4621,11 @@ window.Freespaces = {
     showNotification,
     showDeleteConfirmation,
     closeDeleteModal,
+    showConfirmationModal,
+    closeModal,
     initAccessibility,
     initPerformanceOptimizations,
-    
+
     // Analytics helpers
     trackEvent: function(eventName, eventData = {}) {
         if (typeof gtag !== 'undefined') {
@@ -4040,7 +4633,7 @@ window.Freespaces = {
         }
         console.log('Event tracked:', eventName, eventData);
     },
-    
+
     // Performance monitoring
     measurePerformance: function(name, fn) {
         const start = performance.now();
@@ -4093,4 +4686,201 @@ window.addEventListener('error', function(e) {
 window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled promise rejection:', e.reason);
     // Could send to error tracking service
+});
+
+// ============================================================================
+// Inline Username Editing Functions
+// ============================================================================
+
+// Toggle username editing mode (following the exact pattern from name/bio editing)
+function toggleUsernameEdit() {
+    console.log('toggleUsernameEdit() called');
+    const display = document.getElementById('username-display');
+    const edit = document.getElementById('username-edit');
+
+    console.log('display element:', display);
+    console.log('edit element:', edit);
+
+    if (display && edit) {
+        display.classList.toggle('hidden');
+        edit.classList.toggle('hidden');
+        console.log('Toggled visibility - display hidden:', display.classList.contains('hidden'));
+        console.log('Toggled visibility - edit hidden:', edit.classList.contains('hidden'));
+    } else {
+        console.error('Could not find username display or edit elements');
+    }
+}
+
+
+
+
+
+// Account Settings Functions
+function toggleDeleteButton() {
+    const input = document.getElementById('delete-confirmation');
+    const button = document.getElementById('delete-account-btn');
+
+    if (input && button) {
+        const isValid = input.value.trim().toUpperCase() === 'DELETE';
+        button.disabled = !isValid;
+
+        if (isValid) {
+            button.classList.remove('opacity-50', 'cursor-not-allowed', 'disabled:hover:bg-red-600');
+            button.classList.add('hover:bg-red-700');
+        } else {
+            button.classList.add('opacity-50', 'cursor-not-allowed', 'disabled:hover:bg-red-600');
+            button.classList.remove('hover:bg-red-700');
+        }
+    }
+}
+
+function confirmAccountDeletion() {
+    const input = document.getElementById('delete-confirmation');
+
+    if (input && input.value.trim().toUpperCase() === 'DELETE') {
+        showConfirmationModal({
+            title: 'Delete Account Permanently',
+            message: 'Are you absolutely sure you want to delete your account?',
+            type: 'danger',
+            confirmText: 'Delete My Account Forever',
+            cancelText: 'Cancel',
+            requireConfirmation: true,
+            confirmationText: 'I understand that this action cannot be undone and all my data will be permanently deleted.',
+            dangerZoneText: 'This action cannot be undone. All your posts, comments, profile information, and account data will be permanently deleted. You will not be able to recover your account or any of your content.',
+            onConfirm: () => {
+                // Create and submit a form for account deletion
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/accounts/delete-account/';
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrftoken;
+                form.appendChild(csrfInput);
+
+                // Add confirmation
+                const confirmInput = document.createElement('input');
+                confirmInput.type = 'hidden';
+                confirmInput.name = 'confirm_deletion';
+                confirmInput.value = 'DELETE';
+                form.appendChild(confirmInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            },
+            onCancel: () => {
+                // User cancelled, no action needed
+            }
+        });
+    } else {
+        showToast('Please type "DELETE" to confirm account deletion', 'warning');
+    }
+}
+
+function signOutAllDevices() {
+    showConfirmationModal({
+        title: 'Sign Out From All Devices',
+        message: 'Are you sure you want to sign out from all devices?',
+        type: 'warning',
+        confirmText: 'Sign Out All Devices',
+        cancelText: 'Cancel',
+        dangerZoneText: 'You will need to sign in again on all your devices. This will end all active sessions.',
+        onConfirm: () => {
+            // Create and submit a form for signing out all devices
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/accounts/logout-all/';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrftoken;
+            form.appendChild(csrfInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        onCancel: () => {
+            // User cancelled, no action needed
+        }
+    });
+}
+
+// Navigation logout confirmation
+function confirmLogout() {
+    showConfirmationModal({
+        title: 'Sign Out',
+        message: 'Are you sure you want to sign out?',
+        type: 'info',
+        confirmText: 'Sign Out',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+            document.getElementById('logout-form').submit();
+        },
+        onCancel: () => {
+            // User cancelled, no action needed
+        }
+    });
+}
+
+// Account settings logout this device confirmation
+function confirmLogoutThisDevice() {
+    showConfirmationModal({
+        title: 'Sign Out From This Device',
+        message: 'Are you sure you want to sign out from this device?',
+        type: 'info',
+        confirmText: 'Sign Out',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+            document.getElementById('logout-this-device-form').submit();
+        },
+        onCancel: () => {
+            // User cancelled, no action needed
+        }
+    });
+}
+
+// Initialize OAuth-related event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Username modal event listeners
+    const usernameModal = document.getElementById('username-modal');
+    if (usernameModal) {
+        // Close modal on background click
+        usernameModal.addEventListener('click', function(e) {
+            if (e.target === usernameModal) {
+                hideUsernameModal();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !usernameModal.classList.contains('hidden')) {
+                hideUsernameModal();
+            }
+        });
+    }
+
+    // No additional username editing initialization needed - using onclick handlers in templates
+
+    // Delete confirmation input
+    const deleteInput = document.getElementById('delete-confirmation');
+    if (deleteInput) {
+        deleteInput.addEventListener('input', toggleDeleteButton);
+    }
+
+    // DEBUG: Check if username editing elements exist
+    const usernameDisplay = document.getElementById('username-display');
+    const usernameEdit = document.getElementById('username-edit');
+    const usernameEditBtn = document.getElementById('username-edit-btn');
+
+    console.log('DEBUG: Username elements check:');
+    console.log('- username-display:', usernameDisplay);
+    console.log('- username-edit:', usernameEdit);
+    console.log('- username-edit-btn:', usernameEditBtn);
+
+    // DEBUG: Check if toggleUsernameEdit function exists
+    console.log('- toggleUsernameEdit function:', typeof toggleUsernameEdit);
 });

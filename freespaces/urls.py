@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('feeds.urls')),
     path('accounts/', include('accounts.urls')),
+    path('auth/', include('allauth.urls')),  # Django Allauth URLs
     path('posts/', include('posts.urls')),
     path('interactions/', include('interactions.urls')),
 ]
