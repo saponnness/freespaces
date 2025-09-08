@@ -1,14 +1,14 @@
+{% load static %}
 <div class="comment-item bg-gray-50 rounded-2xl p-4 mb-4" data-comment-id="{{ comment.id }}">
     <div class="flex space-x-3">
         <!-- User Avatar -->
         <div class="flex-shrink-0">
-            {% if comment.user.profile.avatar %}
-                <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" 
+            {% if comment.user.profile.avatar and 'default.jpg' not in comment.user.profile.avatar.name %}
+                <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}"
                      class="w-8 h-8 rounded-full avatar">
             {% else %}
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
-                    <span class="text-white text-xs font-bold">{{ comment.user.username|first|upper }}</span>
-                </div>
+                <img src="{% static 'images/default-profile.svg' %}" alt="Default Profile"
+                     class="w-8 h-8 rounded-full">
             {% endif %}
         </div>
         

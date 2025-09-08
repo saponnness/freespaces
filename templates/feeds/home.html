@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Home - Freespaces{% endblock %}
 
@@ -176,13 +177,12 @@
                                 
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
-                                        {% if post.author.profile.avatar %}
-                                            <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
+                                        {% if post.author.profile.avatar and 'default.jpg' not in post.author.profile.avatar.name %}
+                                            <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}"
                                                  class="w-8 h-8 rounded-full avatar">
                                         {% else %}
-                                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
-                                                <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
-                                            </div>
+                                            <img src="{% static 'images/default-profile.svg' %}" alt="Default Profile"
+                                                 class="w-8 h-8 rounded-full">
                                         {% endif %}
                                         <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
                                     </div>

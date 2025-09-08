@@ -62,14 +62,15 @@
                         </a>
                         <!-- Profile Dropdown -->
                         <div class="relative">
-                            {% if user.profile.avatar %}
+                            {% if user.profile.avatar and 'default.jpg' not in user.profile.avatar.name %}
                                 <button id="profileButton" class="w-10 h-10 rounded-full cursor-pointer hover:scale-105 transition-transform avatar focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 overflow-hidden">
-                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" 
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"
                                         class="w-full h-full object-cover rounded-full">
                                 </button>
                             {% else %}
-                                <button id="profileButton" class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 cursor-pointer hover:scale-105 transition-transform avatar focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center">
-                                    <span class="text-white text-sm font-bold">{{ user.username|first|upper }}</span>
+                                <button id="profileButton" class="w-10 h-10 rounded-full cursor-pointer hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 overflow-hidden">
+                                    <img src="{% static 'images/default-profile.svg' %}" alt="Default Profile"
+                                         class="w-full h-full object-cover">
                                 </button>
                             {% endif %}
                             
