@@ -46,7 +46,7 @@
         <div class="mt-6">
             <p class="text-sm text-gray-600 mb-3">Popular categories:</p>
             <div class="flex flex-wrap gap-2">
-                {% for category in popular_categories %}
+                {% for category in popular_categories|slice:":5" %}
                     <a href="?q={{ category.name|lower }}" class="tag-pill px-4 py-2 rounded-full text-xs font-medium text-purple-700 hover:scale-105 transition-transform">
                         {% if category.name == "Photography" %}
                             📸
