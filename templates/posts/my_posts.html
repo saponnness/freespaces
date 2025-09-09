@@ -26,12 +26,11 @@
                         <!-- Post Image -->
                         <div class="lg:w-48 flex-shrink-0">
                             {% if post.featured_image %}
-                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
                                      class="w-full h-32 lg:h-32 object-cover rounded-2xl">
                             {% else %}
-                                <div class="w-full h-32 lg:h-32 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center">
-                                    <span class="text-gray-400 text-2xl">📝</span>
-                                </div>
+                                <img src="{% static 'images/default-cover.jpg' %}" alt="{{ post.title }}"
+                                     class="w-full h-32 lg:h-32 object-cover rounded-2xl">
                             {% endif %}
                         </div>
                         
@@ -101,11 +100,11 @@
                                        class="glass-effect px-4 py-2 rounded-full text-blue-500 hover:bg-white/70 transition-colors text-sm font-medium">
                                         View
                                     </a>
-                                    <a href="{% url 'posts:edit' pk=post.pk %}" 
+                                    <a href="{% url 'posts:edit' slug=post.slug %}"
                                        class="glass-effect px-4 py-2 rounded-full text-green-600 hover:bg-white/70 transition-colors text-sm font-medium">
                                         Edit
                                     </a>
-                                    <a href="{% url 'posts:delete' pk=post.pk %}" 
+                                    <a href="{% url 'posts:delete' slug=post.slug %}"
                                        class="glass-effect px-4 py-2 rounded-full text-red-500 hover:bg-white/70 transition-colors text-sm font-medium">
                                         Delete
                                     </a>

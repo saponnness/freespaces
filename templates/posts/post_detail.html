@@ -7,12 +7,15 @@
 <article class="max-w-4xl mx-auto px-4">
     <!-- Post Header -->
     <header class="mb-8">
-        {% if post.featured_image %}
-            <div class="glass-effect rounded-3xl overflow-hidden shadow-lg mb-8">
-                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+        <div class="glass-effect rounded-3xl overflow-hidden shadow-lg mb-8">
+            {% if post.featured_image %}
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
                      class="w-full h-64 md:h-96 object-cover">
-            </div>
-        {% endif %}
+            {% else %}
+                <img src="{% static 'images/default-cover.jpg' %}" alt="{{ post.title }}"
+                     class="w-full h-64 md:h-96 object-cover">
+            {% endif %}
+        </div>
         
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
@@ -34,9 +37,9 @@
             
             {% if user == post.author %}
                 <div class="flex items-center space-x-3">
-                    <a href="{% url 'posts:edit' pk=post.pk %}" 
+                    <a href="{% url 'posts:edit' slug=post.slug %}"
                        class="glass-effect px-4 py-2 rounded-full text-blue-500 hover:bg-white/70 transition-colors">Edit</a>
-                    <a href="{% url 'posts:delete' pk=post.pk %}" 
+                    <a href="{% url 'posts:delete' slug=post.slug %}"
                        class="glass-effect px-4 py-2 rounded-full text-red-500 hover:bg-white/70 transition-colors">Delete</a>
                 </div>
             {% endif %}

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponsePermanentRedirect
 from .models import Post, Category
 from .forms import PostForm
 
@@ -33,22 +33,22 @@ def post_list(request):
     }
     return render(request, 'posts/post_list.html', context)
 
-def post_detail(request, pk):
+def post_detail(request, slug):
     """Display single post"""
     try:
-        post = Post.objects.get(pk=pk)
-        
+        post = Post.objects.get(slug=slug)
+
         # If post is published, anyone can view it
         if post.status == 'published':
             return render(request, 'posts/post_detail.html', {'post': post})
-        
+
         # If post is draft, only the author can view it
         if post.status == 'draft':
             if request.user.is_authenticated and request.user == post.author:
                 return render(request, 'posts/post_detail.html', {'post': post})
             else:
                 raise Http404("No Post matches the given query.")
-                
+
     except Post.DoesNotExist:
         raise Http404("No Post matches the given query.")
 
@@ -62,38 +62,38 @@ def post_create(request):
             post.author = request.user
             post.save()
             messages.success(request, 'Your post has been created!')
-            return redirect('posts:detail', pk=post.pk)
+            return redirect('posts:detail', slug=post.slug)
     else:
         form = PostForm()
     
     return render(request, 'posts/post_create.html', {'form': form})
 
 @login_required
-def post_edit(request, pk):
+def post_edit(request, slug):
     """Edit existing post"""
-    post = get_object_or_404(Post, pk=pk, author=request.user)
-    
+    post = get_object_or_404(Post, slug=slug, author=request.user)
+
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your post has been updated!')
-            return redirect('posts:detail', pk=post.pk)
+            return redirect('posts:detail', slug=post.slug)
     else:
         form = PostForm(instance=post)
-    
+
     return render(request, 'posts/post_edit.html', {'form': form, 'post': post})
 
 @login_required
-def post_delete(request, pk):
+def post_delete(request, slug):
     """Delete post"""
-    post = get_object_or_404(Post, pk=pk, author=request.user)
-    
+    post = get_object_or_404(Post, slug=slug, author=request.user)
+
     if request.method == 'POST':
         post.delete()
         messages.success(request, 'Your post has been deleted!')
         return redirect('posts:list')
-    
+
     return render(request, 'posts/post_delete.html', {'post': post})
 
 @login_required
@@ -112,3 +112,24 @@ def category_posts(request, category_name):
         'category': category,
     }
     return render(request, 'posts/category_posts.html', context)
+
+
+# Backward compatibility redirect views
+def post_detail_redirect(request, pk):
+    """Redirect old ID-based URLs to new slug-based URLs"""
+    post = get_object_or_404(Post, pk=pk)
+    return HttpResponsePermanentRedirect(post.get_absolute_url())
+
+
+@login_required
+def post_edit_redirect(request, pk):
+    """Redirect old ID-based edit URLs to new slug-based URLs"""
+    post = get_object_or_404(Post, pk=pk, author=request.user)
+    return HttpResponsePermanentRedirect(f'/posts/{post.slug}/edit/')
+
+
+@login_required
+def post_delete_redirect(request, pk):
+    """Redirect old ID-based delete URLs to new slug-based URLs"""
+    post = get_object_or_404(Post, pk=pk, author=request.user)
+    return HttpResponsePermanentRedirect(f'/posts/{post.slug}/delete/')

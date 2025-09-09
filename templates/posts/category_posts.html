@@ -35,16 +35,10 @@
             </div>
             
             <h1 class="text-3xl font-bold gradient-text mb-2">{{ category.name }}</h1>
-            
-            {% if category.description %}
-                <div class="rich-text-excerpt text-gray-600 text-lg max-w-2xl mx-auto">
-                    {{ category.description|safe }}
-                </div>
-            {% else %}
-                <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-                    Discover amazing {{ category.name|lower }} content from our creative community
-                </p>
-            {% endif %}
+
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Discover amazing {{ category.name|lower }} content from our creative community
+            </p>
             
             <div class="mt-6">
                 <span class="category-badge text-purple-600 text-sm font-semibold px-4 py-2 rounded-full">
