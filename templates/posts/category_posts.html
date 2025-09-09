@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ category.name }} Posts - Freespaces{% endblock %}
 
@@ -61,12 +62,11 @@
                     <div class="glass-effect rounded-3xl overflow-hidden card-hover post-card">
                         <div class="relative">
                             {% if post.featured_image %}
-                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}"
                                     class="w-full object-cover masonry-image">
                             {% else %}
-                                <div class="w-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center masonry-placeholder">
-                                    <span class="text-white font-medium">{{ category.name }}</span>
-                                </div>
+                                <img src="{% static 'images/default-cover.jpg' %}" alt="{{ post.title }}"
+                                    class="w-full object-cover masonry-image">
                             {% endif %}
                             
                             <div class="absolute top-4 right-4">
@@ -94,13 +94,12 @@
                             
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    {% if post.author.profile.avatar %}
-                                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" 
+                                    {% if post.author.profile.avatar and 'default.jpg' not in post.author.profile.avatar.name %}
+                                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}"
                                              class="w-6 h-6 rounded-full avatar">
                                     {% else %}
-                                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
-                                            <span class="text-white text-xs font-bold">{{ post.author.username|first|upper }}</span>
-                                        </div>
+                                        <img src="{% static 'images/default-profile.svg' %}" alt="Default Profile"
+                                             class="w-6 h-6 rounded-full">
                                     {% endif %}
                                     <span class="text-sm font-medium text-gray-700">{{ post.author.username }}</span>
                                 </div>
