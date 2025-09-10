@@ -34,18 +34,29 @@ def post_list(request):
     return render(request, 'posts/post_list.html', context)
 
 def post_detail(request, slug):
-    """Display single post"""
+    """Display single post with related posts from same author"""
     try:
-        post = Post.objects.get(slug=slug)
+        post = Post.objects.select_related('author', 'category').get(slug=slug)
+
+        # Get related posts from the same author (excluding current post)
+        related_posts = Post.objects.filter(
+            author=post.author,
+            status='published'
+        ).exclude(id=post.id).select_related('category')[:4]  # Limit to 4 related posts
+
+        context = {
+            'post': post,
+            'related_posts': related_posts,
+        }
 
         # If post is published, anyone can view it
         if post.status == 'published':
-            return render(request, 'posts/post_detail.html', {'post': post})
+            return render(request, 'posts/post_detail.html', context)
 
         # If post is draft, only the author can view it
         if post.status == 'draft':
             if request.user.is_authenticated and request.user == post.author:
-                return render(request, 'posts/post_detail.html', {'post': post})
+                return render(request, 'posts/post_detail.html', context)
             else:
                 raise Http404("No Post matches the given query.")
 

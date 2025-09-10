@@ -210,14 +210,51 @@
     </div>
 
     <!-- Related Posts (only show for published posts) -->
-    {% if post.status == 'published' %}
+    {% if post.status == 'published' and related_posts %}
         <div class="glass-effect rounded-3xl p-6 mb-8 shadow-lg">
             <h3 class="text-xl font-bold text-gray-800 mb-4">More from {{ post.author.username }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- This would be populated with related posts -->
-                <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl p-4 text-center">
-                    <p class="text-gray-600">More posts coming soon!</p>
-                </div>
+                {% for related_post in related_posts %}
+                    <div class="bg-white rounded-2xl p-4 hover:shadow-md transition-shadow border border-gray-100">
+                        <div class="mb-3">
+                            {% if related_post.category %}
+                                <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1 rounded-full">
+                                    {% if related_post.category.name == "Photography" %}📸
+                                    {% elif related_post.category.name == "Programming" or related_post.category.name == "Web Design" %}💻
+                                    {% elif related_post.category.name == "Workspace" %}🏢
+                                    {% elif related_post.category.name == "Art & Design" or related_post.category.name == "Art" or related_post.category.name == "Design" %}🎨
+                                    {% elif related_post.category.name == "Lifestyle" %}🌿
+                                    {% elif related_post.category.name == "Food & Cooking" or related_post.category.name == "Food" %}🍜
+                                    {% elif related_post.category.name == "Travel" %}✈️
+                                    {% elif related_post.category.name == "Music" %}🎵
+                                    {% elif related_post.category.name == "Sports" or related_post.category.name == "Fitness" %}⚽
+                                    {% elif related_post.category.name == "Gaming" %}🎮
+                                    {% elif related_post.category.name == "Books" or related_post.category.name == "Reading" %}📚
+                                    {% elif related_post.category.name == "Technology" or related_post.category.name == "Tech" %}🔧
+                                    {% elif related_post.category.name == "Fashion" %}👗
+                                    {% elif related_post.category.name == "Business" %}💼
+                                    {% elif related_post.category.name == "Education" %}🎓
+                                    {% else %}🏷️{% endif %}
+                                    {{ related_post.category.name }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2 leading-tight">
+                            <a href="{{ related_post.get_absolute_url }}" class="hover:text-blue-600 transition-colors">
+                                {{ related_post.title }}
+                            </a>
+                        </h4>
+                        <p class="text-gray-600 text-sm mb-3 leading-relaxed">
+                            {{ related_post.content|striptags|truncatewords:15 }}
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>{{ related_post.published_at|date:"M d, Y" }}</span>
+                            <a href="{{ related_post.get_absolute_url }}" class="text-blue-500 hover:text-blue-700 font-medium">
+                                Read more →
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     {% endif %}

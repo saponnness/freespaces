@@ -855,46 +855,8 @@ function filterByCategory(category) {
     }
 }
 
-// Infinite scroll
-function initInfiniteScroll() {
-    let loading = false;
-    let page = 1;
-    
-    window.addEventListener('scroll', function() {
-        if (loading) return;
-        
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
-            loading = true;
-            loadMoreContent();
-        }
-    });
-    
-    function loadMoreContent() {
-        const loadMoreBtn = document.querySelector('button[contains("Load More")]');
-        
-        // Show loading state
-        if (loadMoreBtn) {
-            const originalText = loadMoreBtn.innerHTML;
-            loadMoreBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700 mx-auto"></div>';
-            loadMoreBtn.disabled = true;
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Here you would make an actual AJAX request
-                // fetch(`/posts/load-more/?page=${++page}`)
-                
-                loadMoreBtn.innerHTML = originalText;
-                loadMoreBtn.disabled = false;
-                loading = false;
-                
-                console.log('Loaded more content for page:', page);
-                page++;
-            }, 1000);
-        } else {
-            loading = false;
-        }
-    }
-}
+// Infinite scroll functionality removed - no Load More buttons exist
+// This was incomplete placeholder code that referenced non-existent buttons
 
 // Animation initialization
 function initAnimations() {
