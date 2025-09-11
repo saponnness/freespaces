@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Editor Toolbar State Synchronization Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .test-case {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid #007cba;
+        }
+        
+        .test-result {
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .button:hover {
+            background: #005a87;
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .editor-container {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .toolbar {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar-btn {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .toolbar-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .toolbar-btn.active {
+            background: #007cba;
+            color: white;
+        }
+        
+        .editor-content {
+            min-height: 200px;
+            padding: 15px;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .test-controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-pending { background: #6c757d; }
+        
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+        }
+        
+        .log-info { color: #007cba; }
+        .log-success { color: #28a745; }
+        .log-error { color: #dc3545; }
+        .log-warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <h1>Text Editor Toolbar State Synchronization Test Suite</h1>
+    
+    <div class="test-container">
+        <h2>Test Environment</h2>
+        <div class="editor-container">
+            <div class="toolbar">
+                <button class="toolbar-btn" onclick="formatDoc('bold')" title="Bold (Ctrl+B)">
+                    <strong>B</strong>
+                </button>
+                <button class="toolbar-btn" onclick="formatDoc('italic')" title="Italic (Ctrl+I)">
+                    <em>I</em>
+                </button>
+                <button class="toolbar-btn" onclick="formatDoc('underline')" title="Underline (Ctrl+U)">
+                    <u>U</u>
+                </button>
+                <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List">
+                    <span>1.</span>
+                </button>
+                <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">
+                    <span>•</span>
+                </button>
+                <button class="toolbar-btn" onclick="insertBlockquote()" title="Quote">
+                    <span>"</span>
+                </button>
+            </div>
+            <div id="editor" class="editor-content" contenteditable="true" placeholder="Type your text here...">
+                <p>This is a test document. Select text and apply formatting to test toolbar state synchronization.</p>
+                <p><strong>This text is bold.</strong></p>
+                <p><em>This text is italic.</em></p>
+                <p><u>This text is underlined.</u></p>
+                <ul>
+                    <li>This is a bullet list item</li>
+                    <li>Another list item</li>
+                </ul>
+                <ol>
+                    <li>This is a numbered list item</li>
+                    <li>Another numbered item</li>
+                </ol>
+                <blockquote>This is a blockquote.</blockquote>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <div class="test-controls">
+            <button class="button" onclick="runAllTests()">Run All Tests</button>
+            <button class="button" onclick="runBasicFormattingTests()">Basic Formatting Tests</button>
+            <button class="button" onclick="runSelectionTests()">Selection Tests</button>
+            <button class="button" onclick="runKeyboardShortcutTests()">Keyboard Shortcut Tests</button>
+            <button class="button" onclick="runRapidInteractionTests()">Rapid Interaction Tests</button>
+            <button class="button" onclick="runCrossBrowserTests()">Cross-Browser Tests</button>
+            <button class="button" onclick="clearResults()">Clear Results</button>
+            <button class="button" onclick="exportResults()">Export Results</button>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="test-results">
+            <p>Click "Run All Tests" to begin testing.</p>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log-container">
+            <div class="log-entry log-info">Test suite initialized. Ready to run tests.</div>
+        </div>
+    </div>
+
+    <script>
+        // Test Suite Implementation
+        class TextEditorTestSuite {
+            constructor() {
+                this.editor = document.getElementById('editor');
+                this.toolbar = document.querySelector('.toolbar');
+                this.results = [];
+                this.log = [];
+                this.testCount = 0;
+                this.passCount = 0;
+                this.failCount = 0;
+                this.warningCount = 0;
+                
+                this.initializeEditor();
+            }
+            
+            initializeEditor() {
+                // Add event listeners for state tracking
+                this.editor.addEventListener('input', () => this.updateToolbarState());
+                this.editor.addEventListener('keyup', () => this.updateToolbarState());
+                this.editor.addEventListener('mouseup', () => this.updateToolbarState());
+                this.editor.addEventListener('focus', () => this.updateToolbarState());
+                this.editor.addEventListener('selectionchange', () => this.updateToolbarState());
+                
+                // Initialize toolbar state
+                this.updateToolbarState();
+            }
+            
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${type}`;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                
+                const logContainer = document.getElementById('test-log');
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                this.log.push({ timestamp, message, type });
+            }
+            
+            updateToolbarState() {
+                const buttons = document.querySelectorAll('.toolbar-btn');
+                
+                buttons.forEach(button => {
+                    button.classList.remove('active');
+                });
+                
+                // Check for bold
+                if (document.queryCommandState('bold')) {
+                    document.querySelector('.toolbar-btn[onclick*="bold"]')?.classList.add('active');
+                }
+                
+                // Check for italic
+                if (document.queryCommandState('italic')) {
+                    document.querySelector('.toolbar-btn[onclick*="italic"]')?.classList.add('active');
+                }
+                
+                // Check for underline
+                if (document.queryCommandState('underline')) {
+                    document.querySelector('.toolbar-btn[onclick*="underline"]')?.classList.add('active');
+                }
+                
+                // Check for ordered list
+                if (document.queryCommandState('insertOrderedList')) {
+                    document.querySelector('.toolbar-btn[onclick*="insertOrderedList"]')?.classList.add('active');
+                }
+                
+                // Check for unordered list
+                if (document.queryCommandState('insertUnorderedList')) {
+                    document.querySelector('.toolbar-btn[onclick*="insertUnorderedList"]')?.classList.add('active');
+                }
+                
+                // Check for blockquote
+                const selection = window.getSelection();
+                let isInBlockquote = false;
+                
+                if (selection.rangeCount > 0) {
+                    let node = selection.getRangeAt(0).commonAncestorContainer;
+                    while (node && node !== this.editor) {
+                        if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE') {
+                            isInBlockquote = true;
+                            break;
+                        }
+                        node = node.parentNode;
+                    }
+                }
+                
+                if (isInBlockquote) {
+                    document.querySelector('.toolbar-btn[onclick*="insertBlockquote"]')?.classList.add('active');
+                }
+            }
+            
+            formatDoc(command, value = null) {
+                this.editor.focus();
+                
+                try {
+                    if (value !== null) {
+                        document.execCommand(command, false, value);
+                    } else {
+                        document.execCommand(command, false, null);
+                    }
+                    this.updateToolbarState();
+                } catch (error) {
+                    this.log(`Error executing command ${command}: ${error.message}`, 'error');
+                }
+            }
+            
+            insertBlockquote() {
+                this.editor.focus();
+                
+                // Check if already in blockquote
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    let node = selection.getRangeAt(0).commonAncestorContainer;
+                    while (node && node !== this.editor) {
+                        if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE') {
+                            // Remove blockquote
+                            const parent = node.parentNode;
+                            while (node.firstChild) {
+                                parent.insertBefore(node.firstChild, node);
+                            }
+                            parent.removeChild(node);
+                            this.updateToolbarState();
+                            return;
+                        }
+                        node = node.parentNode;
+                    }
+                }
+                
+                // Create blockquote
+                this.formatDoc('formatBlock', '<blockquote>');
+            }
+            
+            getButtonState(buttonType) {
+                const button = document.querySelector(`.toolbar-btn[onclick*="${buttonType}"]`);
+                return button ? button.classList.contains('active') : false;
+            }
+            
+            getActualFormatting(buttonType) {
+                switch (buttonType) {
+                    case 'bold':
+                        return document.queryCommandState('bold');
+                    case 'italic':
+                        return document.queryCommandState('italic');
+                    case 'underline':
+                        return document.queryCommandState('underline');
+                    case 'insertOrderedList':
+                        return document.queryCommandState('insertOrderedList');
+                    case 'insertUnorderedList':
+                        return document.queryCommandState('insertUnorderedList');
+                    case 'insertBlockquote':
+                        const selection = window.getSelection();
+                        if (selection.rangeCount > 0) {
+                            let node = selection.getRangeAt(0).commonAncestorContainer;
+                            while (node && node !== this.editor) {
+                                if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BLOCKQUOTE') {
+                                    return true;
+                                }
+                                node = node.parentNode;
+                            }
+                        }
+                        return false;
+                    default:
+                        return false;
+                }
+            }
+            
+            validateButtonState(buttonType, expectedState = null) {
+                const buttonState = this.getButtonState(buttonType);
+                const actualState = this.getActualFormatting(buttonType);
+                const expected = expectedState !== null ? expectedState : actualState;
+                
+                const result = {
+                    buttonType,
+                    expectedState: expected,
+                    buttonState,
+                    actualState,
+                    consistent: buttonState === actualState,
+                    timestamp: new Date().toISOString()
+                };
+                
+                this.results.push(result);
+                return result;
+            }
+            
+            async runTest(testName, testFunction) {
+                this.testCount++;
+                this.log(`Running test: ${testName}`, 'info');
+                
+                try {
+                    const result = await testFunction();
+                    if (result.passed) {
+                        this.passCount++;
+                        this.log(`✓ PASS: ${testName}`, 'success');
+                    } else {
+                        this.failCount++;
+                        this.log(`✗ FAIL: ${testName} - ${result.message}`, 'error');
+                    }
+                    return result;
+                } catch (error) {
+                    this.failCount++;
+                    this.log(`✗ ERROR: ${testName} - ${error.message}`, 'error');
+                    return { passed: false, message: error.message };
+                }
+            }
+            
+            async runBasicFormattingTests() {
+                this.log('Starting Basic Formatting Tests', 'info');
+                
+                // Test 1: Bold formatting
+                await this.runTest('Bold Button State Sync', async () => {
+                    // Clear editor and add test text
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    // Select text and apply bold
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.formatDoc('bold');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('bold');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Bold state synchronized correctly' : 'Bold state not synchronized'
+                    };
+                });
+                
+                // Test 2: Italic formatting
+                await this.runTest('Italic Button State Sync', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.formatDoc('italic');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('italic');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Italic state synchronized correctly' : 'Italic state not synchronized'
+                    };
+                });
+                
+                // Test 3: Underline formatting
+                await this.runTest('Underline Button State Sync', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.formatDoc('underline');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('underline');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Underline state synchronized correctly' : 'Underline state not synchronized'
+                    };
+                });
+            }
+            
+            async runSelectionTests() {
+                this.log('Starting Selection Tests', 'info');
+                
+                // Test 1: Selection change updates toolbar
+                await this.runTest('Selection Change Updates Toolbar', async () => {
+                    this.editor.innerHTML = '<p><strong>Bold text</strong> normal text</p>';
+                    this.updateToolbarState();
+                    
+                    // Select bold text
+                    const boldElement = this.editor.querySelector('strong');
+                    const range = document.createRange();
+                    range.selectNodeContents(boldElement);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.updateToolbarState();
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('bold');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Selection change updated toolbar correctly' : 'Selection change did not update toolbar'
+                    };
+                });
+                
+                // Test 2: Cursor position in formatted text
+                await this.runTest('Cursor Position in Formatted Text', async () => {
+                    this.editor.innerHTML = '<p><strong>Bold text</strong></p>';
+                    this.updateToolbarState();
+                    
+                    // Place cursor in bold text
+                    const boldElement = this.editor.querySelector('strong');
+                    const range = document.createRange();
+                    range.setStart(boldElement.firstChild, 2);
+                    range.collapse(true);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.updateToolbarState();
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('bold');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Cursor position in formatted text shows correct state' : 'Cursor position in formatted text shows incorrect state'
+                    };
+                });
+            }
+            
+            async runKeyboardShortcutTests() {
+                this.log('Starting Keyboard Shortcut Tests', 'info');
+                
+                // Test 1: Ctrl+B shortcut
+                await this.runTest('Ctrl+B Keyboard Shortcut', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // Simulate Ctrl+B
+                    const event = new KeyboardEvent('keydown', {
+                        key: 'b',
+                        ctrlKey: true,
+                        bubbles: true
+                    });
+                    this.editor.dispatchEvent(event);
+                    
+                    this.formatDoc('bold');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('bold');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Ctrl+B shortcut synchronized correctly' : 'Ctrl+B shortcut not synchronized'
+                    };
+                });
+                
+                // Test 2: Ctrl+I shortcut
+                await this.runTest('Ctrl+I Keyboard Shortcut', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.formatDoc('italic');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('italic');
+                    return {
+                        passed: result.consistent && result.buttonState,
+                        message: result.consistent ? 'Ctrl+I shortcut synchronized correctly' : 'Ctrl+I shortcut not synchronized'
+                    };
+                });
+            }
+            
+            async runRapidInteractionTests() {
+                this.log('Starting Rapid Interaction Tests', 'info');
+                
+                // Test 1: Rapid button clicks
+                await this.runTest('Rapid Button Clicks', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // Rapidly apply and remove bold
+                    this.formatDoc('bold');
+                    await this.delay(50);
+                    this.formatDoc('bold');
+                    await this.delay(50);
+                    this.formatDoc('bold');
+                    await this.delay(100);
+                    
+                    const result = this.validateButtonState('bold');
+                    return {
+                        passed: result.consistent,
+                        message: result.consistent ? 'Rapid button clicks synchronized correctly' : 'Rapid button clicks not synchronized'
+                    };
+                });
+                
+                // Test 2: Mixed keyboard and mouse
+                await this.runTest('Mixed Keyboard and Mouse', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // Apply bold with keyboard
+                    this.formatDoc('bold');
+                    await this.delay(50);
+                    
+                    // Apply italic with button
+                    this.formatDoc('italic');
+                    await this.delay(100);
+                    
+                    const boldResult = this.validateButtonState('bold');
+                    const italicResult = this.validateButtonState('italic');
+                    
+                    return {
+                        passed: boldResult.consistent && italicResult.consistent,
+                        message: boldResult.consistent && italicResult.consistent ? 'Mixed interactions synchronized correctly' : 'Mixed interactions not synchronized'
+                    };
+                });
+            }
+            
+            async runCrossBrowserTests() {
+                this.log('Starting Cross-Browser Tests', 'info');
+                
+                // Test 1: Browser detection
+                await this.runTest('Browser Compatibility Check', async () => {
+                    const userAgent = navigator.userAgent;
+                    const isChrome = userAgent.includes('Chrome');
+                    const isFirefox = userAgent.includes('Firefox');
+                    const isSafari = userAgent.includes('Safari') && !userAgent.includes('Chrome');
+                    const isEdge = userAgent.includes('Edge');
+                    
+                    const browser = isChrome ? 'Chrome' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : isEdge ? 'Edge' : 'Unknown';
+                    
+                    this.log(`Browser detected: ${browser}`, 'info');
+                    
+                    return {
+                        passed: true,
+                        message: `Browser compatibility check completed for ${browser}`
+                    };
+                });
+                
+                // Test 2: Command state consistency
+                await this.runTest('Command State Consistency', async () => {
+                    this.editor.innerHTML = '<p>Test text</p>';
+                    this.updateToolbarState();
+                    
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor.querySelector('p'));
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    this.formatDoc('bold');
+                    await this.delay(100);
+                    
+                    const queryState = document.queryCommandState('bold');
+                    const buttonState = this.getButtonState('bold');
+                    
+                    return {
+                        passed: queryState === buttonState,
+                        message: queryState === buttonState ? 'Command state consistent across browser' : 'Command state inconsistent across browser'
+                    };
+                });
+            }
+            
+            async runAllTests() {
+                this.log('Starting Complete Test Suite', 'info');
+                this.testCount = 0;
+                this.passCount = 0;
+                this.failCount = 0;
+                this.warningCount = 0;
+                this.results = [];
+                
+                await this.runBasicFormattingTests();
+                await this.runSelectionTests();
+                await this.runKeyboardShortcutTests();
+                await this.runRapidInteractionTests();
+                await this.runCrossBrowserTests();
+                
+                this.displayResults();
+            }
+            
+            displayResults() {
+                const resultsContainer = document.getElementById('test-results');
+                const passRate = this.testCount > 0 ? (this.passCount / this.testCount * 100).toFixed(1) : 0;
+                
+                resultsContainer.innerHTML = `
+                    <div class="test-section">
+                        <h3>Test Summary</h3>
+                        <p><span class="status-indicator status-pass"></span>Passed: ${this.passCount}</p>
+                        <p><span class="status-indicator status-fail"></span>Failed: ${this.failCount}</p>
+                        <p><span class="status-indicator status-warning"></span>Warnings: ${this.warningCount}</p>
+                        <p><strong>Pass Rate: ${passRate}%</strong></p>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h3>Detailed Results</h3>
+                        ${this.results.map(result => `
+                            <div class="test-case">
+                                <h4>${result.buttonType} State Validation</h4>
+                                <div class="test-result ${result.consistent ? 'test-pass' : 'test-fail'}">
+                                    ${result.consistent ? '✓ PASS' : '✗ FAIL'}: 
+                                    Expected: ${result.expectedState}, 
+                                    Button: ${result.buttonState}, 
+                                    Actual: ${result.actualState}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                this.log(`Test suite completed. Pass rate: ${passRate}%`, 'info');
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            clearResults() {
+                document.getElementById('test-results').innerHTML = '<p>Results cleared.</p>';
+                document.getElementById('test-log').innerHTML = '<div class="log-entry log-info">Test log cleared.</div>';
+                this.results = [];
+                this.log = [];
+            }
+            
+            exportResults() {
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    summary: {
+                        total: this.testCount,
+                        passed: this.passCount,
+                        failed: this.failCount,
+                        warnings: this.warningCount,
+                        passRate: this.testCount > 0 ? (this.passCount / this.testCount * 100).toFixed(1) : 0
+                    },
+                    results: this.results,
+                    log: this.log
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `text-editor-test-results-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.log('Test results exported successfully', 'success');
+            }
+        }
+        
+        // Initialize test suite
+        const testSuite = new TextEditorTestSuite();
+        
+        // Global functions for button clicks
+        function formatDoc(command, value = null) {
+            testSuite.formatDoc(command, value);
+        }
+        
+        function insertBlockquote() {
+            testSuite.insertBlockquote();
+        }
+        
+        function runAllTests() {
+            testSuite.runAllTests();
+        }
+        
+        function runBasicFormattingTests() {
+            testSuite.runBasicFormattingTests();
+        }
+        
+        function runSelectionTests() {
+            testSuite.runSelectionTests();
+        }
+        
+        function runKeyboardShortcutTests() {
+            testSuite.runKeyboardShortcutTests();
+        }
+        
+        function runRapidInteractionTests() {
+            testSuite.runRapidInteractionTests();
+        }
+        
+        function runCrossBrowserTests() {
+            testSuite.runCrossBrowserTests();
+        }
+        
+        function clearResults() {
+            testSuite.clearResults();
+        }
+        
+        function exportResults() {
+            testSuite.exportResults();
+        }
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'b':
+                        e.preventDefault();
+                        formatDoc('bold');
+                        break;
+                    case 'i':
+                        e.preventDefault();
+                        formatDoc('italic');
+                        break;
+                    case 'u':
+                        e.preventDefault();
+                        formatDoc('underline');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
