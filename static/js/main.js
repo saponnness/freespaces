@@ -3302,21 +3302,10 @@ function insertImageWithCaption(imageSrc, fileName) {
     const editor = document.getElementById('editor');
     if (!editor) return;
     
-    // Check if we're in edit mode (has editor) vs view mode
-    const isEditMode = editor.getAttribute('contenteditable') === 'true';
-    
     // Generate unique ID for this image
     const imageId = 'img-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     
-    // Only show remove button in edit mode
-    const removeButton = isEditMode ? `
-        <button type="button" 
-                class="remove-inline-image editor-only" 
-                onclick="removeInlineImage('${imageId}')"
-                style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;"
-                title="Remove image">×</button>` : '';
-    
-    // Create the image container with caption
+    // Create the image container without caption or delete button
     const imageContainer = `
         <div class="inline-image-container" data-image-id="${imageId}" style="text-align: center; margin: 20px 0; clear: both;">
             <div class="image-wrapper" style="position: relative; display: inline-block; max-width: 100%;">
@@ -3324,15 +3313,6 @@ function insertImageWithCaption(imageSrc, fileName) {
                      alt="${fileName}" 
                      style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
                      class="inline-uploaded-image">
-                ${removeButton}
-            </div>
-            <div class="image-caption-container" style="margin-top: 8px;">
-                <div class="image-caption ${isEditMode ? 'editable-caption' : 'static-caption'}" 
-                     ${isEditMode ? 'contenteditable="true"' : ''}
-                     placeholder="Add a caption (optional)..."
-                     style="font-size: 14px; color: #6b7280; font-style: italic; outline: none; border: 1px solid transparent; padding: 4px 8px; border-radius: 4px; min-height: 20px; cursor: ${isEditMode ? 'text' : 'default'};"
-                     data-placeholder="Add a caption (optional)..."
-                     ${isEditMode ? 'onblur="updateHiddenField()" oninput="updateHiddenField(); handleCaptionInput(this)" onclick="selectAllCaptionText(this)"' : ''}></div>
             </div>
         </div>
     `;
@@ -3340,96 +3320,18 @@ function insertImageWithCaption(imageSrc, fileName) {
     // Insert the image at cursor position
     insertHTMLAtCursor(imageContainer);
     
-    // Focus on the caption field and select the placeholder text
-    if (isEditMode) {
-        setTimeout(() => {
-            const captionDiv = document.querySelector(`[data-image-id="${imageId}"] .image-caption`);
-            if (captionDiv) {
-                captionDiv.textContent = 'Add a caption (optional)...';
-                captionDiv.focus();
-                selectAllCaptionText(captionDiv);
-            }
-            updateHiddenField();
-        }, 100);
-    }
+    // Update the hidden field
+    updateHiddenField();
 }
 
-function removeInlineImage(imageId) {
-    const imageContainer = document.querySelector(`[data-image-id="${imageId}"]`);
-    if (imageContainer) {
-        // Also remove the following br if it exists
-        const nextElement = imageContainer.nextElementSibling;
-        if (nextElement && nextElement.tagName === 'DIV' && nextElement.innerHTML === '<br>') {
-            nextElement.remove();
-        }
-        imageContainer.remove();
-        updateHiddenField();
-        
-        // Refocus the editor
-        const editor = document.getElementById('editor');
-        if (editor) {
-            editor.focus();
-        }
-    }
-}
 
-function handleCaptionInput(captionDiv) {
-    // Handle placeholder behavior
-    const text = captionDiv.textContent.trim();
-    
-    if (text === '' || text === 'Add a caption (optional)...') {
-        captionDiv.style.color = '#9ca3af';
-        captionDiv.style.fontStyle = 'italic';
-    } else {
-        captionDiv.style.color = '#6b7280';
-        captionDiv.style.fontStyle = 'italic';
-    }
-}
 
-// New function to handle caption text selection
-function selectAllCaptionText(captionDiv) {
-    const text = captionDiv.textContent.trim();
-    
-    // If it's the placeholder text, select all for easy replacement
-    if (text === 'Add a caption (optional)...' || text === '') {
-        // Set the placeholder text if empty
-        if (text === '') {
-            captionDiv.textContent = 'Add a caption (optional)...';
-        }
-        
-        // Select all text for easy replacement
-        setTimeout(() => {
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(captionDiv);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }, 10);
-    }
-}
 
 // Function to clean up content when publishing (remove editor-only elements)
 function cleanContentForPublishing(content) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;
     
-    // Remove all editor-only elements (like delete buttons)
-    const editorOnlyElements = tempDiv.querySelectorAll('.editor-only, .remove-inline-image');
-    editorOnlyElements.forEach(element => element.remove());
-    
-    // Clean up empty captions
-    const emptyCaptions = tempDiv.querySelectorAll('.image-caption');
-    emptyCaptions.forEach(caption => {
-        const text = caption.textContent.trim();
-        if (text === 'Add a caption (optional)...' || text === '') {
-            caption.textContent = '';
-            caption.style.display = 'none';
-        }
-        // Remove contenteditable attribute for published content
-        caption.removeAttribute('contenteditable');
-        caption.classList.remove('editable-caption');
-        caption.classList.add('static-caption');
-    });
     
     // Remove unnecessary line breaks after images
     const imageContainers = tempDiv.querySelectorAll('.inline-image-container');
