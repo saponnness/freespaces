@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Toolbar App - Fixed</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .editor-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 15px;
+        }
+        .toolbar-group:not(:last-child)::after {
+            content: '';
+            width: 1px;
+            height: 20px;
+            background: #e5e5e5;
+            margin-left: 10px;
+        }
+        select.format-select {
+            padding: 6px 10px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+        }
+        select.format-select:hover { border-color: #999; }
+        .toolbar-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .toolbar-button:hover { background: #f0f0f0; }
+        .toolbar-button.active { background: #e3f2fd; color: #1976d2; }
+        .toolbar-button.italic { font-style: italic; }
+        .toolbar-button.underline { text-decoration: underline; }
+        .editor-area { position: relative; min-height: 400px; }
+        .editor {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: none;
+            outline: none;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            resize: none;
+            background: transparent;
+        }
+        .editor:focus { outline: none; }
+        .editor::placeholder { color: #999; font-style: italic; }
+        .editor[data-empty="true"]:before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            pointer-events: none;
+        }
+        .editor[contenteditable="true"] { overflow-wrap: break-word; }
+        .editor b, .editor strong { font-weight: bold; }
+        .editor i, .editor em { font-style: italic; }
+        .editor u { text-decoration: underline; }
+        .editor ol, .editor ul { margin: 10px 0; padding-left: 30px; }
+        .editor blockquote {
+            border-left: 4px solid #ddd;
+            margin: 10px 0;
+            padding-left: 15px;
+            color: #666;
+        }
+        .align-left { text-align: left; }
+        .align-center { text-align: center; }
+        .align-right { text-align: right; }
+        .align-justify { text-align: justify; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .modal-content h3 { margin-bottom: 15px; font-size: 18px; }
+        .modal-content input {
+            width: 100%; padding: 8px; margin-bottom: 10px;
+            border: 1px solid #d1d1d1; border-radius: 4px; font-size: 14px;
+        }
+        .modal-content .button-group { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-content button {
+            padding: 8px 16px; border: none; border-radius: 4px;
+            cursor: pointer; font-size: 14px;
+        }
+        .modal-content button.cancel { background: #f0f0f0; color: #333; }
+        .modal-content button.submit { background: #1976d2; color: white; }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <select class="format-select" id="formatSelect">
+                    <option value="2">Small</option>
+                    <option value="4" selected>Normal</option>
+                    <option value="5">Medium</option>
+                    <option value="6">Large</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-button" id="boldBtn" title="Bold"><strong>B</strong></button>
+                <button class="toolbar-button italic" id="italicBtn" title="Italic"><em>I</em></button>
+                <button class="toolbar-button underline" id="underlineBtn" title="Underline"><u>U</u></button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-button" id="numberedListBtn" title="Numbered List">1.</button>
+                <button class="toolbar-button" id="bulletListBtn" title="Bullet List">•</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-button" id="alignLeftBtn" title="Align Left">≡</button>
+                <button class="toolbar-button" id="alignCenterBtn" title="Align Center">≡</button>
+                <button class="toolbar-button" id="alignRightBtn" title="Align Right">≡</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-button" id="quoteBtn" title="Quote">"</button>
+                <button class="toolbar-button" id="linkBtn" title="Link">🔗</button>
+                <button class="toolbar-button" id="imageBtn" title="Image">🖼️</button>
+            </div>
+        </div>
+        <div class="editor-area">
+            <div class="editor" id="editor" contenteditable="true" data-placeholder="Tell your story..."></div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for image selection -->
+    <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+
+    <div class="modal" id="linkModal">
+        <div class="modal-content">
+            <h3>Insert Link</h3>
+            <div>
+                <input type="text" id="linkUrl" placeholder="https://example.com">
+                <input type="text" id="linkText" placeholder="Display Text">
+            </div>
+            <div class="button-group">
+                <button class="cancel" id="cancelLinkBtn">Cancel</button>
+                <button class="submit" id="submitLinkBtn">Insert Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class WritingToolbar {
+            constructor() {
+                this.editor = document.getElementById('editor');
+                this.formatSelect = document.getElementById('formatSelect');
+                this.boldBtn = document.getElementById('boldBtn');
+                this.italicBtn = document.getElementById('italicBtn');
+                this.underlineBtn = document.getElementById('underlineBtn');
+                this.numberedListBtn = document.getElementById('numberedListBtn');
+                this.bulletListBtn = document.getElementById('bulletListBtn');
+                this.alignLeftBtn = document.getElementById('alignLeftBtn');
+                this.alignCenterBtn = document.getElementById('alignCenterBtn');
+                this.alignRightBtn = document.getElementById('alignRightBtn');
+                this.quoteBtn = document.getElementById('quoteBtn');
+                this.linkBtn = document.getElementById('linkBtn');
+                this.imageBtn = document.getElementById('imageBtn');
+                this.linkModal = document.getElementById('linkModal');
+                this.linkUrl = document.getElementById('linkUrl');
+                this.linkText = document.getElementById('linkText');
+                this.cancelLinkBtn = document.getElementById('cancelLinkBtn');
+                this.submitLinkBtn = document.getElementById('submitLinkBtn');
+                this.imageFileInput = document.getElementById('imageFileInput');
+
+                this.lastFontSize = '4';
+                this.savedSelection = null; // Store selection for modal operations
+
+                this.initializeEditor();
+                this.attachEventListeners();
+            }
+
+            initializeEditor() {
+                this.updatePlaceholder();
+                this.editor.addEventListener('focus', () => this.updatePlaceholder());
+                this.editor.addEventListener('blur', () => this.updatePlaceholder());
+                this.editor.addEventListener('input', () => {
+                    this.updatePlaceholder();
+                    this.updateToolbarState();
+                });
+            }
+
+            updatePlaceholder() {
+                const isEmpty = this.editor.textContent.trim() === '';
+                if (isEmpty && !this.editor.matches(':focus')) {
+                    this.editor.setAttribute('data-empty', 'true');
+                } else {
+                    this.editor.removeAttribute('data-empty');
+                }
+            }
+
+            // Save current selection to restore later
+            saveSelection() {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    this.savedSelection = selection.getRangeAt(0).cloneRange();
+                }
+            }
+
+            // Restore previously saved selection
+            restoreSelection() {
+                if (this.savedSelection) {
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(this.savedSelection);
+                    this.editor.focus();
+                }
+            }
+
+            // Prefer browser's insertHTML (keeps undo and preserves inline structure). Fallback to manual insertion.
+            insertHTMLAtCursor(html) {
+                this.editor.focus();
+                try {
+                    // Use execCommand when available — it generally integrates with the browser's undo stack
+                    const used = document.execCommand('insertHTML', false, html);
+                    if (used) { this.updateToolbarState(); return; }
+                } catch (e) {
+                    // ignore and fallback to manual insertion
+                }
+
+                const selection = window.getSelection();
+                if (!selection.rangeCount) {
+                    const range = document.createRange();
+                    range.selectNodeContents(this.editor);
+                    range.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const fragment = document.createDocumentFragment();
+                while (tempDiv.firstChild) {
+                    fragment.appendChild(tempDiv.firstChild);
+                }
+
+                range.insertNode(fragment);
+                // Move cursor after the inserted content
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                this.updateToolbarState();
+            }
+
+            attachEventListeners() {
+                this.formatSelect.addEventListener('change', () => {
+                    const value = this.formatSelect.value;
+                    this.formatBlock(value);
+                    this.formatSelect.value = value;
+                });
+
+                this.boldBtn.addEventListener('click', () => this.execCommand('bold'));
+                this.italicBtn.addEventListener('click', () => this.execCommand('italic'));
+                this.underlineBtn.addEventListener('click', () => this.execCommand('underline'));
+
+                this.numberedListBtn.addEventListener('click', () => this.execCommand('insertOrderedList'));
+                this.bulletListBtn.addEventListener('click', () => this.execCommand('insertUnorderedList'));
+
+                this.alignLeftBtn.addEventListener('click', () => this.execCommand('justifyLeft'));
+                this.alignCenterBtn.addEventListener('click', () => this.execCommand('justifyCenter'));
+                this.alignRightBtn.addEventListener('click', () => this.execCommand('justifyRight'));
+
+                this.quoteBtn.addEventListener('click', () => this.insertQuote());
+                this.linkBtn.addEventListener('click', () => this.showLinkModal());
+                this.imageBtn.addEventListener('click', () => this.insertImage());
+
+                this.cancelLinkBtn.addEventListener('click', () => this.hideLinkModal());
+                this.submitLinkBtn.addEventListener('click', () => this.insertLink());
+                this.imageFileInput.addEventListener('change', (e) => this.handleImageFile(e));
+
+                // Handle Enter key in link modal
+                this.linkUrl.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.linkText.focus();
+                    }
+                });
+                
+                this.linkText.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.insertLink();
+                    }
+                });
+
+                document.addEventListener('selectionchange', () => {
+                    if (document.activeElement === this.editor) {
+                        this.updateToolbarState();
+                    }
+                });
+
+                this.editor.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch (e.key.toLowerCase()) {
+                            case 'b': e.preventDefault(); this.execCommand('bold'); break;
+                            case 'i': e.preventDefault(); this.execCommand('italic'); break;
+                            case 'u': e.preventDefault(); this.execCommand('underline'); break;
+                        }
+                    }
+                });
+            }
+
+            execCommand(command, value = null) {
+                this.editor.focus();
+                document.execCommand(command, false, value);
+                this.updateToolbarState();
+            }
+
+            formatBlock(scale) {
+                this.editor.focus();
+                document.execCommand('fontSize', false, scale);
+                this.lastFontSize = scale;
+                this.updateToolbarState();
+            }
+
+            insertQuote() {
+                this.editor.focus();
+                const parent = this.getParentElement();
+                if (parent && parent.tagName === 'BLOCKQUOTE') {
+                    const frag = document.createDocumentFragment();
+                    while (parent.firstChild) {
+                        frag.appendChild(parent.firstChild);
+                    }
+                    parent.parentNode.insertBefore(frag, parent);
+                    parent.parentNode.removeChild(parent);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    const range = document.createRange();
+                    let anchor = frag.lastChild || parent.nextSibling || parent.parentNode;
+                    if (anchor && anchor.nodeType === Node.TEXT_NODE) {
+                        range.setStart(anchor, anchor.textContent.length);
+                    } else if (anchor && anchor.nodeType === Node.ELEMENT_NODE) {
+                        range.selectNodeContents(anchor);
+                        range.collapse(false);
+                    } else {
+                        range.setStart(this.editor, this.editor.childNodes.length);
+                    }
+                    sel.addRange(range);
+                    this.updateToolbarState();
+                    return;
+                }
+                this.execCommand('formatBlock', 'blockquote');
+            }
+
+            showLinkModal() {
+                // Save selection
+                this.saveSelection();
+
+                // Try to detect if selection or cursor is inside a link
+                const linkData = this.getSelectedLinkData();
+
+                if (linkData) {
+                    // Prefill with existing link data
+                    this.linkUrl.value = linkData.url || '';
+                    this.linkText.value = linkData.text || '';
+                } else {
+                    // Fallback: plain text selection
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString();
+                    this.linkText.value = selectedText || '';
+                    this.linkUrl.value = '';
+                }
+
+                // Show modal
+                this.linkModal.style.display = 'flex';
+                this.linkUrl.focus();
+            }
+
+
+            hideLinkModal() {
+                this.linkModal.style.display = 'none';
+                this.linkUrl.value = '';
+                this.linkText.value = '';
+                this.restoreSelection();
+            }
+
+            insertLink() {
+                const url = this.linkUrl.value.trim();
+                const linkText = this.linkText.value.trim() || url;
+                
+                if (url && url !== '') {
+                    // Restore selection before inserting
+                    this.restoreSelection();
+                    
+                    // Use the improved HTML insertion method
+                    const link = `<a href="${this.escapeHtml(url)}" target="_blank">${this.escapeHtml(linkText)}</a>`;
+                    this.insertHTMLAtCursor(link);
+                    
+                    this.hideLinkModal();
+                }
+            }
+
+            // Helper function to escape HTML characters
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Get link data if selection is within or contains a link
+            getSelectedLinkData() {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) {
+                    return null;
+                }
+                
+                const range = selection.getRangeAt(0);
+
+                // Case 1: Cursor is inside a link (collapsed selection)
+                if (range.collapsed) {
+                    let element = range.startContainer;
+                    if (element.nodeType === Node.TEXT_NODE) {
+                        element = element.parentElement;
+                    }
+                    // Walk up the DOM tree to find a link
+                    while (element && element !== this.editor) {
+                        if (element.tagName === 'A') {
+                            return {
+                                element: element,
+                                url: element.getAttribute('href') || '',
+                                text: element.textContent || ''
+                            };
+                        }
+                        element = element.parentElement;
+                    }
+                }
+                
+                // Case 2: Text is selected - check if it's a link or contains a link
+                else {
+                    // Get all elements in the selection
+                    const container = range.commonAncestorContainer;
+                    let currentElement = container;
+                    if (currentElement.nodeType === Node.TEXT_NODE) {
+                        currentElement = currentElement.parentElement;
+                    }
+                    // Check if we're selecting within a single link
+                    while (currentElement && currentElement !== this.editor) {
+                        if (currentElement.tagName === 'A') {
+                            return {
+                                element: currentElement,
+                                url: currentElement.getAttribute('href') || '',
+                                text: currentElement.textContent || ''
+                            };
+                        }
+                        currentElement = currentElement.parentElement;
+                    }
+                    
+                    // Check if selection contains exactly one link element
+                    const selectedContent = range.cloneContents();
+                    const tempDiv = document.createElement('div');
+                    tempDiv.appendChild(selectedContent);
+                    const links = tempDiv.querySelectorAll('a');
+                    
+                    if (links.length === 1) {
+                        const linkText = links[0].textContent;
+                        const linkHref = links[0].getAttribute('href') || '';
+                        
+                        // Find the corresponding link in the actual DOM
+                        const allLinks = this.editor.querySelectorAll('a');
+                        for (let link of allLinks) {
+                            if (link.textContent === linkText && link.getAttribute('href') === linkHref) {
+                                return {
+                                    element: link,
+                                    url: linkHref,
+                                    text: linkText
+                                };
+                            }
+                        }
+                    }
+                }
+                
+                return null;
+            }
+
+            // Returns ancestor <a> element if selection is inside a link
+            getAncestorLink() {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return null;
+                let node = selection.getRangeAt(0).startContainer;
+                if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+                while (node && node !== this.editor) {
+                    if (node.tagName === 'A') return node;
+                    node = node.parentElement;
+                }
+                return null;
+            }
+
+            // Update an existing link element
+            updateExistingLink(linkElement, newUrl, newText) {
+                linkElement.href = newUrl;
+                linkElement.setAttribute('href', newUrl);
+                linkElement.textContent = newText;
+                
+                // Set cursor after the updated link
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.setStartAfter(linkElement);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                this.updateToolbarState();
+            }
+
+            insertImage() {
+                this.imageFileInput.click();
+            }
+
+            handleImageFile(event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imgHtml = `<img src="${e.target.result}" alt="${this.escapeHtml(file.name)}" style="max-width: 100%; height: auto;">`;
+
+                        // If caret is inside an <a>, avoid splitting it — insert the image before the whole link
+                        const linkEl = this.getAncestorLink();
+                        if (linkEl) {
+                            // Insert as its own block before the link so the link remains intact and is pushed down
+                            const wrapperHtml = `<div><img src="${e.target.result}" alt="${this.escapeHtml(file.name)}" style="max-width: 100%; height: auto;"></div>`;
+                            try {
+                                const range = document.createRange();
+                                range.setStartBefore(linkEl);
+                                range.collapse(true);
+                                const sel = window.getSelection();
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                                document.execCommand('insertHTML', false, wrapperHtml);
+                                this.updateToolbarState();
+                            } catch (ex) {
+                                // Fallback to DOM insertion
+                                const wrapper = document.createElement('div');
+                                const imgNode = document.createElement('img');
+                                imgNode.src = e.target.result;
+                                imgNode.alt = file.name;
+                                imgNode.style.maxWidth = '100%';
+                                imgNode.style.height = 'auto';
+                                wrapper.appendChild(imgNode);
+                                linkEl.parentNode.insertBefore(wrapper, linkEl);
+                                this.updateToolbarState();
+                            }
+                        } else {
+                            // Normal insertion at caret
+                            this.insertHTMLAtCursor(imgHtml);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+                event.target.value = '';
+            }
+
+            updateToolbarState() {
+                this.updateFontSizeDropdown();
+                this.boldBtn.classList.toggle('active', document.queryCommandState('bold'));
+                this.italicBtn.classList.toggle('active', document.queryCommandState('italic'));
+                this.underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
+                this.numberedListBtn.classList.toggle('active', document.queryCommandState('insertOrderedList'));
+                this.bulletListBtn.classList.toggle('active', document.queryCommandState('insertUnorderedList'));
+                this.alignLeftBtn.classList.toggle('active', document.queryCommandState('justifyLeft'));
+                this.alignCenterBtn.classList.toggle('active', document.queryCommandState('justifyCenter'));
+                this.alignRightBtn.classList.toggle('active', document.queryCommandState('justifyRight'));
+                const parent = this.getParentElement();
+                this.quoteBtn.classList.toggle('active', parent && parent.tagName === 'BLOCKQUOTE');
+            }
+
+            // More robust font-size detection: check FONT tag ancestors, inline styles, computed styles on nearby text nodes and siblings.
+            updateFontSizeDropdown() {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) {
+                    this.formatSelect.value = this.lastFontSize;
+                    return;
+                }
+
+                const range = selection.getRangeAt(0);
+                let node = range.startContainer;
+                if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+
+                // 1) look up ancestors for <font size="..."> or inline style
+                let el = node;
+                while (el && el !== this.editor) {
+                    if (el.tagName === 'FONT' && el.getAttribute('size')) {
+                        this.formatSelect.value = el.getAttribute('size');
+                        this.lastFontSize = el.getAttribute('size');
+                        return;
+                    }
+                    if (el.nodeType === Node.ELEMENT_NODE && el.style && el.style.fontSize) {
+                        const mapped = this.mapFontSizeToDropdownValue(el.style.fontSize);
+                        if (mapped) { this.formatSelect.value = mapped; this.lastFontSize = mapped; return; }
+                    }
+                    el = el.parentElement;
+                }
+
+                // 2) If collapsed caret, inspect nearby text nodes / siblings for a font size we can use
+                if (range.collapsed) {
+                    const startContainer = range.startContainer;
+                    const startOffset = range.startOffset;
+
+                    // If inside a text node, prefer its parent computed style
+                    if (startContainer.nodeType === Node.TEXT_NODE) {
+                        const parent = startContainer.parentElement;
+                        if (parent) {
+                            const comp = window.getComputedStyle(parent);
+                            const mapped = this.mapFontSizeToDropdownValue(comp.fontSize);
+                            if (mapped) { this.formatSelect.value = mapped; this.lastFontSize = mapped; return; }
+                        }
+
+                        // if caret is at the very start, look for previous siblings
+                        if (startOffset === 0) {
+                            let prev = startContainer.previousSibling;
+                            while (prev) {
+                                if (prev.nodeType === Node.TEXT_NODE && prev.textContent.trim().length > 0) {
+                                    const comp = window.getComputedStyle(prev.parentElement);
+                                    const mapped2 = this.mapFontSizeToDropdownValue(comp.fontSize);
+                                    if (mapped2) { this.formatSelect.value = mapped2; this.lastFontSize = mapped2; return; }
+                                } else if (prev.nodeType === Node.ELEMENT_NODE) {
+                                    const comp = window.getComputedStyle(prev);
+                                    const mapped3 = this.mapFontSizeToDropdownValue(comp.fontSize);
+                                    if (mapped3) { this.formatSelect.value = mapped3; this.lastFontSize = mapped3; return; }
+                                }
+                                prev = prev.previousSibling;
+                            }
+                        }
+                    } else if (startContainer.nodeType === Node.ELEMENT_NODE) {
+                        // If caret is inside an element node, check the child just before caret
+                        const idx = Math.max(0, startOffset - 1);
+                        const child = startContainer.childNodes[idx];
+                        if (child) {
+                            if (child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
+                                const comp = window.getComputedStyle(child.parentElement);
+                                const mapped = this.mapFontSizeToDropdownValue(comp.fontSize);
+                                if (mapped) { this.formatSelect.value = mapped; this.lastFontSize = mapped; return; }
+                            } else if (child.nodeType === Node.ELEMENT_NODE) {
+                                const comp = window.getComputedStyle(child);
+                                const mapped2 = this.mapFontSizeToDropdownValue(comp.fontSize);
+                                if (mapped2) { this.formatSelect.value = mapped2; this.lastFontSize = mapped2; return; }
+                            }
+                        }
+                    }
+                }
+
+                // 3) fallback: computed style of the nearest anchorNode parent
+                try {
+                    const anchorParent = selection.anchorNode && selection.anchorNode.parentElement ? selection.anchorNode.parentElement : this.editor;
+                    const computed = window.getComputedStyle(anchorParent);
+                    const mapped = this.mapFontSizeToDropdownValue(computed.fontSize);
+                    if (mapped) { this.formatSelect.value = mapped; this.lastFontSize = mapped; return; }
+                } catch (e) {
+                    // ignore
+                }
+
+                // default
+                this.formatSelect.value = this.lastFontSize || '4';
+            }
+
+            mapFontSizeToDropdownValue(fontSize) {
+                if (!fontSize) return null;
+                if (fontSize.includes('px')) {
+                    const pixelSize = parseInt(fontSize, 10);
+                    if (pixelSize <= 11) return '2';
+                    if (pixelSize <= 17) return '4';
+                    if (pixelSize <= 21) return '5';
+                    return '6';
+                }
+                return null;
+            }
+
+            getParentElement() {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    let element = selection.getRangeAt(0).commonAncestorContainer;
+                    if (element.nodeType === Node.TEXT_NODE) element = element.parentElement;
+                    while (element && element !== this.editor) {
+                        if (['FONT', 'P', 'DIV', 'BLOCKQUOTE'].includes(element.tagName)) {
+                            return element;
+                        }
+                        element = element.parentElement;
+                    }
+                }
+                return null;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { new WritingToolbar(); });
+    </script>
+</body>
+</html>
