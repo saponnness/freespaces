@@ -274,27 +274,14 @@ function createFloatingHeart(button) {
 function initCommentSystem() {
     const commentToggleBtn = document.querySelector('.comment-toggle-btn');
     const commentsSection = document.getElementById('comments-section');
-    const closeCommentsBtn = document.getElementById('close-comments');
     const commentForm = document.getElementById('comment-form');
     const commentContent = document.getElementById('comment-content');
     const charCount = document.getElementById('char-count');
     
-    // Toggle comments section visibility
-    if (commentToggleBtn) {
-        commentToggleBtn.addEventListener('click', function() {
-            const postId = this.dataset.postId;
-            if (commentsSection.classList.contains('hidden')) {
-                showCommentsSection();
-                loadComments(postId);
-            } else {
-                hideCommentsSection();
-            }
-        });
-    }
-    
-    // Close comments section
-    if (closeCommentsBtn) {
-        closeCommentsBtn.addEventListener('click', hideCommentsSection);
+    // Auto-load comments on page load since section is now always visible
+    if (commentToggleBtn && commentsSection) {
+        const postId = commentToggleBtn.dataset.postId;
+        loadComments(postId);
     }
     
     // Character count for comment textarea
