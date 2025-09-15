@@ -1404,6 +1404,17 @@ textarea {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Profile Setup Username Validation Icon Positioning */
+#username-validation {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    top: 0.75rem !important;
+    transform: none !important;
+    right: 0.75rem !important;
+    height: 1.5rem !important;
+}
+
 /* Container Width Adjustments for Post Forms */
 .post-form-container {
     max-width: 48rem;
