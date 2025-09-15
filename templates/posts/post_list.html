@@ -66,7 +66,43 @@
                             <div class="absolute top-4 left-4">
                                 {% if post.category %}
                                     <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                        {% if post.category.name == "Photography" %}📸{% elif post.category.name == "Web Design" %}💻{% elif post.category.name == "Workspace" %}🏢{% else %}🎨{% endif %}
+                                        {% if post.category.name == "Photography" %}
+                                            📸
+                                        {% elif post.category.name == "Programming" or post.category.name == "Web Design" %}
+                                            💻
+                                        {% elif post.category.name == "Workspace" %}
+                                            🏠
+                                        {% elif post.category.name == "Art & Design" or post.category.name == "Art" or post.category.name == "Design" %}
+                                            🎨
+                                        {% elif post.category.name == "Lifestyle" %}
+                                            🌿
+                                        {% elif post.category.name == "Food & Cooking" %}
+                                            🍜
+                                        {% elif post.category.name == "Cafe" %}
+                                            ☕
+                                        {% elif post.category.name == "Travel" %}
+                                            ✈️
+                                        {% elif post.category.name == "Music" %}
+                                            🎵
+                                        {% elif post.category.name == "Sports" or post.category.name == "Fitness" %}
+                                            ⚽
+                                        {% elif post.category.name == "Health" %}
+                                            💚
+                                        {% elif post.category.name == "Gaming" %}
+                                            🎮
+                                        {% elif post.category.name == "Books" or post.category.name == "Reading" %}
+                                            📚
+                                        {% elif post.category.name == "Technology" or post.category.name == "Tech" %}
+                                            🔧
+                                        {% elif post.category.name == "Fashion" %}
+                                            👗
+                                        {% elif post.category.name == "Business" %}
+                                            💼
+                                        {% elif post.category.name == "Education" %}
+                                            🎓
+                                        {% else %}
+                                            🏷️
+                                        {% endif %}
                                         {{ post.category.name }}
                                     </span>
                                 {% endif %}

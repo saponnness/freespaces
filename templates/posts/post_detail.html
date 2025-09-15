@@ -22,7 +22,45 @@
                 {% if post.category %}
                     <a href="{% url 'posts:category' category_name=post.category.name %}" 
                         class="category-badge text-purple-600 text-sm font-semibold px-4 py-2 rounded-full hover:scale-105 transition-transform inline-flex items-center space-x-2">
-                        <span class="emoji">{% if post.category.name == "Photography" %}📸{% elif post.category.name == "Programming" %}💻{% elif post.category.name == "Lifestyle" %}🌿{% else %}🎨{% endif %}</span>
+                        <span class="emoji">
+                            {% if post.category.name == "Photography" %}
+                                📸
+                            {% elif post.category.name == "Programming" or post.category.name == "Web Design" %}
+                                💻
+                            {% elif post.category.name == "Workspace" %}
+                                🏠
+                            {% elif post.category.name == "Art & Design" or post.category.name == "Art" or post.category.name == "Design" %}
+                                🎨
+                            {% elif post.category.name == "Lifestyle" %}
+                                🌿
+                            {% elif post.category.name == "Food & Cooking" %}
+                                🍜
+                            {% elif post.category.name == "Cafe" %}
+                                ☕
+                            {% elif post.category.name == "Travel" %}
+                                ✈️
+                            {% elif post.category.name == "Music" %}
+                                🎵
+                            {% elif post.category.name == "Sports" or post.category.name == "Fitness" %}
+                                ⚽
+                            {% elif post.category.name == "Health" %}
+                                💚
+                            {% elif post.category.name == "Gaming" %}
+                                🎮
+                            {% elif post.category.name == "Books" or post.category.name == "Reading" %}
+                                📚
+                            {% elif post.category.name == "Technology" or post.category.name == "Tech" %}
+                                🔧
+                            {% elif post.category.name == "Fashion" %}
+                                👗
+                            {% elif post.category.name == "Business" %}
+                                💼
+                            {% elif post.category.name == "Education" %}
+                                🎓
+                            {% else %}
+                                🏷️
+                            {% endif %}
+                        </span>
                         <span>{{ post.category.name }}</span>
                     </a>
                 {% endif %}
@@ -221,13 +259,15 @@
                                 <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1 rounded-full">
                                     {% if related_post.category.name == "Photography" %}📸
                                     {% elif related_post.category.name == "Programming" or related_post.category.name == "Web Design" %}💻
-                                    {% elif related_post.category.name == "Workspace" %}🏢
+                                    {% elif related_post.category.name == "Workspace" %}🏠
                                     {% elif related_post.category.name == "Art & Design" or related_post.category.name == "Art" or related_post.category.name == "Design" %}🎨
                                     {% elif related_post.category.name == "Lifestyle" %}🌿
-                                    {% elif related_post.category.name == "Food & Cooking" or related_post.category.name == "Food" %}🍜
+                                    {% elif related_post.category.name == "Food & Cooking" or related_post.category.name == "Food & Cooking" %}🍜
+                                    {% elif related_post.category.name == "Cafe" %}☕
                                     {% elif related_post.category.name == "Travel" %}✈️
                                     {% elif related_post.category.name == "Music" %}🎵
                                     {% elif related_post.category.name == "Sports" or related_post.category.name == "Fitness" %}⚽
+                                    {% elif related_post.category.name == "Health" %}💚
                                     {% elif related_post.category.name == "Gaming" %}🎮
                                     {% elif related_post.category.name == "Books" or related_post.category.name == "Reading" %}📚
                                     {% elif related_post.category.name == "Technology" or related_post.category.name == "Tech" %}🔧

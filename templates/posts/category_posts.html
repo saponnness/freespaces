@@ -25,12 +25,43 @@
         <div class="text-center">
             <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-pink-100 flex items-center justify-center mx-auto mb-4">
                 <span class="text-3xl">
-                    {% if category.name == "Photography" %}📸
-                    {% elif category.name == "Web Design" %}💻
-                    {% elif category.name == "Workspace" %}🏠
-                    {% elif category.name == "Art & Design" %}🎨
-                    {% elif category.name == "Lifestyle" %}🌿
-                    {% else %}✨{% endif %}
+                    {% if category.name == "Photography" %}
+                        📸
+                    {% elif category.name == "Programming" or category.name == "Web Design" %}
+                        💻
+                    {% elif category.name == "Workspace" %}
+                        🏠
+                    {% elif category.name == "Art & Design" or category.name == "Art" or category.name == "Design" %}
+                        🎨
+                    {% elif category.name == "Lifestyle" %}
+                        🌿
+                    {% elif category.name == "Food & Cooking" %}
+                        🍜
+                    {% elif category.name == "Cafe" %}
+                        ☕
+                    {% elif category.name == "Travel" %}
+                        ✈️
+                    {% elif category.name == "Music" %}
+                        🎵
+                    {% elif category.name == "Sports" or category.name == "Fitness" %}
+                        ⚽
+                    {% elif category.name == "Health" %}
+                        💚
+                    {% elif category.name == "Gaming" %}
+                        🎮
+                    {% elif category.name == "Books" or category.name == "Reading" %}
+                        📚
+                    {% elif category.name == "Technology" or category.name == "Tech" %}
+                        🔧
+                    {% elif category.name == "Fashion" %}
+                        👗
+                    {% elif category.name == "Business" %}
+                        💼
+                    {% elif category.name == "Education" %}
+                        🎓
+                    {% else %}
+                        🏷️
+                    {% endif %}
                 </span>
             </div>
             
@@ -113,12 +144,43 @@
         <div class="glass-effect rounded-3xl p-12 text-center shadow-lg">
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-6">
                 <span class="text-3xl">
-                    {% if category.name == "Photography" %}📸
-                    {% elif category.name == "Web Design" %}💻
-                    {% elif category.name == "Workspace" %}🏠
-                    {% elif category.name == "Art & Design" %}🎨
-                    {% elif category.name == "Lifestyle" %}🌿
-                    {% else %}✨{% endif %}
+                    {% if category.name == "Photography" %}
+                        📸
+                    {% elif category.name == "Programming" or category.name == "Web Design" %}
+                        💻
+                    {% elif category.name == "Workspace" %}
+                        🏠
+                    {% elif category.name == "Art & Design" or category.name == "Art" or category.name == "Design" %}
+                        🎨
+                    {% elif category.name == "Lifestyle" %}
+                        🌿
+                    {% elif category.name == "Food & Cooking" %}
+                        🍜
+                    {% elif category.name == "Cafe" %}
+                        ☕
+                    {% elif category.name == "Travel" %}
+                        ✈️
+                    {% elif category.name == "Music" %}
+                        🎵
+                    {% elif category.name == "Sports" or category.name == "Fitness" %}
+                        ⚽
+                    {% elif category.name == "Health" %}
+                        💚
+                    {% elif category.name == "Gaming" %}
+                        🎮
+                    {% elif category.name == "Books" or category.name == "Reading" %}
+                        📚
+                    {% elif category.name == "Technology" or category.name == "Tech" %}
+                        🔧
+                    {% elif category.name == "Fashion" %}
+                        👗
+                    {% elif category.name == "Business" %}
+                        💼
+                    {% elif category.name == "Education" %}
+                        🎓
+                    {% else %}
+                        🏷️
+                    {% endif %}
                 </span>
             </div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">No {{ category.name|lower }} posts yet</h3>
@@ -145,7 +207,7 @@
     {% endif %}
     
     <!-- Related Categories -->
-    <div class="mt-12">
+    <!-- <div class="mt-12">
         <h3 class="text-xl font-bold text-gray-800 mb-6">Explore Other Categories</h3>
         <div class="flex flex-wrap gap-3">
             <a href="{% url 'posts:list' %}" class="tag-pill px-6 py-3 rounded-full text-sm font-medium text-purple-700 hover:scale-105 transition-transform">
@@ -167,6 +229,6 @@
                 🌿 Lifestyle
             </a>
         </div>
-    </div>
+    </div> -->
 </div>
 {% endblock %}
