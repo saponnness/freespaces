@@ -103,7 +103,7 @@ def post_delete(request, slug):
     if request.method == 'POST':
         post.delete()
         messages.success(request, 'Your post has been deleted!')
-        return redirect('posts:list')
+        return redirect('feeds:home')
 
     return render(request, 'posts/post_delete.html', {'post': post})
 
