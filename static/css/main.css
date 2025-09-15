@@ -159,8 +159,7 @@ body {
 .focus-ring:focus,
 input:focus, 
 select:focus, 
-textarea:focus,
-.rich-text-editor:focus-within {
+textarea:focus {
     outline: none;
     border-color: #fbbf24;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
@@ -390,136 +389,6 @@ textarea {
 @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-}
-
-/* CONSOLIDATED PROSE/ARTICLE CONTENT STYLES */
-.prose,
-.rich-text-content,
-.formatted-content {
-    max-width: none;
-    color: #374151;
-    line-height: 1.7;
-}
-
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6,
-.rich-text-content h1, .rich-text-content h2, .rich-text-content h3, 
-.rich-text-content h4, .rich-text-content h5, .rich-text-content h6,
-.formatted-content h1, .formatted-content h2, .formatted-content h3,
-.formatted-content h4, .formatted-content h5, .formatted-content h6 {
-    color: #111827;
-    font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    line-height: 1.4;
-}
-
-/* Consistent heading sizes across all content types */
-.prose h1, .rich-text-content h1, .formatted-content h1 { font-size: 2rem; }
-.prose h2, .rich-text-content h2, .formatted-content h2 { font-size: 1.75rem; }
-.prose h3, .rich-text-content h3, .formatted-content h3 { font-size: 1.5rem; }
-.prose h4, .rich-text-content h4, .formatted-content h4 { font-size: 1.25rem; }
-.prose h5, .rich-text-content h5, .formatted-content h5 { font-size: 1.125rem; }
-.prose h6, .rich-text-content h6, .formatted-content h6 { font-size: 1rem; }
-
-.prose p,
-.rich-text-content p,
-.formatted-content p {
-    margin-bottom: 1.5rem;
-    text-align: justify;
-}
-
-.prose p:last-child,
-.rich-text-content p:last-child,
-.formatted-content p:last-child {
-    margin-bottom: 0;
-}
-
-.prose img,
-.rich-text-content img,
-.formatted-content img {
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    max-width: 100%;
-    height: auto;
-}
-
-/* Consistent list styling */
-.prose ul, .prose ol,
-.rich-text-content ul, .rich-text-content ol,
-.formatted-content ul, .formatted-content ol {
-    margin: 1rem 0;
-    padding-left: 1.5rem;
-}
-
-.prose ul li,
-.rich-text-content ul li,
-.formatted-content ul li {
-    list-style-type: disc;
-    margin: 0.5rem 0;
-}
-
-.prose ol li,
-.rich-text-content ol li,
-.formatted-content ol li {
-    list-style-type: decimal;
-    margin: 0.5rem 0;
-}
-
-/* Nested list styling */
-.prose ul ul li, .rich-text-content ul ul li, .formatted-content ul ul li {
-    list-style-type: circle;
-}
-
-.prose ul ul ul li, .rich-text-content ul ul ul li, .formatted-content ul ul ul li {
-    list-style-type: square;
-}
-
-.prose ol ol li, .rich-text-content ol ol li, .formatted-content ol ol li {
-    list-style-type: lower-alpha;
-}
-
-.prose ol ol ol li, .rich-text-content ol ol ol li, .formatted-content ol ol ol li {
-    list-style-type: lower-roman;
-}
-
-.prose li > ul, .prose li > ol,
-.rich-text-content li > ul, .rich-text-content li > ol,
-.formatted-content li > ul, .formatted-content li > ol {
-    margin: 0.25rem 0;
-    padding-left: 1.5rem;
-}
-
-/* Consistent blockquote styling */
-.prose blockquote,
-.rich-text-content blockquote,
-.formatted-content blockquote {
-    margin: 1.5rem 0;
-    padding: 1rem 1.5rem;
-    border-left: 4px solid #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    border-radius: 0 0.5rem 0.5rem 0;
-    font-style: italic;
-    color: #6b7280;
-}
-
-/* Consistent text formatting */
-.prose strong, .rich-text-content strong, .formatted-content strong {
-    font-weight: bold;
-    color: #111827;
-}
-
-.prose em, .rich-text-content em, .formatted-content em {
-    font-style: italic;
-}
-
-.prose u, .rich-text-content u, .formatted-content u {
-    text-decoration: underline;
-}
-
-.prose br, .rich-text-content br, .formatted-content br {
-    display: block;
-    margin: 0.25rem 0;
-    content: "";
 }
 
 /* Author card styles */
@@ -1154,7 +1023,6 @@ textarea {
     align-items: center;
     justify-content: center;
     margin: 0 auto 2rem;
-    font-size: 2rem;
 }
 
 /* Theme variations */
@@ -1203,29 +1071,6 @@ textarea {
     background: linear-gradient(180deg, #d97706, #db2777);
 }
 
-/* Specific scrollbar overrides for content areas */
-.rich-text-preview::-webkit-scrollbar,
-.editor-content::-webkit-scrollbar {
-    width: 4px;
-}
-
-.rich-text-preview::-webkit-scrollbar-track,
-.editor-content::-webkit-scrollbar-track {
-    background: #f3f4f6;
-    border-radius: 2px;
-}
-
-.rich-text-preview::-webkit-scrollbar-thumb,
-.editor-content::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 2px;
-}
-
-.rich-text-preview::-webkit-scrollbar-thumb:hover,
-.editor-content::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
-}
-
 /* Floating animation */
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
@@ -1234,380 +1079,6 @@ textarea {
 
 .floating-action-btn {
     animation: float 3s ease-in-out infinite;
-}
-
-/* Rich text excerpt styling */
-.rich-text-excerpt {
-    max-height: 4rem;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    position: relative;
-}
-
-.rich-text-excerpt .excerpt-content {
-    line-height: 1.5;
-}
-
-.rich-text-excerpt strong {
-    font-weight: 600;
-    color: #374151;
-}
-
-.rich-text-excerpt em {
-    font-style: italic;
-}
-
-.rich-text-excerpt u {
-    text-decoration: underline;
-}
-
-.rich-text-excerpt blockquote {
-    border-left: 2px solid #f59e0b;
-    padding-left: 0.5rem;
-    margin: 0.25rem 0;
-    font-style: italic;
-    color: #6b7280;
-}
-
-.rich-text-excerpt ul,
-.rich-text-excerpt ol {
-    padding-left: 1rem;
-    margin: 0.25rem 0;
-}
-
-.rich-text-excerpt ul li {
-    list-style-type: disc;
-}
-
-.rich-text-excerpt ol li {
-    list-style-type: decimal;
-}
-
-.rich-text-excerpt h1,
-.rich-text-excerpt h2,
-.rich-text-excerpt h3,
-.rich-text-excerpt h4,
-.rich-text-excerpt h5,
-.rich-text-excerpt h6 {
-    font-weight: 600;
-    color: #111827;
-    margin: 0.25rem 0;
-}
-
-.rich-text-excerpt h1 { font-size: 1rem; }
-.rich-text-excerpt h2 { font-size: 0.95rem; }
-.rich-text-excerpt h3 { font-size: 0.9rem; }
-.rich-text-excerpt h4,
-.rich-text-excerpt h5,
-.rich-text-excerpt h6 { font-size: 0.875rem; }
-
-/* Fade out effect for truncated content */
-.rich-text-excerpt::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    height: 1rem;
-    background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
-    pointer-events: none;
-}
-
-/* Rich text preview styles for search results */
-.rich-text-preview {
-    line-height: 1.6;
-    color: #4b5563;
-    font-size: 0.875rem;
-    max-height: 100px;
-    overflow: hidden;
-    position: relative;
-}
-
-.rich-text-preview::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 30px;
-    width: 100%;
-    background: linear-gradient(transparent, white);
-    pointer-events: none;
-}
-
-.rich-text-preview p {
-    margin: 0.5rem 0;
-}
-
-.rich-text-preview p:first-child {
-    margin-top: 0;
-}
-
-.rich-text-preview p:last-child {
-    margin-bottom: 0;
-}
-
-.rich-text-preview h1,
-.rich-text-preview h2,
-.rich-text-preview h3,
-.rich-text-preview h4,
-.rich-text-preview h5,
-.rich-text-preview h6 {
-    font-weight: 600;
-    margin: 0.5rem 0 0.25rem 0;
-    line-height: 1.3;
-    color: #1f2937;
-}
-
-.rich-text-preview h1 { font-size: 1rem; }
-.rich-text-preview h2 { font-size: 0.95rem; }
-.rich-text-preview h3 { font-size: 0.9rem; }
-.rich-text-preview h4 { font-size: 0.875rem; }
-
-.rich-text-preview ul,
-.rich-text-preview ol {
-    margin: 0.5rem 0;
-    padding-left: 1.25rem;
-}
-
-.rich-text-preview ul li {
-    list-style-type: disc;
-    margin: 0.25rem 0;
-}
-
-.rich-text-preview ol li {
-    list-style-type: decimal;
-    margin: 0.25rem 0;
-}
-
-/* Nested list styling for preview */
-.rich-text-preview ul ul li {
-    list-style-type: circle;
-}
-
-.rich-text-preview ul ul ul li {
-    list-style-type: square;
-}
-
-.rich-text-preview ol ol li {
-    list-style-type: lower-alpha;
-}
-
-.rich-text-preview ol ol ol li {
-    list-style-type: lower-roman;
-}
-
-.rich-text-preview li > ul,
-.rich-text-preview li > ol {
-    margin: 0.125rem 0;
-    padding-left: 1rem;
-}
-
-.rich-text-preview blockquote {
-    margin: 0.75rem 0;
-    padding: 0.5rem 0.75rem;
-    border-left: 3px solid #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    border-radius: 0 0.375rem 0.375rem 0;
-    font-style: italic;
-    color: #6b7280;
-    font-size: 0.8rem;
-}
-
-.rich-text-preview strong {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.rich-text-preview em {
-    font-style: italic;
-}
-
-.rich-text-preview u {
-    text-decoration: underline;
-}
-
-.rich-text-preview br {
-    display: block;
-    margin: 0.125rem 0;
-    content: "";
-}
-
-/* RICH TEXT EDITOR STYLES */
-.rich-text-editor {
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    overflow: hidden;
-    transition: all 0.2s ease;
-}
-
-.toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background: rgba(249, 250, 251, 0.8);
-    border-bottom: 1px solid #e5e7eb;
-    flex-wrap: wrap;
-}
-
-.font-size-selector {
-    padding: 4px 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: white;
-    font-size: 12px;
-    min-width: 60px;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-}
-
-.font-size-selector:hover {
-    border-color: #f59e0b;
-}
-
-.font-size-selector:focus {
-    outline: none;
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-}
-
-.toolbar-group {
-    display: flex;
-    gap: 2px;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.toolbar-btn {
-    padding: 6px 10px;
-    background: white;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-    transition: all 0.2s ease;
-    min-width: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.toolbar-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-}
-
-.toolbar-btn:active,
-.toolbar-btn.active {
-    background: #f59e0b;
-    color: white;
-}
-
-.toolbar-btn strong,
-.toolbar-btn em,
-.toolbar-btn u {
-    font-size: 12px;
-}
-
-.editor-content {
-    min-height: 160px;
-    max-height: 400px;
-    padding: 16px;
-    overflow-y: auto;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #111827;
-    background: rgba(255, 255, 255, 0.8);
-    outline: none;
-    resize: vertical;
-}
-
-.editor-content:empty:before {
-    content: attr(placeholder);
-    color: #9ca3af;
-    pointer-events: none;
-    position: absolute;
-}
-
-.editor-content:focus:before {
-    display: none;
-}
-
-/* Rich text content styling for editor */
-.editor-content h1,
-.editor-content h2,
-.editor-content h3,
-.editor-content h4,
-.editor-content h5,
-.editor-content h6 {
-    font-weight: bold;
-    margin: 16px 0 8px 0;
-    line-height: 1.4;
-}
-
-.editor-content h1 { font-size: 24px; }
-.editor-content h2 { font-size: 20px; }
-.editor-content h3 { font-size: 18px; }
-.editor-content h4 { font-size: 16px; }
-.editor-content h5 { font-size: 14px; }
-.editor-content h6 { font-size: 12px; }
-
-.editor-content p {
-    margin: 8px 0;
-}
-
-.editor-content ul,
-.editor-content ol {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.editor-content ul li {
-    list-style-type: disc;
-    margin: 4px 0;
-}
-
-.editor-content ol li {
-    list-style-type: decimal;
-    margin: 4px 0;
-}
-
-.editor-content blockquote {
-    margin: 16px 0;
-    padding: 12px 16px;
-    border-left: 4px solid #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    border-radius: 0 8px 8px 0;
-    font-style: italic;
-    color: #6b7280;
-}
-
-.editor-content strong {
-    font-weight: bold;
-}
-
-.editor-content em {
-    font-style: italic;
-}
-
-.editor-content u {
-    text-decoration: underline;
-}
-
-.editor-content br {
-    display: block;
-    margin: 4px 0;
-    content: "";
-}
-
-.hidden-textarea {
-    display: none !important;
 }
 
 /* RESPONSIVE ADJUSTMENTS */
@@ -1627,44 +1098,6 @@ textarea {
     
     .related-categories {
         justify-content: center;
-    }
-    
-    .toolbar {
-        gap: 4px;
-        padding: 8px 12px;
-    }
-    
-    .toolbar-btn {
-        min-width: 28px;
-        padding: 4px 6px;
-        font-size: 12px;
-    }
-    
-    .font-size-selector {
-        font-size: 11px;
-        min-width: 50px;
-        padding: 3px 6px;
-    }
-    
-    .editor-content {
-        min-height: 120px;
-        padding: 12px;
-        font-size: 13px;
-    }
-    
-    .rich-text-preview {
-        font-size: 0.8rem;
-        max-height: 80px;
-    }
-    
-    .rich-text-preview ul,
-    .rich-text-preview ol {
-        padding-left: 1rem;
-    }
-    
-    .rich-text-preview li > ul,
-    .rich-text-preview li > ol {
-        padding-left: 0.75rem;
     }
 }
 
@@ -1718,388 +1151,521 @@ textarea {
 }
 
 
-/* Additional CSS to add to your existing styles */
-
-/* Caption styles for different states */
-.image-caption.editable-caption {
-    cursor: text;
+/* Rich Text Editor Styles - Updated to match title field appearance */
+.editor-container {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    box-shadow: none;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
     transition: all 0.2s ease;
+    width: 100%;
 }
 
-.image-caption.editable-caption:hover {
-    background: rgba(245, 158, 11, 0.05);
-    border-color: rgba(245, 158, 11, 0.2);
+.editor-container:focus-within {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
 }
 
-.image-caption.static-caption {
-    cursor: default;
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    background: transparent;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    gap: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    min-height: 56px;
+}
+
+.toolbar::-webkit-scrollbar {
+    height: 0px;
+    background: transparent;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.toolbar-group:not(:last-child)::after {
+    content: '';
+    width: 1px;
+    height: 20px;
+    background: rgba(229, 231, 235, 0.5);
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+/* Font size selector styling to match */
+.font-size-selector {
+    padding: 6px 10px;
+    border: 1px solid rgba(209, 213, 219, 0.6);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.6); /* Match toolbar buttons */
+    font-size: 13px;
+    color: #4a5568;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.font-size-selector:hover {
+    border-color: rgba(209, 213, 219, 0.8);
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d3748;
+}
+
+.font-size-selector:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
     border: none;
-    padding: 4px 0;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    color: #4a5568;
+    transition: all 0.2s ease;
+    outline: none;
+    flex-shrink: 0;
 }
 
-.image-caption.static-caption:empty {
-    display: none;
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d3748;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Placeholder text styling */
-.image-caption:empty:before {
+/* Much stronger active state - no fading */
+.toolbar-btn.active {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; /* Strong amber gradient */
+    color: #ffffff !important; /* White text for maximum contrast */
+    box-shadow: 0 3px 8px rgba(251, 191, 36, 0.4) !important;
+    border: 1px solid #f59e0b !important;
+    transform: translateY(-1px);
+}
+
+.toolbar-btn.active:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important; /* Even stronger on hover */
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+/* Ensure italic, underline, and other text formatting shows clearly in active state */
+.toolbar-btn.active.italic {
+    font-style: italic;
+    color: #ffffff !important;
+}
+
+.toolbar-btn.active.underline {
+    text-decoration: underline;
+    color: #ffffff !important;
+}
+
+.editor-area {
+    position: relative;
+    min-height: 400px;
+}
+
+.editor-content {
+    width: 100%;
+    min-height: 400px;
+    padding: 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background: transparent;
+    resize: none;
+    overflow-wrap: break-word;
+}
+
+.editor-content:focus {
+    outline: none;
+}
+
+.editor-content[data-empty="true"]:before {
     content: attr(data-placeholder);
-    color: #9ca3af;
+    color: #999;
     font-style: italic;
     pointer-events: none;
 }
 
-.image-caption.editable-caption:focus:empty:before {
-    content: '';
+.editor-content b, .editor-content strong {
+    font-weight: bold;
 }
 
-/* Editor-only elements (hidden in published view) */
-.editor-only {
-    display: none;
+.editor-content i, .editor-content em {
+    font-style: italic;
 }
 
-/* When in edit mode, show editor-only elements */
-.rich-text-editor .editor-only,
-[contenteditable="true"] .editor-only,
-.inline-image-container:hover .editor-only {
-    display: flex;
+.editor-content u {
+    text-decoration: underline;
 }
 
-/* Remove extra spacing after images */
-.inline-image-container + div:empty,
-.inline-image-container + br,
-.inline-image-container + div br:only-child {
-    display: none;
+.editor-content ul {
+    list-style-type: disc; /* Explicit bullet style */
 }
 
-/* Better caption selection styling */
-.image-caption::selection {
-    background: rgba(245, 158, 11, 0.3);
+.editor-content ol {
+    list-style-type: decimal; /* Explicit numbering style */
 }
 
-.image-caption::-moz-selection {
-    background: rgba(245, 158, 11, 0.3);
+.editor-content li {
+    display: list-item; /* Ensures proper list item display */
+    margin-bottom: 5px;
+    padding-left: 5px;
 }
 
-/* Improved focus states */
-.image-caption.editable-caption:focus {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.05);
+.editor-content ol, .editor-content ul {
+    margin: 10px 0;
+    padding-left: 30px;
+    list-style-position: outside; /* Ensures bullets/numbers appear outside content */
+}
+
+.editor-content blockquote {
+    border-left: 4px solid #f59e0b;
+    margin: 15px 0;
+    padding: 12px 15px;
+    color: #666;
+    font-style: italic;
+    background: rgba(255, 251, 240, 0.8);
+    border-radius: 0 8px 8px 0;
+}
+
+.editor-content a {
+    color: #1976d2;
+    text-decoration: underline;
+}
+
+.editor-content a:hover {
+    color: #1565c0;
+}
+
+.editor-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Container Width Adjustments for Post Forms */
+.post-form-container {
+    max-width: 48rem;
+}
+
+.max-w-2xl.post-create,
+.max-w-2xl.post-edit {
+    max-width: 48rem !important;
+}
+
+/* Enhanced Form Fields for Wider Layout */
+.form-input-wide {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.form-input-wide:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
 }
 
-/* Animation for caption appearance */
-.image-caption-container {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive improvements */
-@media (max-width: 640px) {
-    .image-caption {
-        font-size: 13px;
-        padding: 4px 6px;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .toolbar {
+        padding: 10px 16px;
+        gap: 8px;
+        overflow-x: auto;
     }
     
-    .remove-inline-image {
-        width: 24px;
-        height: 24px;
+    .toolbar-group {
+        margin-right: 6px;
+        gap: 4px;
+    }
+    
+    .toolbar-btn {
+        width: 28px;
+        height: 28px;
         font-size: 14px;
-        top: 4px;
-        right: 4px;
+    }
+    
+    .font-size-selector {
+        font-size: 12px;
+        padding: 4px 8px;
+        min-width: 70px;
+    }
+    
+    .editor-content {
+        padding: 16px;
+        font-size: 15px;
     }
 }
 
-/* Ensure delete buttons are never shown on view pages */
-.rich-text-content .remove-inline-image,
-.rich-text-content .editor-only {
-    display: none !important;
+@media (max-width: 640px) {
+    .toolbar {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        min-height: auto;
+        gap: 6px;
+    }
+    
+    .toolbar-group {
+        margin-right: 4px;
+        gap: 3px;
+    }
+    
+    .toolbar-group:not(:last-child)::after {
+        display: none;
+    }
 }
 
-/* Remove any pointer events from captions in view mode */
-.rich-text-content .image-caption {
-    cursor: default !important;
-    border: none !important;
-}
+/* Modal Styles - Add these to your main.css */
 
-.rich-text-content .image-caption:hover {
-    border-color: transparent !important;
-}
-
-/* Ensure no hover effects on image containers in view mode */
-.rich-text-content .inline-image-container {
-    border: none !important;
-}
-
-.rich-text-content .inline-image-container:hover {
-    border: none !important;
-    border-color: transparent !important;
-}
-
-/* Link Modal Styles */
-#linkModal {
+/* Modal container - hidden by default */
+.modal {
+    display: none;
+    position: fixed;
     z-index: 9999;
-}
-
-#linkModal .bg-white {
-    transform: scale(0.95);
-    opacity: 0;
-    transition: all 0.2s ease-out;
-}
-
-#linkModal:not(.hidden) .bg-white {
-    transform: scale(1);
-    opacity: 1;
-}
-
-/* Link Input Validation Styles */
-#linkModal input.error {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-#linkModal input:focus {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-}
-
-/* Link Styles in Editor */
-.rich-text-editor a,
-#editor a {
-    color: #2563eb;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.rich-text-editor a:hover,
-#editor a:hover {
-    color: #1d4ed8;
-    text-decoration: underline;
-}
-
-/* Edit mode link hover effect */
-[contenteditable="true"] a {
-    position: relative;
-}
-
-[contenteditable="true"] a:hover::after {
-    content: "Edit Hyperlink: Highlight hyperlink → Click Insert Link.";
-    position: absolute;
-    bottom: -25px;
     left: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1000;
-    pointer-events: none;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
 }
 
-/* Link toolbar button active state */
-.toolbar-btn.link-active {
-    background-color: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
+/* Modal content */
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    margin: auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalSurprise 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Link in rich text content (view mode) */
-.rich-text-content a {
-    color: #002280;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    transition: color 0.2s ease;
-}
-
-.rich-text-content a:hover {
-    color: #0044ff;
-}
-
-/* Modal backdrop blur effect */
-#linkModal {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-}
-
-/* Link modal responsive design */
-@media (max-width: 480px) {
-    #linkModal .bg-white {
-        margin: 1rem;
-        max-width: calc(100vw - 2rem);
-    }
-}
-
-/* Accessibility improvements */
-#linkModal input:focus-visible,
-#linkModal button:focus-visible {
-    outline: 2px solid #f59e0b;
-    outline-offset: 2px;
-}
-
-/* Link validation feedback */
-.link-validation-message {
-    color: #ef4444;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.link-validation-message.show {
-    opacity: 1;
-}
-
-/* Success feedback for link insertion */
-.link-success-highlight {
-    background-color: rgba(34, 197, 94, 0.1);
-    padding: 1px 2px;
-    border-radius: 2px;
-    transition: background-color 0.3s ease;
-}
-
-/* Toolbar button hover states */
-.toolbar-btn:hover {
-    background-color: rgba(245, 158, 11, 0.1);
-    transform: translateY(-1px);
-}
-
-.toolbar-btn:active {
-    transform: translateY(0);
-}
-
-/* Link modal animation keyframes */
-@keyframes linkModalFadeIn {
+@keyframes modalFadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9) translateY(-20px);
+        transform: scale(0.7);
     }
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform: scale(1);
     }
 }
 
-@keyframes linkModalFadeOut {
-    from {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.9) translateY(-20px);
-    }
+/* Button group for modal */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
 }
 
-/* Enhanced Modal System Styles */
-.modal-input {
-    transition: all 0.2s ease;
-}
-
-.modal-input:focus {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-    border-color: #f59e0b;
-}
-
-.modal-input.border-red-500 {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.input-error {
-    animation: fadeInError 0.2s ease-in-out;
-}
-
-@keyframes fadeInError {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Button styles for different modal types */
-.confirm-button {
-    transition: all 0.2s ease;
-}
-
-.confirm-button:not(.danger-button):hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.confirm-button:disabled {
-    cursor: not-allowed !important;
-    opacity: 0.5 !important;
-}
-
-/* Icon color variations */
-.warning-icon.text-amber-500 {
-    background: rgba(245, 158, 11, 0.1);
-}
-
-.warning-icon.text-red-500 {
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.warning-icon.text-blue-500 {
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.warning-icon.text-green-500 {
-    background: rgba(34, 197, 94, 0.1);
-}
-
-/* Link selection highlight in editor */
-#editor a.selected-link {
-    background-color: rgba(245, 158, 11, 0.2);
-    border-radius: 2px;
-    padding: 1px;
-}
-
-/* Prevent text selection on toolbar buttons */
-.toolbar-btn {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-/* Link modal form styling improvements */
-#linkModal label {
-    font-weight: 500;
-}
-
-#linkModal input[type="checkbox"] {
-    accent-color: #f59e0b;
-}
-
-/* Link preview in modal (optional enhancement) */
-.link-preview {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
+.button-group button {
+    padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
     font-size: 0.875rem;
-    color: #6b7280;
 }
 
-.link-preview a {
-    color: #002280;
+.button-group button.submit {
+    background: linear-gradient(135deg, #fbbf24, #ec4899);
+    color: white;
+}
+
+.button-group button.submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);
+}
+
+.button-group button.cancel {
+    background: rgba(255, 255, 255, 0.8);
+    color: #374151;
+    border: 1px solid rgba(209, 213, 219, 0.8);
+}
+
+.button-group button.cancel:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+}
+
+/* Close button */
+.modal .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal .close:hover,
+.modal .close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Ensure modal inputs are properly styled */
+.modal input[type="url"],
+.modal input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.modal input[type="url"]:focus,
+.modal input[type="text"]:focus {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+/* Normal modal animation */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group button {
+        width: 100%;
+    }
+}
+
+/* Rich Text Content Display */
+
+/* Make post detail content display exactly like editor content */
+.post-content-display {
+    width: 100%;
+    min-height: auto;
+    padding: 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background: transparent;
+    overflow-wrap: break-word;
+}
+
+.post-content-display b, 
+.post-content-display strong {
+    font-weight: bold;
+}
+
+.post-content-display i, 
+.post-content-display em {
+    font-style: italic;
+}
+
+.post-content-display u {
     text-decoration: underline;
+}
+
+.post-content-display ul {
+    list-style-type: disc;
+}
+
+.post-content-display ol {
+    list-style-type: decimal;
+}
+
+.post-content-display li {
+    display: list-item;
+    margin-bottom: 5px;
+    padding-left: 5px;
+}
+
+.post-content-display ol, 
+.post-content-display ul {
+    margin: 10px 0;
+    padding-left: 30px;
+    list-style-position: outside;
+}
+
+.post-content-display blockquote {
+    border-left: 4px solid #f59e0b;
+    margin: 15px 0;
+    padding: 12px 15px;
+    color: #666;
+    font-style: italic;
+    background: rgba(255, 251, 240, 0.8);
+    border-radius: 0 8px 8px 0;
+}
+
+.post-content-display a {
+    color: #1976d2;
+    text-decoration: underline;
+}
+
+.post-content-display a:hover {
+    color: #1565c0;
+}
+
+.post-content-display img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

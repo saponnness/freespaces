@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create Post - Freespaces{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto px-4">
+<div class="max-w-3xl mx-auto px-6">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold gradient-text mb-2">Create New Post</h1>
         <p class="text-gray-600">Share your creative journey with the community</p>
@@ -20,68 +21,56 @@
                         {% endif %}
                     </label>
                     {% if field.name == 'content' %}
-                        <div class="rich-text-editor">
+                        <div class="editor-container">
                             <div class="toolbar">
-                            <!-- Font Size Selector -->
-                            <select class="font-size-selector" onchange="formatDoc('fontSize', this.value)">
-                                <option value="2">Small</option>
-                                <option value="3" selected>Normal</option>
-                                <option value="4">Normal+</option>
-                                <option value="6">Large</option>
-                            </select>
-                            
-                            <!-- Text Formatting Group -->
-                            <div class="toolbar-group">
-                                <button type="button" class="toolbar-btn" onclick="formatDoc('bold')" title="Bold">
-                                    <strong>B</strong>
-                                </button>
-                                <button type="button" class="toolbar-btn" onclick="formatDoc('italic')" title="Italic">
-                                    <em>I</em>
-                                </button>
-                                <button type="button" class="toolbar-btn" onclick="formatDoc('underline')" title="Underline">
-                                    <u>U</u>
-                                </button>
+                                <div class="toolbar-group">
+                                    <select class="font-size-selector">
+                                        <option value="2">Small</option>
+                                        <option value="4" selected>Normal</option>
+                                        <option value="5">Normal+</option>
+                                        <option value="6">Large</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-command="bold" onclick="formatDoc('bold')" title="Bold">
+                                        <strong>B</strong>
+                                    </button>
+                                    <button type="button" class="toolbar-btn italic" data-command="italic" onclick="formatDoc('italic')" title="Italic">
+                                        <em>I</em>
+                                    </button>
+                                    <button type="button" class="toolbar-btn underline" data-command="underline" onclick="formatDoc('underline')" title="Underline">
+                                        <u>U</u>
+                                    </button>
+                                </div>
+                                
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-command="insertOrderedList" onclick="formatDoc('insertOrderedList')" title="Numbered List">1.</button>
+                                    <button type="button" class="toolbar-btn" data-command="insertUnorderedList" onclick="formatDoc('insertUnorderedList')" title="Bullet List">•</button>
+                                </div>
+                                
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-command="justifyLeft" onclick="formatDoc('justifyLeft')" title="Align Left">≡</button>
+                                    <button type="button" class="toolbar-btn" data-command="justifyCenter" onclick="formatDoc('justifyCenter')" title="Align Center">≡</button>
+                                    <button type="button" class="toolbar-btn" data-command="justifyRight" onclick="formatDoc('justifyRight')" title="Align Right">≡</button>
+                                </div>
+                                
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-command="quote" onclick="insertBlockquote()" title="Quote">"</button>
+                                    <button type="button" class="toolbar-btn" onclick="openLinkModal()" title="Insert Link">🔗</button>
+                                    <button type="button" class="toolbar-btn" onclick="insertInlineImage()" title="Insert Image">🖼️</button>
+                                </div>
                             </div>
                             
-                            <!-- List Group -->
-                            <div class="toolbar-group">
-                                <button type="button" class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List">
-                                    <span>1.</span>
-                                </button>
-                                <button type="button" class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">
-                                    <span>•</span>
-                                </button>
+                            <div class="editor-area">
+                                <div id="editor" 
+                                     class="editor-content" 
+                                     contenteditable="true" 
+                                     data-placeholder="Tell your story..."></div>
                             </div>
-                            
-                            <!-- Quote and Media Group -->
-                            <div class="toolbar-group">
-                                <button type="button" class="toolbar-btn" onclick="insertBlockquote()" title="Quote">
-                                    <span>"</span>
-                                </button>
-                                <button type="button" class="toolbar-btn" onclick="openLinkModal()" title="Insert Link">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                                    </svg>
-                                </button>
-                                <button type="button" class="toolbar-btn" onclick="insertInlineImage()" title="Insert Image">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                            
-                            <div id="editor" 
-                                 class="editor-content" 
-                                 contenteditable="true" 
-                                 placeholder="Tell your story..."
-                                 oninput="updateHiddenField()">{{ field.value|default:'' }}</div>
                             
                             <textarea name="{{ field.name }}" 
                                       id="hidden-content"
-                                      class="hidden-textarea"
                                       style="display: none;">{{ field.value|default:'' }}</textarea>
                         </div>
                     {% elif field.name == 'featured_image' %}
@@ -169,9 +158,12 @@
     </div>
 </div>
 
+<!-- Hidden file input for inline images -->
+<input type="file" id="inline-image-input" accept="image/*" style="display: none;">
+
 <!-- Link Modal -->
-<div id="linkModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+<div id="linkModal" class="modal">
+    <div class="modal-content">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-800">Insert Link</h3>
             <button type="button" onclick="closeLinkModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
@@ -195,18 +187,23 @@
             </div>
         </div>
         
-        <div class="flex gap-3 mt-6">
+        <div class="button-group">
             <button type="button" 
                     onclick="insertLink()" 
-                    class="flex-1 bg-gradient-to-r from-amber-400 to-pink-400 text-white py-2 px-4 rounded-lg hover:shadow-lg transition-all duration-200 font-medium">
+                    class="submit">
                 Insert Link
             </button>
             <button type="button" 
                     onclick="closeLinkModal()" 
-                    class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium">
+                    class="cancel">
                 Cancel
             </button>
         </div>
     </div>
 </div>
+
+{% block extra_scripts %}
+<script src="{% static 'js/editor_toolbar.js' %}"></script>
+{% endblock %}
+
 {% endblock %}
