@@ -253,45 +253,61 @@
             <h3 class="text-xl font-bold text-gray-800 mb-4">More from {{ post.author.username }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {% for related_post in related_posts %}
-                    <div class="bg-white rounded-2xl p-4 hover:shadow-md transition-shadow border border-gray-100">
-                        <div class="mb-3">
+                    <div class="bg-white rounded-2xl overflow-hidden hover:shadow-md transition-shadow border border-gray-100">
+                        <!-- Cover Image -->
+                        <div class="relative">
+                            {% if related_post.featured_image %}
+                                <img src="{{ related_post.featured_image.url }}" alt="{{ related_post.title }}"
+                                     class="w-full h-72 object-cover">
+                            {% else %}
+                                <img src="{% static 'images/default-cover.jpg' %}" alt="{{ related_post.title }}"
+                                     class="w-full h-72 object-cover">
+                            {% endif %}
+                            
+                            <!-- Category Badge on Image -->
                             {% if related_post.category %}
-                                <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1 rounded-full">
-                                    {% if related_post.category.name == "Photography" %}📸
-                                    {% elif related_post.category.name == "Programming" or related_post.category.name == "Web Design" %}💻
-                                    {% elif related_post.category.name == "Workspace" %}🏠
-                                    {% elif related_post.category.name == "Art & Design" or related_post.category.name == "Art" or related_post.category.name == "Design" %}🎨
-                                    {% elif related_post.category.name == "Lifestyle" %}🌿
-                                    {% elif related_post.category.name == "Food & Cooking" or related_post.category.name == "Food & Cooking" %}🍜
-                                    {% elif related_post.category.name == "Cafe" %}☕
-                                    {% elif related_post.category.name == "Travel" %}✈️
-                                    {% elif related_post.category.name == "Music" %}🎵
-                                    {% elif related_post.category.name == "Sports" or related_post.category.name == "Fitness" %}⚽
-                                    {% elif related_post.category.name == "Health" %}💚
-                                    {% elif related_post.category.name == "Gaming" %}🎮
-                                    {% elif related_post.category.name == "Books" or related_post.category.name == "Reading" %}📚
-                                    {% elif related_post.category.name == "Technology" or related_post.category.name == "Tech" %}🔧
-                                    {% elif related_post.category.name == "Fashion" %}👗
-                                    {% elif related_post.category.name == "Business" %}💼
-                                    {% elif related_post.category.name == "Education" %}🎓
-                                    {% else %}🏷️{% endif %}
-                                    {{ related_post.category.name }}
-                                </span>
+                                <div class="absolute top-2 left-2">
+                                    <span class="category-badge text-purple-600 text-xs font-semibold px-3 py-1 rounded-full">
+                                        {% if related_post.category.name == "Photography" %}📸
+                                        {% elif related_post.category.name == "Programming" or related_post.category.name == "Web Design" %}💻
+                                        {% elif related_post.category.name == "Workspace" %}🏠
+                                        {% elif related_post.category.name == "Art & Design" or related_post.category.name == "Art" or related_post.category.name == "Design" %}🎨
+                                        {% elif related_post.category.name == "Lifestyle" %}🌿
+                                        {% elif related_post.category.name == "Food & Cooking" or related_post.category.name == "Food & Cooking" %}🍜
+                                        {% elif related_post.category.name == "Cafe" %}☕
+                                        {% elif related_post.category.name == "Travel" %}✈️
+                                        {% elif related_post.category.name == "Music" %}🎵
+                                        {% elif related_post.category.name == "Sports" or related_post.category.name == "Fitness" %}⚽
+                                        {% elif related_post.category.name == "Health" %}💚
+                                        {% elif related_post.category.name == "Gaming" %}🎮
+                                        {% elif related_post.category.name == "Books" or related_post.category.name == "Reading" %}📚
+                                        {% elif related_post.category.name == "Technology" or related_post.category.name == "Tech" %}🔧
+                                        {% elif related_post.category.name == "Fashion" %}👗
+                                        {% elif related_post.category.name == "Business" %}💼
+                                        {% elif related_post.category.name == "Education" %}🎓
+                                        {% else %}🏷️{% endif %}
+                                        {{ related_post.category.name }}
+                                    </span>
+                                </div>
                             {% endif %}
                         </div>
-                        <h4 class="font-bold text-gray-800 mb-2 leading-tight">
-                            <a href="{{ related_post.get_absolute_url }}" class="hover:text-blue-600 transition-colors">
-                                {{ related_post.title }}
-                            </a>
-                        </h4>
-                        <p class="text-gray-600 text-sm mb-3 leading-relaxed">
-                            {{ related_post.content|striptags|truncatewords:15 }}
-                        </p>
-                        <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span>{{ related_post.published_at|date:"M d, Y" }}</span>
-                            <a href="{{ related_post.get_absolute_url }}" class="text-blue-500 hover:text-blue-700 font-medium">
-                                Read more →
-                            </a>
+                        
+                        <!-- Card Content -->
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 mb-2 leading-tight">
+                                <a href="{{ related_post.get_absolute_url }}" class="hover:text-blue-600 transition-colors">
+                                    {{ related_post.title }}
+                                </a>
+                            </h4>
+                            <p class="text-gray-600 text-sm mb-3 leading-relaxed">
+                                {{ related_post.content|striptags|truncatewords:15 }}
+                            </p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>{{ related_post.published_at|date:"M d, Y" }}</span>
+                                <a href="{{ related_post.get_absolute_url }}" class="text-blue-500 hover:text-blue-700 font-medium">
+                                    Read more →
+                                </a>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
