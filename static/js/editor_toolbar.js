@@ -143,6 +143,8 @@ class DjangoRichTextEditor {
                     }
                 }
             });
+
+            this.editor.addEventListener('paste', (e) => this.handlePaste(e));
         }
 
         if (this.imageFileInput) {
@@ -300,6 +302,73 @@ class DjangoRichTextEditor {
             reader.readAsDataURL(file);
         }
         event.target.value = '';
+    }
+
+    handlePaste(event) {
+        const clipboardData = event.clipboardData || window.clipboardData;
+        if (!clipboardData) return;
+
+        const items = clipboardData.items;
+        if (!items) return;
+
+        // Check if any clipboard item is an image
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.startsWith('image/')) {
+                event.preventDefault(); // Prevent default paste behavior for images
+                
+                const file = item.getAsFile();
+                if (file) {
+                    this.handlePastedImageFile(file);
+                }
+                return;
+            }
+        }
+        // If no image found, allow default paste behavior for text/other content
+    }
+
+    handlePastedImageFile(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Generate a filename for the pasted image
+                const timestamp = new Date().getTime();
+                const extension = file.type.split('/')[1] || 'png';
+                const filename = `pasted-image-${timestamp}.${extension}`;
+                
+                const imgHtml = `<img src="${e.target.result}" alt="${this.escapeHtml(filename)}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;">`;
+
+                const linkEl = this.getAncestorLink();
+                if (linkEl) {
+                    const wrapperHtml = `<div><img src="${e.target.result}" alt="${this.escapeHtml(filename)}" style="max-width: 100%; height: auto;"></div>`;
+                    try {
+                        const range = document.createRange();
+                        range.setStartBefore(linkEl);
+                        range.collapse(true);
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                        document.execCommand('insertHTML', false, wrapperHtml);
+                        this.updateToolbarState();
+                        this.updateHiddenField();
+                    } catch (ex) {
+                        const wrapper = document.createElement('div');
+                        const imgNode = document.createElement('img');
+                        imgNode.src = e.target.result;
+                        imgNode.alt = filename;
+                        imgNode.style.maxWidth = '100%';
+                        imgNode.style.height = 'auto';
+                        wrapper.appendChild(imgNode);
+                        linkEl.parentNode.insertBefore(wrapper, linkEl);
+                        this.updateToolbarState();
+                        this.updateHiddenField();
+                    }
+                } else {
+                    this.insertHTMLAtCursor(imgHtml);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     updateToolbarState() {
