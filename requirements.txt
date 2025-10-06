@@ -1,0 +1,19 @@
+# Freespaces dependencies
+
+# Core framework
+Django==5.2.4
+
+# Authentication (Google via django-allauth)
+django-allauth>=0.63
+
+# Environment variables
+python-decouple>=3.8
+
+# Form rendering helpers
+django-widget-tweaks>=1.5
+
+# Database driver
+mysqlclient>=2.2
+
+# Image processing for ImageField
+Pillow>=10.0
