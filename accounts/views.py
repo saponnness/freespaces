@@ -90,7 +90,7 @@ def profile_setup(request):
 
                             # Create file from base64 data
                             data = ContentFile(base64.b64decode(imgstr))
-                            filename = f"profile_pics/{uuid.uuid4()}.{ext}"
+                            filename = f"{uuid.uuid4()}.{ext}"
 
                             # Delete old avatar if it exists and is not default
                             if profile.avatar and 'default.jpg' not in profile.avatar.name:
@@ -272,7 +272,7 @@ def update_avatar(request):
                 
                 # Create file from base64 data
                 data = ContentFile(base64.b64decode(imgstr))
-                filename = f"profile_pics/{uuid.uuid4()}.{ext}"
+                filename = f"{uuid.uuid4()}.{ext}"
                 
                 # Delete old avatar if it exists and is not default
                 if profile.avatar and 'default.jpg' not in profile.avatar.name:
