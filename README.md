@@ -90,17 +90,18 @@ graph LR
 
 ### Feeds app — `feeds/`
 - **Models — `feeds/models.py`**: no database models defined; the app focuses on read-only views over posts and categories.
-- **`views.home(request)`**
-  - Shows the last 6 published posts via `Post.objects.filter(status='published')[:6]`.
-  - Loads all `Category` objects ordered by name.
-  - Context: `recent_posts`, `categories`.
-  - Template: `templates/feeds/home.html`.
-- **`views.search(request)`**
-  - Accepts `?q=`. If empty, returns 0 results.
-  - Filters published posts with `Q(title__icontains=q) | Q(category__name__icontains=q)`, uses `select_related('author','category')` and `distinct()`.
-  - Popular categories: `Category.objects.annotate(post_count=Count('post', filter=Q(post__status='published')))`; pads to 10 with remaining categories ordered by name.
-  - Context: `posts`, `query`, `total_results`, `popular_categories`.
-  - Template: `templates/feeds/search.html`.
+- **Views — `feeds/views.py`**
+  - **`views.home(request)`**
+    - Shows the last 6 published posts via `Post.objects.filter(status='published')[:6]`.
+    - Loads all `Category` objects ordered by name.
+    - Context: `recent_posts`, `categories`.
+    - Template: `templates/feeds/home.html`.
+  - **`views.search(request)`**
+    - Accepts `?q=`. If empty, returns 0 results.
+    - Filters published posts with `Q(title__icontains=q) | Q(category__name__icontains=q)`, uses `select_related('author','category')` and `distinct()`.
+    - Popular categories: `Category.objects.annotate(post_count=Count('post', filter=Q(post__status='published')))`; pads to 10 with remaining categories ordered by name.
+    - Context: `posts`, `query`, `total_results`, `popular_categories`.
+    - Template: `templates/feeds/search.html`.
 - **URLs — `feeds/urls.py`**
   - `''` → `home` (name: `home`).
   - `'search/'` → `search` (name: `search`).
