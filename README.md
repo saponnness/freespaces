@@ -204,20 +204,22 @@ graph LR
       - Default ordering: newest comments first.
 - **Views — `interactions/views.py`**
   - `toggle_like(request, post_id)` [login, POST]
-    - URL: `/interactions/like/<post_id>/`.
-    - Behavior: toggles a `Like` for the current user and the published post. Returns JSON `{ liked: bool, like_count: number }`.
+    - Toggles a like for the current user on a published post.
+    - Returns JSON `{ liked: bool, like_count: number }`.
+    - 404 if the post is missing or not published; idempotent via create-or-delete.
   - `add_comment(request, post_id)` [login, POST]
-    - URL: `/interactions/comment/add/<post_id>/`.
-    - Inputs: form-encoded `content` (required, max 1000 chars). Returns 400 JSON on missing/too-long content.
-    - Response: JSON `{ success: true, comment_html: string, comment_count: number }`. `comment_html` is rendered with `includes/comment_item.html`.
+    - Validates `content` (required, max 1000 chars); returns 400 JSON if invalid.
+    - On success returns JSON `{ success: true, comment_html: string, comment_count: number }` where `comment_html` is rendered with `includes/comment_item.html`.
+    - 404 if the post is missing or not published; trims whitespace before validation.
   - `get_comments(request, post_id)` [GET]
-    - URL: `/interactions/comments/<post_id>/?page=<n>`.
-    - Pagination: 10 comments per page using `Paginator`.
-    - Response: JSON `{ comments_html, has_next, has_previous, current_page, total_pages, comment_count }` using `includes/comments_list.html`.
+    - Paginates comments (10 per page) with `?page=<n>`.
+    - Returns JSON `{ comments_html, has_next, has_previous, current_page, total_pages, comment_count }` using `includes/comments_list.html`.
+    - Invalid or out-of-range `page` falls back to page 1.
   - `delete_comment(request, comment_id)` [login, POST]
-    - URL: `/interactions/comment/delete/<comment_id>/`.
-    - Author-only: returns 403 JSON if the current user is not the comment author. On success: `{ success: true, comment_count }`.
-  - Notes: All POST requests require CSRF. These endpoints are consumed by `static/js/main.js`.
+    - Author-only delete; returns 403 JSON for non-authors.
+    - On success returns `{ success: true, comment_count }`.
+    - 404 if the comment does not exist.
+  - Notes: All POST requests require CSRF. Consumed by `static/js/main.js`.
 - **URLs — `interactions/urls.py`**: namespaced endpoints `like/`, `comment/add/`, `comments/`, `comment/delete/`.
 
 ### Accounts app — `accounts/`

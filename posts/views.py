@@ -42,7 +42,7 @@ def post_detail(request, slug):
         related_posts = Post.objects.filter(
             author=post.author,
             status='published'
-        ).exclude(id=post.id).select_related('category')[:4]  # Limit to 4 related posts
+        ).exclude(id=post.id).select_related('category') # Exclude current post
 
         context = {
             'post': post,
