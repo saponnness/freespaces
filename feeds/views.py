@@ -4,8 +4,8 @@ from posts.models import Post, Category
 
 # Create your views here.
 def home(request):
-    """Home page view with recent posts"""
-    recent_posts = Post.objects.filter(status='published')[:6]
+    """Home page view with all published posts"""
+    recent_posts = Post.objects.filter(status='published').select_related('author', 'category').order_by('-created_at')
     categories = Category.objects.all().order_by('name')
     context = {
         'recent_posts': recent_posts,

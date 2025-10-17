@@ -92,7 +92,7 @@ graph LR
 - **Models — `feeds/models.py`**: no database models defined; the app focuses on read-only views over posts and categories.
 - **Views — `feeds/views.py`**
   - **`views.home(request)`**
-    - Shows the last 6 published posts via `Post.objects.filter(status='published')[:6]`.
+    - Shows all published posts via `Post.objects.filter(status='published').select_related('author', 'category').order_by('-created_at')`.
     - Loads all `Category` objects ordered by name.
     - Context: `recent_posts`, `categories`.
     - Template: `templates/feeds/home.html`.
