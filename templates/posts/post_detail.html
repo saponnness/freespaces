@@ -122,7 +122,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-6">
                 {% if post.status == 'published' %}
-                    {% include 'includes/like_button.html' %}
+                    {% include 'interactions/like_button.html' %}
                     
                     <button class="comment-toggle-btn flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer" 
                             data-post-id="{{ post.id }}">

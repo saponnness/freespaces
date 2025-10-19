@@ -60,7 +60,7 @@ def add_comment(request, post_id):
     comment_count = post.comments.count()
     
     # Render the comment HTML
-    comment_html = render_to_string('includes/comment_item.html', {
+    comment_html = render_to_string('interactions/comment_item.html', {
         'comment': comment,
         'user': request.user
     })
@@ -86,7 +86,7 @@ def get_comments(request, post_id):
         comments_page = paginator.page(1)
     
     # Render comments HTML
-    comments_html = render_to_string('includes/comments_list.html', {
+    comments_html = render_to_string('interactions/comments_list.html', {
         'comments': comments_page,
         'user': request.user
     })
