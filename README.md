@@ -53,7 +53,7 @@ graph LR
 - `accounts/`: OAuth callback, profile setup, username management, profile edits.
 - `posts/`: list, detail (with related posts), create/edit/delete, category views, legacy redirects.
 - `interactions/`: likes and comments via JSON-based AJAX.
-- `templates/`: base layout, app pages, includes for comments and like button.
+- `templates/`: base layout, app pages, interactions for comments and like button.
 - `static/js/`: `main.js` (AJAX/UX) and `editor_toolbar.js` (rich text).
 
 ## Project Structure
@@ -66,10 +66,10 @@ graph LR
 - **`posts/`**: post CRUD and categories.
   - `models.py`, `views.py`, `forms.py`, `urls.py`, templates under `templates/posts/`.
 - **`interactions/`**: likes and comments (AJAX JSON API).
-  - `models.py`, `views.py`, `urls.py`, partials under `templates/includes/`.
+  - `models.py`, `views.py`, `urls.py`, partials under `templates/interactions/`.
 - **`accounts/`**: OAuth login and profile.
   - `models.py` (`Profile`), `views.py`, `forms.py`, allauth adapters `adapters.py`, templates under `templates/accounts/`.
-- **`templates/`**: `base.html` layout, app pages, reusable includes.
+- **`templates/`**: `base.html` layout, app pages, reusable interactions.
 - **`static/`**: CSS/JS/images, including `static/js/main.js` and `static/js/editor_toolbar.js`.
 
 ## Django Deep Dive (How it works)
@@ -209,11 +209,11 @@ graph LR
     - 404 if the post is missing or not published; idempotent via create-or-delete.
   - `add_comment(request, post_id)` [login, POST]
     - Validates `content` (required, max 1000 chars); returns 400 JSON if invalid.
-    - On success returns JSON `{ success: true, comment_html: string, comment_count: number }` where `comment_html` is rendered with `includes/comment_item.html`.
+    - On success returns JSON `{ success: true, comment_html: string, comment_count: number }` where `comment_html` is rendered with `interactions/comment_item.html`.
     - 404 if the post is missing or not published; trims whitespace before validation.
   - `get_comments(request, post_id)` [GET]
     - Paginates comments (10 per page) with `?page=<n>`.
-    - Returns JSON `{ comments_html, has_next, has_previous, current_page, total_pages, comment_count }` using `includes/comments_list.html`.
+    - Returns JSON `{ comments_html, has_next, has_previous, current_page, total_pages, comment_count }` using `interactions/comments_list.html`.
     - Invalid or out-of-range `page` falls back to page 1.
   - `delete_comment(request, comment_id)` [login, POST]
     - Author-only delete; returns 403 JSON for non-authors.
@@ -297,10 +297,10 @@ graph LR
 ### Templates & Context — `templates/`
 - **Layout — `templates/base.html`**: loads Tailwind CDN and `static` files; shows Google sign-in with `{% provider_login_url 'google' %}` or profile dropdown for `user.is_authenticated`; global nav links via `{% url %}`; includes sitewide `static/js/main.js`.
 - **Feeds**
-  - `feeds/home.html`: uses `recent_posts` and `categories` from `feeds.views.home()`. Renders `includes/like_button.html`; applies emojis per category name; uses `post.excerpt|safe|truncatewords_html`.
+  - `feeds/home.html`: uses `recent_posts` and `categories` from `feeds.views.home()`. Renders `interactions/like_button.html`; applies emojis per category name; uses `post.excerpt|safe|truncatewords_html`.
   - `feeds/search.html`: consumes `posts`, `query`, `total_results`, and `popular_categories` from `feeds.views.search()`.
 - **Posts**
-  - `posts/post_list.html`: lists `posts` with filter/search; uses `categories`, `current_category`, `search_query`; includes `includes/like_button.html`.
+  - `posts/post_list.html`: lists `posts` with filter/search; uses `categories`, `current_category`, `search_query`; includes `interactions/like_button.html`.
   - `posts/post_detail.html`: shows `post`, `related_posts`; for published posts, renders like button and AJAX comments section.
   - `posts/post_create.html` & `posts/post_edit.html`: render `PostForm`; replace the `content` field with a custom rich text editor backed by `static/js/editor_toolbar.js` and a hidden `<textarea>` synced on input.
   - `posts/post_delete.html`: preview + confirmation form posting back to `posts:delete`.
@@ -308,9 +308,9 @@ graph LR
   - `accounts/profile.html`: displays and edits profile inline (username, bio rich text, social links) with forms and base64 cropper flows.
   - `accounts/profile_setup.html`: onboarding for username and optional avatar with cropping.
   - `accounts/account_settings.html`, `accounts/oauth_login.html`: account settings and Google login page.
-- **Includes**
-  - `includes/like_button.html`: uses `user in post.likes.all` to set liked state and display `post.likes.count`.
-  - `includes/comments_list.html` + `includes/comment_item.html`: server-rendered fragments returned by JSON endpoints.
+- **Interactions**
+  - `interactions/like_button.html`: uses `user in post.likes.all` to set liked state and display `post.likes.count`.
+  - `interactions/comments_list.html` + `interactions/comment_item.html`: server-rendered fragments returned by JSON endpoints.
 
 ### Frontend JavaScript — `static/js/`
 - **`main.js`**
