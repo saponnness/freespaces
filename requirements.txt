@@ -17,3 +17,8 @@ mysqlclient>=2.2
 
 # Image processing for ImageField
 Pillow>=10.0
+
+# Dependencies for django-allauth social authentication
+requests>=2.31
+PyJWT>=2.8
+cryptography>=41.0
