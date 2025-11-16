@@ -2,6 +2,9 @@ from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from allauth.exceptions import ImmediateHttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 import uuid
 import random
 import string
@@ -13,6 +16,10 @@ class CustomAccountAdapter(DefaultAccountAdapter):
     def is_open_for_signup(self, request):
         """Allow signup only through social accounts"""
         return True
+    
+    def authentication_error(self, request, provider=None, error=None, exception=None, **kwargs):
+        home_url = reverse('feeds:home')
+        raise ImmediateHttpResponse(redirect(home_url))
     
     def save_user(self, request, user, form, commit=True):
         """Save user with proper username generation"""
@@ -33,6 +40,10 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     def is_open_for_signup(self, request, sociallogin):
         """Allow signup through social accounts"""
         return True
+
+    def authentication_error(self, request, provider=None, error=None, exception=None, **kwargs):
+        home_url = reverse('feeds:home')
+        raise ImmediateHttpResponse(redirect(home_url))
 
     def get_login_redirect_url(self, request):
         """Override login redirect to use our custom callback handler"""
